@@ -1,5 +1,9 @@
 #include <mediaplayer/nbs/parser.h>
 
+#define ushort unsigned short
+#define uint unsigned int
+#define uchar unsigned char
+
 char *nbs_read_string(FILE *fp)
 {
     uint str_len;
@@ -7,7 +11,7 @@ char *nbs_read_string(FILE *fp)
     fread(&str_len, sizeof(uint), 1, fp);
     fread_s(buffer, str_len, sizeof(char), str_len, fp);
     buffer[str_len] = '\0';
-    return strdup(buffer);
+    return _strdup(buffer);
 }
 
 struct nbs_header *nbs_parse_header(FILE *fp)
@@ -17,12 +21,21 @@ struct nbs_header *nbs_parse_header(FILE *fp)
         return (struct nbs_header *)NULL;
 
     ushort song_length = 0;
-    uchar version = 0;
+    ushort tempo = 0;
+    uchar auto_save = 0;
+    uchar loop = 0;
+    uchar max_loop_count = 0;
+    ushort loop_start = 0;
 
     fread(&song_length, sizeof(ushort), 1, fp);
-    fread(&header->version, sizeof(uchar), 1, fp);
+    if (song_length == 0)
+        fread(&header->version, sizeof(uchar), 1, fp);
+    else
+        header->version = 0;
+
     fread(&header->default_instruments, sizeof(uchar), 1, fp);
     fread(&header->song_length, sizeof(ushort), 1, fp);
+
     fread(&header->song_layers, sizeof(ushort), 1, fp);
 
     header->song_name = nbs_read_string(fp);
@@ -30,11 +43,10 @@ struct nbs_header *nbs_parse_header(FILE *fp)
     header->original_author = nbs_read_string(fp);
     header->description = nbs_read_string(fp);
 
-    ushort _tempo;
-    fread(&_tempo, sizeof(ushort), 1, fp);
-    header->tempo = (float)_tempo / 100.0f;
+    fread(&tempo, sizeof(ushort), 1, fp);
 
-    fread(&header->auto_save, sizeof(uchar), 1, fp);
+    fread(&auto_save, sizeof(uchar), 1, fp);
+
     fread(&header->auto_save_duration, sizeof(uchar), 1, fp);
     fread(&header->time_signature, sizeof(uchar), 1, fp);
     fread(&header->minutes_spent, sizeof(uint), 1, fp);
@@ -45,14 +57,22 @@ struct nbs_header *nbs_parse_header(FILE *fp)
 
     header->song_origin = nbs_read_string(fp);
 
-    fread(&header->loop, sizeof(uchar), 1, fp);
-    fread(&header->max_loop_count, sizeof(uchar), 1, fp);
-    fread(&header->loop_start, sizeof(ushort), 1, fp);
+    fread(&loop, sizeof(uchar), 1, fp);
+    fread(&max_loop_count, sizeof(uchar), 1, fp);
+    fread(&loop_start, sizeof(ushort), 1, fp);
+
+    header->default_instruments = header->version > 0 ? header->default_instruments : 10;
+    header->song_length = header->version >= 3 ? header->song_length : song_length;
+    header->tempo = (float)tempo / 100.0f;
+    header->auto_save = (bool)auto_save;
+    header->loop = header->version >= 4 ? (bool)loop : false;
+    header->max_loop_count = header->version >= 4 ? max_loop_count : 0;
+    header->loop_start = header->version >= 4 ? loop_start : 0;
 
     return header;
 }
 
-struct nbs_notes *nbs_parse_notes(FILE *fp, uchar version)
+struct nbs_notes *nbs_parse_notes(FILE *fp, unsigned char version)
 {
     struct nbs_notes *head = NULL;
     struct nbs_notes *tail = NULL;
@@ -96,9 +116,9 @@ struct nbs_notes *nbs_parse_notes(FILE *fp, uchar version)
             new_note->layer = current_layer;
             new_note->instrument = instrument;
             new_note->key = key;
-            new_note->velocity = velocity;
-            new_note->panning = panning - 100;
-            new_note->pitch = pitch;
+            new_note->velocity = version >= 4 ? velocity : 100;
+            new_note->panning = version >= 4 ? panning - 100 : 0;
+            new_note->pitch = version >= 4 ? pitch : 0;
             new_note->next = NULL;
 
             if (head == NULL) {
@@ -113,7 +133,7 @@ struct nbs_notes *nbs_parse_notes(FILE *fp, uchar version)
     return head;
 }
 
-struct nbs_layers *nbs_parse_layers(FILE *fp, ushort layers_count, uchar version)
+struct nbs_layers *nbs_parse_layers(FILE *fp, unsigned short layers_count, unsigned char version)
 {
     struct nbs_layers *head = NULL;
     struct nbs_layers *tail = NULL;
@@ -131,13 +151,13 @@ struct nbs_layers *nbs_parse_layers(FILE *fp, ushort layers_count, uchar version
 
         struct nbs_layers *new_layer = (struct nbs_layers *) malloc(sizeof(struct nbs_layers));
         if (!new_layer)
-            return (struct nbs_layers*)NULL;
+            return (struct nbs_layers *)NULL;
 
         new_layer->id = i;
         new_layer->name = name;
-        new_layer->lock = lock;
+        new_layer->lock = version >= 4 ? (bool)lock : false;
         new_layer->volume = volume;
-        new_layer->panning = (short)panning - 100;
+        new_layer->panning = version >= 2 ? (short)panning - 100 : 0;
         new_layer->next = NULL;
 
         if (head == NULL) {
@@ -151,7 +171,7 @@ struct nbs_layers *nbs_parse_layers(FILE *fp, ushort layers_count, uchar version
     return head;
 }
 
-struct nbs_instruments *nbs_parse_instruments(FILE *fp, ushort layers_count, uchar version)
+struct nbs_instruments *nbs_parse_instruments(FILE *fp, unsigned short layers_count, unsigned char version)
 {
     struct nbs_instruments *head = NULL;
     struct nbs_instruments *tail = NULL;
@@ -178,7 +198,7 @@ struct nbs_instruments *nbs_parse_instruments(FILE *fp, ushort layers_count, uch
         new_instrument->name = name;
         new_instrument->sound_file = sound_file;
         new_instrument->pitch = pitch;
-        new_instrument->press_key = press_key;
+        new_instrument->press_key = (bool)press_key;
         new_instrument->next = NULL;
 
         if (head == NULL) {
@@ -192,6 +212,12 @@ struct nbs_instruments *nbs_parse_instruments(FILE *fp, ushort layers_count, uch
     return head;
 }
 
+void nbs_free_header(struct nbs_header *header)
+{
+    free(header);
+    header = NULL;
+}
+
 void nbs_free_notes(struct nbs_notes *head)
 {
     struct nbs_notes *current = head;
@@ -200,6 +226,7 @@ void nbs_free_notes(struct nbs_notes *head)
         free(current);
         current = next;
     }
+    head = NULL;
 }
 
 void nbs_free_layers(struct nbs_layers *head)
@@ -210,6 +237,7 @@ void nbs_free_layers(struct nbs_layers *head)
         free(current);
         current = next;
     }
+    head = NULL;
 }
 
 void nbs_free_instruments(struct nbs_instruments *head)
@@ -220,4 +248,5 @@ void nbs_free_instruments(struct nbs_instruments *head)
         free(current);
         current = next;
     }
+    head = NULL;
 }
