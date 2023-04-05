@@ -24,7 +24,6 @@ TLHOOK(on_player_join, void,
     struct server_network_handler *_this, uintptr_t id, uintptr_t pkt)
 {
     struct player *player = get_server_player(_this, id, pkt);
-    music_queue_add_player(atoll(get_player_xuid(player)));
     on_player_join.original(_this, id, pkt);
 }
 

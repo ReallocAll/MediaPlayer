@@ -9,10 +9,10 @@ struct nbs_header {
     unsigned char default_instruments;
     unsigned short song_length;
     unsigned short song_layers;
-    char *song_name;
-    char *song_author;
-    char *original_author;
-    char *description;
+    const char *song_name;
+    const char *song_author;
+    const char *original_author;
+    const char *description;
     float tempo;
     bool auto_save;
     unsigned char auto_save_duration;
@@ -22,7 +22,7 @@ struct nbs_header {
     unsigned int right_clicks;
     unsigned int blocks_added;
     unsigned int blocks_removed;
-    char *song_origin;
+    const char *song_origin;
     bool loop;
     unsigned char max_loop_count;
     unsigned short loop_start;
@@ -41,7 +41,7 @@ struct nbs_notes {
 
 struct nbs_layers {
     int id;
-    char *name;
+    const char *name;
     bool lock;
     unsigned char volume;
     short panning;
@@ -50,14 +50,18 @@ struct nbs_layers {
 
 struct nbs_instruments {
     int id;
-    char *name;
-    char *sound_file;
+    const char *name;
+    const char *sound_file;
     unsigned char pitch;
     bool press_key;
     struct nbs_instruments *next;
 };
 
-char *nbs_read_string(FILE *fp);
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+const char *nbs_read_string(FILE *fp);
 
 // Return a nbs_header
 // After use, please use nbs_free_header() to free it
@@ -79,3 +83,7 @@ void nbs_free_header(struct nbs_header *header);
 void nbs_free_notes(struct nbs_notes *head);
 void nbs_free_layers(struct nbs_layers *head);
 void nbs_free_instruments(struct nbs_instruments *head);
+
+#ifdef __cplusplus
+}
+#endif

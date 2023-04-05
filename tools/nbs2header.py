@@ -40,9 +40,8 @@ def process_nbs(nbs: pynbs.File) -> list[ProcessedNote]:
         pitch = 2 ** ((final_key - 45) / 12)
 
         note_time = int(note.tick * time_per_tick)
-        sleep_time = note_time
 
-        processed.append(ProcessedNote(sleep_time, sound_index, volume, pitch))
+        processed.append(ProcessedNote(note_time, sound_index, volume, pitch))
 
     return processed
 
