@@ -38,3 +38,10 @@ It's not easy to make original nbs music ~ come and support them!
 
 ## TODO
 Download NBS music for playback within the game using the command input URL
+
+## Acknowledgements
+
+- [yqs112358](https://github.com/yqs112358) providing technical support at send packet level
+- [lgc2333](https://github.com/lgc2333) participated in the development of [nbsparser](https://github.com/WillowSauceR/nbsparser) and provided basic technical support.
+
+Without their support, this project would not have been possible

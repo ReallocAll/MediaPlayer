@@ -38,3 +38,10 @@ NBS音乐文件请放置到``plugins\MediaPlayer\nbs``文件夹中
 
 ## 待办
 在游戏内利用命令输入URL下载NBS音乐进行播放
+
+## 致谢
+
+- [yqs112358](https://github.com/yqs112358) 提供了在发包层面的技术支持
+- [lgc2333](https://github.com/lgc2333) 参与了[nbsparser](https://github.com/WillowSauceR/nbsparser)的开发，提供了基础技术支持
+
+没有他们的支持，这个项目不可能实现
