@@ -13,3 +13,4 @@
 #include "mc/level.h"
 
 bool init_hooks(void);
+void create_plugin_dir(void);

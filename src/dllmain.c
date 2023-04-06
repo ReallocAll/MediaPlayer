@@ -25,6 +25,7 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD ul_reason_for_call, LPVOID lpReserv
 
 bool load_plugin(void)
 {
+    create_plugin_dir();
     init_hooks();
 
     return true;

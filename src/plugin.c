@@ -68,3 +68,13 @@ bool init_hooks(void)
     lh_enable_all_hook();
     return true;
 }
+
+void create_plugin_dir(void)
+{
+    char path[260];
+    GetCurrentDirectoryA(260, path);
+    strcat(path, "\\plugins\\MediaPlayer");
+    CreateDirectoryA(path, NULL);
+    strcat(path, "\\nbs");
+    CreateDirectoryA(path, NULL);
+}
