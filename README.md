@@ -6,7 +6,6 @@
 
 English | [简体中文](README_ZH.md)
 
-## Introduction
 This project uses the [LittleHooker](https://github.com/WillowSauceR/LittleHooker) framework for HOOK.
 
 ## Introduction
