@@ -14,6 +14,8 @@ This plugin is used to play NBS music on the server.
 
 ## Usage
 NBS music files should be placed in the ``plugins\MediaPlayer\nbs`` folder
+Note: Currently, NBS music that uses a language other than English as its file name is not supported at this time, please change its file name to English when using it. Spaces, underscores, numbers, letters, etc. are allowed in the files.
+
 Use ``/mp`` or ``/mediaplayer`` as the main command in the game
 The subcommands are ``list``, ``play`` and ``stop``.
 
@@ -28,8 +30,11 @@ You can also use the ``/mp`` command in-game to see how to use it
 
 ## Recommended NBS music resources
 It's not easy to make original nbs music ~ come and support them!
+
 [Original nbs music collection](https://www.minebbs.com/resources/nbs.4773/)
+
 [nbs music "water"](https://www.minebbs.com/resources/nbs-water.4365/)
+
 [nbs music collection](https://github.com/nickg2/NBSsongs)
 
 ## TODO
