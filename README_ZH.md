@@ -9,10 +9,27 @@
 本项目使用了[LittleHooker](https://github.com/WillowSauceR/LittleHooker)框架进行HOOK。
 
 ## 简介
-本插件用于在服务器播放音乐，当前处于开发早期，只完成了基础框架。
-注意：本插件目前不适合用于生产环境，请等待后续版本发布
+本插件用于在服务器播放NBS音乐。
+
+## 使用
+NBS音乐文件请放置到``plugins\MediaPlayer\nbs``文件夹中
+在游戏中使用``/mp``或``/mediaplayer``作为主命令
+子命令为``list``，``play``和``stop``。
+
+| 子命令 | 参数     | 示例       | 解释         |
+| ------ | -------- | ---------- | ------------ |
+| list   | 无       | /mp list   | 获取歌曲索引 |
+| play   | 歌曲索引 | /mp play 1 | 播放歌曲     |
+| stop   | 无       | /mp stop   | 停止播放     |
+
+注意：在播放音乐之前，请先使用``/mp list``来获取音乐列表。
+具体使用方法，也可以在游戏内使用``/mp``命令查看
+
+## 推荐NBS音乐资源
+制作原创nbs音乐可不容易呢~来支持一下他们吧
+[原创nbs音乐集合](https://www.minebbs.com/resources/nbs.4773/)
+[nbs音乐《water》](https://www.minebbs.com/resources/nbs-water.4365/)
+[nbs音乐集合](https://github.com/nickg2/NBSsongs)
 
 ## 待办
-直接从NBS中读取音乐并向玩家播放
-在客户端实现使用命令自定义播放音乐
 在游戏内利用命令输入URL下载NBS音乐进行播放

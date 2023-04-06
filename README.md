@@ -9,10 +9,28 @@ English | [简体中文](README_ZH.md)
 ## Introduction
 This project uses the [LittleHooker](https://github.com/WillowSauceR/LittleHooker) framework for HOOK.
 
-This plugin is used to play music on the server, currently in the early stages of development, only the basic framework is completed.
-Note: This plugin is currently not suitable for production environments, please wait for subsequent versions released
+## Introduction
+This plugin is used to play NBS music on the server.
+
+## Usage
+NBS music files should be placed in the ``plugins\MediaPlayer\nbs`` folder
+Use ``/mp`` or ``/mediaplayer`` as the main command in the game
+The subcommands are ``list``, ``play`` and ``stop``.
+
+| subcommands | parameters | examples   | explanation    |
+| ----------- | ---------- | ---------- | -------------- |
+| list        | none       | /mp list   | Get song index |
+| play        | song index | /mp play 1 | play song      |
+| stop        | none       | /mp stop   | stop playing   |
+
+Note: Before playing music, please use ``/mp list`` to get the music list first.
+You can also use the ``/mp`` command in-game to see how to use it
+
+## Recommended NBS music resources
+It's not easy to make original nbs music ~ come and support them!
+[Original nbs music collection](https://www.minebbs.com/resources/nbs.4773/)
+[nbs music "water"](https://www.minebbs.com/resources/nbs-water.4365/)
+[nbs music collection](https://github.com/nickg2/NBSsongs)
 
 ## TODO
-Read music directly from the NBS and play it to the player
-Implement custom music playback using commands on the client side
 Download NBS music for playback within the game using the command input URL
