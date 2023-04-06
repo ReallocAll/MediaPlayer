@@ -42,3 +42,17 @@ void send_play_sound_packet(struct player *player, const char *sound_name,
 	send_network_packet(player, pkt);
 	free(sound_name_cpp_str);
 }
+
+void send_text_packet(struct player *player, int mode, const char *msg)
+{
+	uintptr_t pkt = create_packet(9);
+	const char *player_name = get_name_tag((struct actor *)player);
+	struct string *player_name_cpp_str = string.string(player_name);
+	struct string *msg_cpp_str = string.string(msg);
+	DEREFERENCE(int, pkt, 48) = mode;
+ 	memcpy((void *)(pkt + 56), player_name_cpp_str, 32);
+ 	memcpy((void *)(pkt + 88), msg_cpp_str, 32);
+	send_network_packet(player, pkt);
+	free(player_name_cpp_str);
+	free(msg_cpp_str);
+}
