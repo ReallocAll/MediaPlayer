@@ -27,7 +27,7 @@ struct note_queue_node *generate_note_queue(FILE *fp)
 
         struct nbs_instruments *instrument_curr = instruments_head;
         int instrument_pitch = 45;
-        for (int instrument_id = 0; instrument_curr && instrument_id < notes_curr->instrument; instrument_id++) {
+        for (int instrument_id = 0; instrument_curr && instrument_curr->next && instrument_id < notes_curr->instrument; instrument_id++) {
             instrument_curr = instrument_curr->next;
             instrument_pitch = (int)instrument_curr->pitch;
         }
@@ -115,9 +115,6 @@ void music_queue_delete_player(long long xuid)
         prev_node = curr_node;
         curr_node = curr_node->next;
     }
-    char msg[128];
-    sprintf_s(msg, sizeof(msg), "Player with xuid %lld not found", xuid);
-    server_logger(msg, ERR);
 }
 
 void send_music_sound_packet(void)
