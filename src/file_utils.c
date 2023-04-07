@@ -2,6 +2,7 @@
 
 char **get_filenames(const char *directory, int *count)
 {
+    setlocale(LC_ALL, "");
     DIR *dir;
     struct dirent *ent;
     int i = 0;

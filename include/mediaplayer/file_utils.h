@@ -1,5 +1,6 @@
 #pragma once
 #include <windows.h>
+#include <locale.h>
 #include <dirent/dirent.h>
 
 char **get_filenames(const char *directory, int *count);
