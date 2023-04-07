@@ -23,8 +23,8 @@ TLHOOK(change_setting_command_setup, void,
 	"?setup@ChangeSettingCommand@@SAXAEAVCommandRegistry@@@Z",
 	uintptr_t _this)
 {
-	struct string *cmd = string.string("mediaplayer");
-	struct string *cmd_full = string.string("mp");
+	struct string *cmd = string.string("mp");
+	struct string *cmd_full = string.string("mediaplayer");
 	TLCALL("?registerCommand@CommandRegistry@@QEAAXAEBV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@PEBDW4CommandPermissionLevel@@UCommandFlag@@3@Z",
 		void (*)(uintptr_t, struct string *, const char *, char, short, short),
 		_this, cmd, "mediaplayer", 0, 0, 0x80);
