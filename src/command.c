@@ -28,7 +28,7 @@ bool process_cmd(struct player *player, const char *cmd)
 
         int file_count = 0;
         char** file_names = get_filenames(path, &file_count);
-        
+
         long long player_xuid = atoll(get_player_xuid(player));
         char msg[1024];
         if (!file_names) {
