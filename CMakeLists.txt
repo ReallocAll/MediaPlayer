@@ -59,6 +59,6 @@ add_library(MediaPlayer SHARED ${SRC_FILES_DIR})
 set_target_properties(MediaPlayer PROPERTIES OUTPUT_NAME "MediaPlayer")
 
 target_link_libraries(MediaPlayer 
-	"${CMAKE_SOURCE_DIR}/lib/minhook.x64.lib"
+	"${CMAKE_SOURCE_DIR}/lib/detours.lib"
 	"${CMAKE_SOURCE_DIR}/lib/nbsparser.lib"
 )

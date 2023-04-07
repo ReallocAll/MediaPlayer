@@ -1,8 +1,7 @@
 #pragma once
-#pragma comment(lib, "minhook.x64.lib")
-#include "minhook/MinHook.h"
 
 #include <windows.h>
+#include <detours/detours.h>
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -37,9 +36,6 @@
         _##name##_t original;                               \
         _##name##_t detour;                                 \
         bool (*init)(_##name##_struct*);                    \
-        bool (*disable)(_##name##_struct*);                 \
-        bool (*enable)(_##name##_struct*);                  \
-        bool (*remove)(_##name##_struct*);                  \
     };                                                      \
     ret_type _detour_##name(__VA_ARGS__);                   \
     bool _INIT_HOOK_##name(_##name##_struct *name)          \
@@ -51,26 +47,11 @@
                         (_##name##_t)func_ptr;              \
         bool result = hook_func(_hook_##name,               \
                                 _detour_##name,             \
-                                &_original_##name);         \
+                                (void **)&_original_##name);\
         name->hook = _hook_##name;                          \
         name->original = _original_##name;                  \
         name->detour = _detour_##name;                      \
         return result;                                      \
-    }                                                       \
-    bool _DISABLE_HOOK_##name(_##name##_struct *name)       \
-    {                                                       \
-        return MH_DisableHook(name->hook) == MH_OK          \
-                    ? true : false;                         \
-    }                                                       \
-    bool _ENABLE_HOOK_##name(_##name##_struct *name)        \
-    {                                                       \
-        return MH_EnableHook(name->hook) == MH_OK           \
-                    ? true : false;                         \
-    }                                                       \
-    bool _REMOVE_HOOK_##name(_##name##_struct *name)        \
-    {                                                       \
-        return MH_RemoveHook(name->hook) == MH_OK           \
-                    ? true : false;                         \
     }                                                       \
     _##name##_struct name =                                 \
     {                                                       \
@@ -78,9 +59,6 @@
         NULL,                                               \
         NULL,                                               \
         _INIT_HOOK_##name,                                  \
-        _DISABLE_HOOK_##name,                               \
-        _ENABLE_HOOK_##name,                                \
-        _REMOVE_HOOK_##name                                 \
     };                                                      \
     ret_type _detour_##name(__VA_ARGS__)
 
@@ -114,7 +92,7 @@
 extern "C" {
 #endif
 
-bool hook_func(void *hook_func, void *detour_func, void *original_func);
+bool hook_func(void *hook_func, void *detour_func, void **original_func);
 inline void *rva2va(unsigned int rva);
 void read_static_data(long offset, void *data, size_t size);
 void *dlsym(const char *sym);
@@ -130,8 +108,6 @@ void check_server_update(void);
 
 bool lh_init(void);
 bool lh_uninit(void);
-bool lh_enable_all_hook(void);
-bool lh_disable_all_hook(void);
 
 #ifdef __cplusplus
 }
