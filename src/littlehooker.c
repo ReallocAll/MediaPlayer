@@ -88,13 +88,12 @@ bool init_section_infos(void)
 }
 
 //////////////////////////// HOOK API /////////////////////////
-bool hook_func(void *hook_func, void *detour_func, void **original_func)
+bool hook_func(void *hook_func, void *detour_func, void *original_func)
 {
-    DetourTransactionBegin();
-    DetourUpdateThread(GetCurrentThread());
-    DetourAttach(&hook_func, detour_func);
-    DetourTransactionCommit();
-    *original_func = hook_func;
+    if (MH_CreateHook(hook_func, detour_func, (LPVOID *)original_func) != MH_OK) {
+        printf("Failed to create func hook, RVA: %llu \n", (uintptr_t)hook_func);
+        return false;
+    }
     return true;
 }
 
@@ -245,6 +244,8 @@ bool lh_init(void)
     load_hashmap_from_file(SYM_CACHE_FILE);
     if (!init_section_infos())
         return false;
+    if (MH_Initialize() != MH_OK)
+        return false;
     check_server_update();
 
     return true;
@@ -254,5 +255,28 @@ bool lh_uninit(void)
 {
     save_hashmap_to_file(SYM_CACHE_FILE);
     free_hashmap();
+    if (MH_Uninitialize() != MH_OK)
+        return false;
+        
+    return true;
+}
+
+bool lh_enable_all_hook(void)
+{
+    if (MH_QueueEnableHook(MH_ALL_HOOKS) != MH_OK)
+        return false;
+    if (MH_ApplyQueued() != MH_OK)
+        return false;
+
+    return true;
+}
+
+bool lh_disable_all_hook(void)
+{
+    if (MH_QueueDisableHook(MH_ALL_HOOKS)!= MH_OK)
+        return false;
+    if (MH_ApplyQueued()!= MH_OK)
+        return false;
+
     return true;
 }

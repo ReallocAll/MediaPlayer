@@ -64,6 +64,8 @@ bool init_hooks(void)
     on_tick.init(&on_tick);
     change_setting_command_setup.init(&change_setting_command_setup);
     on_player_cmd.init(&on_player_cmd);
+
+    lh_enable_all_hook();
     return true;
 }
 
