@@ -1,5 +1,4 @@
 #pragma once
-#pragma comment(lib, "littlehooker.lib")
 #include <littlehooker/littlehooker.h>
 #include <time.h>
 
