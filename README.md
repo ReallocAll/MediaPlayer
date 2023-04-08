@@ -45,3 +45,14 @@ Download NBS music for playback within the game using the command input URL
 - [lgc2333](https://github.com/lgc2333) participated in the development of [nbsparser](https://github.com/WillowSauceR/nbsparser) and provided basic technical support.
 
 Without their support, this project would not have been possible
+
+## License
+
+| Project                                                      | License                                                                   |
+| ------------------------------------------------------------ | ------------------------------------------------------------------------- |
+| [LittleHooker](https://github.com/WillowSauceR/LittleHooker) | GPL-3.0                                                                   |
+| [nbsparser](https://github.com/WillowSauceR/nbsparser)       | GPL-3.0                                                                   |
+| [minhook](https://github.com/TsudaKageyu/minhook)            | [license](https://github.com/TsudaKageyu/minhook/blob/master/LICENSE.txt) |
+| [uthash](https://github.com/troydhanson/uthash)              | [license](https://github.com/troydhanson/uthash/blob/master/LICENSE)      |
+| [microsoft-pdb](https://github.com/microsoft/microsoft-pdb)  | [license](https://github.com/microsoft/microsoft-pdb/blob/master/LICENSE) |
+| [Horion](https://github.com/horionclient/Horion)             | [license](https://github.com/horionclient/Horion/blob/master/LICENSE)     |

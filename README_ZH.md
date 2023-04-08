@@ -45,3 +45,14 @@ NBS音乐文件请放置到``plugins\MediaPlayer\nbs``文件夹中
 - [lgc2333](https://github.com/lgc2333) 参与了[nbsparser](https://github.com/WillowSauceR/nbsparser)的开发，提供了基础技术支持
 
 没有他们的支持，这个项目不可能实现
+
+## 许可证
+
+| 项目                                                         | 许可证                                                                   |
+| ------------------------------------------------------------ | ------------------------------------------------------------------------ |
+| [LittleHooker](https://github.com/WillowSauceR/LittleHooker) | GPL-3.0                                                                  |
+| [nbsparser](https://github.com/WillowSauceR/nbsparser)       | GPL-3.0                                                                  |
+| [minhook](https://github.com/TsudaKageyu/minhook)            | [许可证](https://github.com/TsudaKageyu/minhook/blob/master/LICENSE.txt) |
+| [uthash](https://github.com/troydhanson/uthash)              | [许可证](https://github.com/troydhanson/uthash/blob/master/LICENSE)      |
+| [microsoft-pdb](https://github.com/microsoft/microsoft-pdb)  | [许可证](https://github.com/microsoft/microsoft-pdb/blob/master/LICENSE) |
+| [Horion](https://github.com/horionclient/Horion)             | [许可证](https://github.com/horionclient/Horion/blob/master/LICENSE)     |
