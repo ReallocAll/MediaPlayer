@@ -1,5 +1,12 @@
 #include <mediaplayer/LLPreLoaderAPI.h>
 
+// This code is copied from horionclient's Horion project,
+// licensed under Attribution-NonCommercial 4.0 International.
+// Modifications were made by WillowSauceR to adapt the code for use in MediaPlayer,
+// which is licensed under GPL-3.0.
+// Modified by WillowSauceR in order to support use in C code.
+
+// START
 #define INRANGE(x, a, b) (x >= a && x <= b)
 #define GET_BYTE(x) (GET_BITS(x[0]) << 4 | GET_BITS(x[1]))
 #define GET_BITS(x) (INRANGE((x & (~0x20)), 'A', 'F') ? ((x & (~0x20)) - 'A' + 0xa) : (INRANGE(x, '0', '9') ? x - '0' : 0))
@@ -54,6 +61,7 @@ uintptr_t FindSignatureModule(const char* szModule, const char* szSignature) {
 	}
 	return 0u;
 }
+// END
 
 extern bool using_ll_preloader_api;
 
