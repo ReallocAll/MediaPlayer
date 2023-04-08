@@ -9,7 +9,7 @@ English | [简体中文](README_ZH.md)
 This project uses the [LittleHooker](https://github.com/WillowSauceR/LittleHooker) framework for HOOK.
 
 ## Introduction
-This plugin is used to play NBS music on the server.
+This plugin is used to play NBS music on the bedrock dedicated server(BDS).
 
 ## Usage
 NBS music files should be placed in the ``plugins\MediaPlayer\nbs`` folder

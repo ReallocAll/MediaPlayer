@@ -9,7 +9,7 @@
 本项目使用了[LittleHooker](https://github.com/WillowSauceR/LittleHooker)框架进行HOOK。
 
 ## 简介
-本插件用于在服务器播放NBS音乐。
+本插件用于在BDS服务器播放NBS音乐。
 
 ## 使用
 NBS音乐文件请放置到``plugins\MediaPlayer\nbs``文件夹中
