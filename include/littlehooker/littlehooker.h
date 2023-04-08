@@ -10,6 +10,7 @@
 #include <string.h>
 #include <stdint.h>
 
+#include <mediaplayer/LLPreLoaderAPI.h>
 
 #define SYM_FILE "bedrock_server_sym.txt"
 #define SYM_CACHE_FILE "bedrock_server_sym_cache.bin"
@@ -27,7 +28,7 @@
 #define BDS_PDB_PATH BDS_FILE_NAME ".pdb"
 
 
-#define TLHOOK(name, ret_type, rva_OR_sym, ...)             \
+#define TLHOOK(name, ret_type, sym, ...)          		    \
     typedef ret_type (*_##name##_t)(__VA_ARGS__);           \
     _##name##_t _original_##name = NULL;                    \
     typedef struct _##name _##name##_struct;                \
@@ -44,12 +45,10 @@
     ret_type _detour_##name(__VA_ARGS__);                   \
     bool _INIT_HOOK_##name(_##name##_struct *name)          \
     {                                                       \
-        void *func_ptr = atoi(rva_OR_sym)                   \
-                        ? rva2va(atoi(rva_OR_sym))          \
-                        : dlsym(rva_OR_sym);                \
+        void *func_ptr = dlsym_auto(sym);           	    \
         _##name##_t _hook_##name =                          \
                         (_##name##_t)func_ptr;              \
-        bool result = hook_func(_hook_##name,               \
+        bool result = hook_func_auto(_hook_##name,          \
                                 _detour_##name,             \
                                 &_original_##name);         \
         name->hook = _hook_##name;                          \
@@ -87,7 +86,7 @@
 
 #define TLCALL(sym, func_proto, ...)                        \
     ((func_proto)                                           \
-    (dlsym(sym)))                                           \
+    (dlsym_auto(sym)))                                      \
     (__VA_ARGS__)
 
 

@@ -56,6 +56,20 @@ TLHOOK(on_tick, void,
 	on_tick.original(level);
 }
 
+bool using_ll_preloader_api = false;
+
+bool check_ll_preloader(void)
+{
+    FILE *fp = fopen("LLPreloader.dll", "rb");
+	if (fp) {
+		fclose(fp);
+		puts("00:00:00 INFO [MediaPlayer] The LLPreLoader is detected and is using the HookAPI it provides.");
+		using_ll_preloader_api = true;
+		return true;
+	}
+	return false;
+}
+
 bool init_hooks(void)
 {
 	level_construct.init(&level_construct);
@@ -64,8 +78,6 @@ bool init_hooks(void)
 	on_tick.init(&on_tick);
 	change_setting_command_setup.init(&change_setting_command_setup);
 	on_player_cmd.init(&on_player_cmd);
-
-	lh_enable_all_hook();
 	return true;
 }
 
@@ -77,4 +89,20 @@ void create_plugin_dir(void)
 	CreateDirectoryA(path, NULL);
 	strcat(path, "\\nbs");
 	CreateDirectoryA(path, NULL);
+}
+
+bool load_plugin(void)
+{
+	create_plugin_dir();
+	check_ll_preloader();
+	if (!using_ll_preloader_api && !lh_init()) {
+		puts("LittleHooker init failed\n");
+		return false;
+	}
+	init_hooks();
+
+	if (!using_ll_preloader_api)
+		lh_enable_all_hook();
+
+	return true;
 }

@@ -1,15 +1,9 @@
 #include <mediaplayer/plugin.h>
 
-bool load_plugin(void);
-
 BOOL APIENTRY DllMain(HMODULE hModule, DWORD ul_reason_for_call, LPVOID lpReserved)
 {
 	switch (ul_reason_for_call) {
 	case DLL_PROCESS_ATTACH:
-		if (!lh_init()) {
-			puts("LittleHooker init failed\n");
-			break;
-		}
 		load_plugin();
 		break;
 	case DLL_THREAD_ATTACH:
@@ -20,13 +14,5 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD ul_reason_for_call, LPVOID lpReserv
 		lh_uninit();
 		break;
 	}
-	return true;
-}
-
-bool load_plugin(void)
-{
-	create_plugin_dir();
-	init_hooks();
-
 	return true;
 }
