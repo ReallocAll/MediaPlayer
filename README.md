@@ -52,6 +52,7 @@ Without their support, this project would not have been possible
 | ------------------------------------------------------------ | ------------------------------------------------------------------------- |
 | [LittleHooker](https://github.com/WillowSauceR/LittleHooker) | GPL-3.0                                                                   |
 | [nbsparser](https://github.com/WillowSauceR/nbsparser)       | GPL-3.0                                                                   |
+| [dirent](https://github.com/tronkko/dirent)                  | MIT                                                                       |
 | [minhook](https://github.com/TsudaKageyu/minhook)            | [license](https://github.com/TsudaKageyu/minhook/blob/master/LICENSE.txt) |
 | [uthash](https://github.com/troydhanson/uthash)              | [license](https://github.com/troydhanson/uthash/blob/master/LICENSE)      |
 | [microsoft-pdb](https://github.com/microsoft/microsoft-pdb)  | [license](https://github.com/microsoft/microsoft-pdb/blob/master/LICENSE) |

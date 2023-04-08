@@ -52,6 +52,7 @@ NBS音乐文件请放置到``plugins\MediaPlayer\nbs``文件夹中
 | ------------------------------------------------------------ | ------------------------------------------------------------------------ |
 | [LittleHooker](https://github.com/WillowSauceR/LittleHooker) | GPL-3.0                                                                  |
 | [nbsparser](https://github.com/WillowSauceR/nbsparser)       | GPL-3.0                                                                  |
+| [dirent](https://github.com/tronkko/dirent)                  | MIT                                                                      |
 | [minhook](https://github.com/TsudaKageyu/minhook)            | [许可证](https://github.com/TsudaKageyu/minhook/blob/master/LICENSE.txt) |
 | [uthash](https://github.com/troydhanson/uthash)              | [许可证](https://github.com/troydhanson/uthash/blob/master/LICENSE)      |
 | [microsoft-pdb](https://github.com/microsoft/microsoft-pdb)  | [许可证](https://github.com/microsoft/microsoft-pdb/blob/master/LICENSE) |
