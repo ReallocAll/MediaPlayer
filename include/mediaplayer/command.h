@@ -6,6 +6,7 @@
 #include "music_player.h"
 #include "file_utils.h"
 #include "mc/actor.h"
+#include "mc/player.h"
 #include "mc/network.h"
 #include "mc/level.h"
 

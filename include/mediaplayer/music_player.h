@@ -5,6 +5,7 @@
 #include "logger.h"
 #include "mc/network.h"
 #include "mc/actor.h"
+#include "mc/player.h"
 #include "mc/level.h"
 
 struct note_queue_node {
