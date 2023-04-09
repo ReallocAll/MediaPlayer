@@ -1,6 +1,5 @@
 #include <mediaplayer/mc/network.h>
 
-extern struct string string;
 
 inline uintptr_t create_packet(int type)
 {

@@ -1,7 +1,5 @@
 #include <mediaplayer/plugin.h>
 
-extern struct string string;
-extern struct level *g_level;
 
 TLHOOK(on_initialize_logging, void,
 		"?initializeLogging@DedicatedServer@@AEAAXXZ",

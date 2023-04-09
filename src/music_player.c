@@ -2,7 +2,6 @@
 #include <mediaplayer/nbs/nbs.h>
 #include <nbsparser/nbsparser.h>
 
-extern struct level *g_level;
 
 struct music_queue_node *music_queue_head = NULL;
 

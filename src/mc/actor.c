@@ -1,6 +1,5 @@
 #include <mediaplayer/mc/actor.h>
 
-extern struct string string;
 
 struct vec3 *actor_get_pos(struct actor *actor)
 {

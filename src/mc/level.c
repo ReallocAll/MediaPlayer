@@ -1,6 +1,5 @@
 #include <mediaplayer/mc/level.h>
 
-extern struct string string;
 
 struct level *g_level = NULL;
 

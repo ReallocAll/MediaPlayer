@@ -63,8 +63,6 @@ uintptr_t FindSignatureModule(const char* szModule, const char* szSignature) {
 }
 // END
 
-extern bool using_ll_preloader_api;
-
 bool hook_func_ll(void *oldFunc, void **pOutOld, void *newFunc)
 {
 	static uintptr_t func = 0;
