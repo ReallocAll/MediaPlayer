@@ -59,7 +59,11 @@ void play_video(struct video_queue *video_queue_node, struct map_item_saved_data
     sprintf_s(player_xuid, PLAYER_XUID_STR_LEN, "%lld", video_queue_node->xuid);
     struct player *player = get_player_by_xuid(g_level, player_xuid);
     char filepath[260];
-    sprintf(filepath, "%s\\%04d.bin", video_queue_node->video_path, video_queue_node->current_frame);
+
+    // 1000ms / 50 = 20FPS
+    int frame_index = (int)(((time_t)clock() - video_queue_node->start_time) / 50) + 1;
+
+    sprintf(filepath, "%s\\%04d.bin", video_queue_node->video_path, frame_index);
     FILE *fp = fopen(filepath, "rb");
 
     if (!fp) {
@@ -81,7 +85,7 @@ void play_video(struct video_queue *video_queue_node, struct map_item_saved_data
         map_data);
 
     fclose(fp);
-    video_queue_node->current_frame++;
+    video_queue_node->current_frame = frame_index;
 }
 
 void free_video_queue(void)

@@ -1,5 +1,6 @@
 #pragma once
 #include <littlehooker/littlehooker.h>
+#include <time.h>
 #include "logger.h"
 #include "file_utils.h"
 #include "mc/actor.h"
