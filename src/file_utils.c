@@ -7,7 +7,7 @@ char data_path_video[260];
 
 char **get_filenames(const char *directory, int *count)
 {
-	setlocale(LC_ALL, "");
+	setlocale(LC_ALL, "en_US.UTF-8");
 	DIR *dir;
 	struct dirent *ent;
 	int i = 0;
@@ -39,7 +39,7 @@ char **get_filenames(const char *directory, int *count)
 
 char **get_foldernames(const char *directory, int *count)
 {
-	setlocale(LC_ALL, "");
+	setlocale(LC_ALL, "en_US.UTF-8");
 	DIR *dir;
 	struct dirent *ent;
 	int i = 0;
