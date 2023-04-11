@@ -8,6 +8,27 @@
 #include "mc/player.h"
 #include "mc/level.h"
 
+#define NUM_NOTES 16
+
+static const char *BUILTIN_INSTRUMENT[NUM_NOTES] = {
+    "note.harp",
+    "note.bassattack",
+    "note.bd",
+    "note.snare",
+    "note.hat",
+    "note.guitar",
+    "note.flute",
+    "note.bell",
+    "note.chime",
+    "note.xylobone",
+    "note.iron_xylophone",
+    "note.cow_bell",
+    "note.didgeridoo",
+    "note.bit",
+    "note.banjo",
+    "note.pling"
+};
+
 struct note_queue_node {
     int time;
     int instrument;

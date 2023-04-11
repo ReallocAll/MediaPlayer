@@ -1,5 +1,4 @@
 #include <mediaplayer/music_player.h>
-#include <mediaplayer/nbs/nbs.h>
 #include <nbsparser/nbsparser.h>
 
 
