@@ -4,6 +4,7 @@
 #include <string.h>
 #include <stdbool.h>
 #include "music_player.h"
+#include "video_player.h"
 #include "file_utils.h"
 #include "mc/actor.h"
 #include "mc/player.h"

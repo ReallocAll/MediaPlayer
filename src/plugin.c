@@ -21,16 +21,16 @@ TLHOOK(change_setting_command_setup, void,
 	"?setup@ChangeSettingCommand@@SAXAEAVCommandRegistry@@@Z",
 	uintptr_t _this)
 {
-	struct string *cmd = string.string("mp");
-	struct string *cmd_full = string.string("mediaplayer");
+	struct string *cmd_music = string.string("mpm");
+	struct string *cmd_video = string.string("mpv");
 	TLCALL("?registerCommand@CommandRegistry@@QEAAXAEBV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@PEBDW4CommandPermissionLevel@@UCommandFlag@@3@Z",
 		void (*)(uintptr_t, struct string *, const char *, char, short, short),
-		_this, cmd, "mediaplayer", 0, 0, 0x80);
+		_this, cmd_music, "mediaplayer music", 0, 0, 0x80);
 	TLCALL("?registerCommand@CommandRegistry@@QEAAXAEBV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@PEBDW4CommandPermissionLevel@@UCommandFlag@@3@Z",
 		void (*)(uintptr_t, struct string *, const char *, char, short, short),
-		_this, cmd_full, "mediaplayer", 0, 0, 0x80);
-	free(cmd);
-	free(cmd_full);
+		_this, cmd_video, "mediaplayer video", 0, 0, 0x80);
+	free(cmd_music);
+	free(cmd_video);
 	change_setting_command_setup.original(_this);
 }
 
@@ -44,6 +44,20 @@ TLHOOK(on_player_cmd, void,
 		return;
 
 	on_player_cmd.original(_this, id, pkt);
+}
+
+TLHOOK(map_item_update, void,
+	"?update@MapItem@@QEBAXAEAVLevel@@AEAVActor@@AEAVMapItemSavedData@@@Z",
+	struct map_item *map_item, struct level *level, struct actor *actor, struct map_item_saved_data *map_data)
+{
+	struct player *player = (struct player *)actor;
+	const char *player_xuid = get_player_xuid(player);
+	struct video_queue *video_queue_node = video_queue_get_player(atoll(player_xuid));
+	if (video_queue_node) {
+		play_video(video_queue_node, map_data);
+	} else {
+		map_item_update.original(map_item, level, actor, map_data);
+	}
 }
 
 TLHOOK(on_tick, void,
@@ -76,17 +90,22 @@ bool init_hooks(void)
 	on_tick.init(&on_tick);
 	change_setting_command_setup.init(&change_setting_command_setup);
 	on_player_cmd.init(&on_player_cmd);
+	map_item_update.init(&map_item_update);
 	return true;
 }
 
 void create_plugin_dir(void)
 {
-	char path[260];
-	GetCurrentDirectoryA(260, path);
-	strcat(path, "\\plugins\\MediaPlayer");
-	CreateDirectoryA(path, NULL);
-	strcat(path, "\\nbs");
-	CreateDirectoryA(path, NULL);
+	// also init global path variables
+	GetCurrentDirectoryA(260, bds_path);
+
+	sprintf(data_path, "%s\\plugins\\MediaPlayer", bds_path);
+	sprintf(data_path_nbs, "%s\\nbs", data_path);
+	sprintf(data_path_video, "%s\\video", data_path);
+
+	CreateDirectoryA(data_path, NULL);
+	CreateDirectoryA(data_path_nbs, NULL);
+	CreateDirectoryA(data_path_video, NULL);
 }
 
 bool load_plugin(void)
