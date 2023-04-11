@@ -30,3 +30,4 @@ bool music_queue_add_player(long long xuid, FILE *fp);
 void music_queue_delete_player(long long xuid);
 void free_note_queue(struct note_queue_node *head);
 void free_music_queue(void);
+bool is_player_in_music_queue(long long player_xuid);

@@ -179,3 +179,15 @@ void free_music_queue(void)
 	}
 	music_queue_head = NULL;
 }
+
+
+bool is_player_in_music_queue(long long player_xuid)
+{
+	struct music_queue_node *current = music_queue_head;
+	while (current != NULL) {
+		if (current->xuid == player_xuid)
+			return true;
+		current = current->next;
+	}
+	return false;
+}
