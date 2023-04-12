@@ -30,3 +30,10 @@ unsigned get_entity_type_id(struct actor *actor)
 					unsigned (*)(struct actor *actor),
 					actor);
 }
+
+uintptr_t get_unique_id(struct actor *actor)
+{
+	return TLCALL("?getUniqueID@Actor@@QEBAAEBUActorUniqueID@@XZ",
+					uintptr_t (*)(struct actor *actor),
+					actor);
+}
