@@ -69,6 +69,7 @@ struct note_queue_node *generate_note_queue(FILE *fp)
 
 bool music_queue_add_player(long long xuid, FILE *fp)
 {
+	music_queue_delete_player(xuid);
 	struct note_queue_node *note_queue_head = generate_note_queue(fp);
 	struct music_queue_node *new_node = (struct music_queue_node *) malloc(sizeof(struct music_queue_node));
 	if (new_node == NULL) {

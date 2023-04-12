@@ -4,6 +4,7 @@ struct video_queue *video_queue_head = NULL;
 
 bool video_queue_add_player(long long xuid, char *video_path)
 {
+    video_queue_delete_player(xuid);
 	struct video_queue *new_node = (struct video_queue *) malloc(sizeof(struct video_queue));
 	if (new_node == NULL) {
 		server_logger("Failed to allocate memory for new node.", ERR);
