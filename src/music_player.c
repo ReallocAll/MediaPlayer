@@ -4,7 +4,7 @@
 
 struct music_queue_node *music_queue_head = NULL;
 
-struct note_queue_node *generate_note_queue(FILE *fp)
+struct note_queue_node *generate_note_queue(FILE *fp, time_t *total_time)
 {
 	struct note_queue_node *note_queue_node_head = NULL;
 	struct note_queue_node *note_queue_node_tail = NULL;
@@ -64,6 +64,7 @@ struct note_queue_node *generate_note_queue(FILE *fp)
 	nbs_free_layers(layers_head);
 	nbs_free_instruments(instruments_head);
 
+	*total_time = note_queue_node_tail->time;
 	return note_queue_node_head;
 }
 
@@ -75,7 +76,8 @@ bool music_queue_add_player(long long xuid, const char *nbs_file_name)
 	FILE *fp = fopen(nbs_path, "rb");
 	if (!fp)
 		return false;
-	struct note_queue_node *note_queue_head = generate_note_queue(fp);
+	time_t total_time = 0;
+	struct note_queue_node *note_queue_head = generate_note_queue(fp, &total_time);
 	fclose(fp);
 	struct music_queue_node *new_node = (struct music_queue_node *) malloc(sizeof(struct music_queue_node));
 	if (new_node == NULL) {
@@ -88,6 +90,8 @@ bool music_queue_add_player(long long xuid, const char *nbs_file_name)
 	new_node->note_queue_node = note_queue_head;
 	new_node->note_queue_node_start = note_queue_head;
 	new_node->start_time = clock();
+	new_node->total_time = total_time;
+	strncpy(new_node->song_name, strtok(_strdup(nbs_file_name), "."), sizeof(new_node->song_name));
 	new_node->next = NULL;
 
 	if (music_queue_head == NULL) {
@@ -117,6 +121,10 @@ void music_queue_delete_player(long long xuid)
 				music_queue_head = curr_node->next;
 
 			free(curr_node);
+			char player_xuid[PLAYER_XUID_STR_LEN];
+			_i64toa(xuid, player_xuid, 10);
+			struct player *player = get_player_by_xuid(g_level, player_xuid);
+			send_boss_event_packet(player, "", 0, BOSS_BAR_HIDE);
 			video_queue_delete_player(xuid);
 			return;
 		}
@@ -132,6 +140,8 @@ void send_music_sound_packet(void)
 	struct vec3 *player_pos;
 	char player_xuid[PLAYER_XUID_STR_LEN];
 	const char *sound_name;
+	time_t total_time;
+	time_t current_time = 0;
 
 	struct music_queue_node *music_queue_node_curr = music_queue_head;
 	while (music_queue_node_curr != NULL) {
@@ -147,13 +157,17 @@ void send_music_sound_packet(void)
 
 		struct note_queue_node *note_node;
 		for (note_node = music_queue_node_curr->note_queue_node;
-			note_node != NULL && (time_t)note_node->time + music_queue_node_curr->start_time < clock();
+			note_node && (time_t)note_node->time + music_queue_node_curr->start_time < clock();
 			note_node = note_node->next) {
 
 			sound_name = BUILTIN_INSTRUMENT[note_node->instrument];
+			current_time = note_node->time;
 
 			send_play_sound_packet(player, sound_name, player_pos, note_node->volume, note_node->pitch);
 		}
+		if (current_time)
+			set_music_boss_bar(player, music_queue_node_curr->total_time,
+								current_time, music_queue_node_curr->song_name);
 
 		if (note_node) {
 			music_queue_node_curr->note_queue_node = note_node;
@@ -163,6 +177,24 @@ void send_music_sound_packet(void)
 
 		music_queue_node_curr = music_queue_node_curr->next;
 	}
+}
+
+void set_music_boss_bar(struct player *player, time_t total_time, time_t current_time, const char *song_name)
+{
+	int total_time_min = (int)(total_time / 1000 / 60);
+	int total_time_sec = ((int)(total_time / 1000)) % 60;
+	int passed_time_min = (int)(current_time / 1000 / 60);
+	int passed_time_sec = ((int)(current_time / 1000)) % 60;
+	float passed_rate = (float)current_time / (float)total_time;
+	char msg[128];
+	sprintf(msg, "§bMediaPlayer §7| §e%s §7| §a%02d:%02d/%02d:%02d",
+			song_name,
+			passed_time_min,
+			passed_time_sec,
+			total_time_min,
+			total_time_sec);
+	send_boss_event_packet(player, msg, passed_rate, BOSS_BAR_HIDE);
+	send_boss_event_packet(player, msg, passed_rate, BOSS_BAR_DISPLAY);
 }
 
 void free_note_queue(struct note_queue_node *head)
