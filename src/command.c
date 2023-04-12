@@ -29,23 +29,10 @@ bool proc_mpm_cmd(struct player *player, int argc, const char *argv[], char ***f
     } else if (strcmp(argv[1], "play") == 0 && argc == 3) {
         int file_index = atoi(argv[2]);
         if (file_index >= 0 && file_index < *file_count) {
-            char nbs_path[260];
-            sprintf(nbs_path, "%s\\%s", data_path_nbs, (*filenames)[file_index]);
-            FILE *fp = fopen(nbs_path, "rb");
-            if (fp) {
-                int folder_count;
-                const char **foldernames = get_foldernames(data_path_video, &folder_count);
-                for (int i = 0; i < folder_count; i++) {
-                    if (strstr((*filenames)[file_index], foldernames[i])) {
-                        char video_path[260];
-                        sprintf(video_path, "%s\\%s", data_path_video, foldernames[i]);
-                        video_queue_add_player(player_xuid, video_path);
-                    }
-                }
+            if (music_queue_add_player(player_xuid, (*filenames)[file_index])) {
+                char msg[260];
                 sprintf(msg, "§a[MediaPlayer] Now playing music§b %s\n", (*filenames)[file_index]);
                 send_text_packet(player, 0, msg);
-                music_queue_add_player(player_xuid, fp);
-                fclose(fp);
                 return false;
             }
         }

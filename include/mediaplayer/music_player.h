@@ -3,6 +3,8 @@
 #include <math.h>
 #include "cpp_string.h"
 #include "logger.h"
+#include "file_utils.h"
+#include "video_player.h"
 #include "mc/network.h"
 #include "mc/actor.h"
 #include "mc/player.h"
@@ -47,8 +49,9 @@ struct music_queue_node {
 
 struct note_queue_node *generate_note_queue(FILE *fp);
 void send_music_sound_packet(void);
-bool music_queue_add_player(long long xuid, FILE *fp);
+bool music_queue_add_player(long long xuid, const char *nbs_file_name);
 void music_queue_delete_player(long long xuid);
 void free_note_queue(struct note_queue_node *head);
 void free_music_queue(void);
 bool is_player_in_music_queue(long long player_xuid);
+bool play_with_video(long long player_xuid, const char *filename);

@@ -67,15 +67,23 @@ struct note_queue_node *generate_note_queue(FILE *fp)
 	return note_queue_node_head;
 }
 
-bool music_queue_add_player(long long xuid, FILE *fp)
+bool music_queue_add_player(long long xuid, const char *nbs_file_name)
 {
 	music_queue_delete_player(xuid);
+	char nbs_path[260];
+	sprintf(nbs_path, "%s\\%s", data_path_nbs, nbs_file_name);
+	FILE *fp = fopen(nbs_path, "rb");
+	if (!fp)
+		return false;
 	struct note_queue_node *note_queue_head = generate_note_queue(fp);
+	fclose(fp);
 	struct music_queue_node *new_node = (struct music_queue_node *) malloc(sizeof(struct music_queue_node));
 	if (new_node == NULL) {
 		server_logger("Failed to allocate memory for new node.", ERR);
 		return false;
 	}
+	play_with_video(xuid, nbs_file_name);
+
 	new_node->xuid = xuid;
 	new_node->note_queue_node = note_queue_head;
 	new_node->note_queue_node_start = note_queue_head;
@@ -109,6 +117,7 @@ void music_queue_delete_player(long long xuid)
 				music_queue_head = curr_node->next;
 
 			free(curr_node);
+			video_queue_delete_player(xuid);
 			return;
 		}
 		prev_node = curr_node;
@@ -189,5 +198,20 @@ bool is_player_in_music_queue(long long player_xuid)
 			return true;
 		current = current->next;
 	}
+	return false;
+}
+
+bool play_with_video(long long player_xuid, const char *filename)
+{
+    int folder_count;
+    const char **foldernames = get_foldernames(data_path_video, &folder_count);
+    for (int i = 0; i < folder_count; i++) {
+        if (strstr(filename, foldernames[i])) {
+            char video_path[260];
+            sprintf(video_path, "%s\\%s", data_path_video, foldernames[i]);
+            video_queue_add_player(player_xuid, video_path);
+			return true;
+        }
+    }
 	return false;
 }
