@@ -54,6 +54,19 @@ The subcommands are ``list``, ``play`` and ``stop``.
 Note: Please use ``/mpv list`` to get the video list before playing the video. And must be holding the used map
 You can also use the ``/mpv`` command in-game to see how to use it
 
+#### Generate playable video files
+Overview:
+We use ``ffmpeg`` to convert the video to 128x128 resolution at 20FPS.
+Each frame in the video is then extracted as a single image, which is then played by the plugin.
+
+First, download ``ffmpeg`` from [here](https://www.gyan.dev/ffmpeg/builds/ffmpeg-git-full.7z)
+Extract it and put ``ffmpeg.exe`` from the ``bin`` folder into the ``plugins\MediaPlayer\video`` folder under the server
+Rename the video you need to generate as ``input.mp4`` and put it into the ``plugins\MediaPlayer\video`` folder on the server side
+Open ``convert.bat`` in the ``plugins\MediaPlayer\video`` folder for conversion.
+
+If the conversion is successful, a folder named ``output`` should be created, and you can rename it to the same name as the music if there is any music that matches it. The plugin will automatically play the video while the music is playing.
+Please delete both ``input.mp4`` and ``output.mp4`` files for the next conversion.
+
 ## Acknowledgements
 
 - [yqs112358](https://github.com/yqs112358) providing technical support at send packet level

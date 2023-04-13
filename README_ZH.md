@@ -55,6 +55,19 @@ NBS音乐文件请放置到``plugins\MediaPlayer\nbs``文件夹中
 注意：在播放视频之前，请先使用``/mpv list``来获取视频列表。且必须手持已使用的地图
 具体使用方法，也可以在游戏内使用``/mpv``命令查看
 
+#### 生成可播放的视频文件
+概述：
+我们使用``ffmpeg``将视频转换为128x128分辨率，20FPS。
+然后将视频中的每一帧提取为单个图片，再由插件进行播放。
+
+首先，在[此处](https://www.gyan.dev/ffmpeg/builds/ffmpeg-git-full.7z)下载``ffmpeg``
+将其解压，并将``bin``文件夹中的``ffmpeg.exe``放入服务端下的``plugins\MediaPlayer\video``文件夹
+将你需要生成的视频重命名为``input.mp4``，并且放入服务端下的``plugins\MediaPlayer\video``文件夹
+在``plugins\MediaPlayer\video``文件夹中打开``convert.bat``进行转换。
+
+如果转换成功，应该会产生一个名为``output``的文件夹，如果有与之匹配的音乐，你可以将其重命名为和音乐同名。插件会在播放音乐的同时自动播放视频。
+请将``input.mp4``和``output.mp4``两个文件删除，以便于下一次转换。
+
 ## 致谢
 
 - [yqs112358](https://github.com/yqs112358) 提供了在发包层面的技术支持
