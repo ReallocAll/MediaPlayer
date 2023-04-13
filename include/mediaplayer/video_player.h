@@ -2,6 +2,7 @@
 #include <littlehooker/littlehooker.h>
 #include <time.h>
 #include "logger.h"
+#include "process_png.h"
 #include "file_utils.h"
 #include "mc/actor.h"
 #include "mc/player.h"

@@ -64,28 +64,33 @@ void play_video(struct video_queue *video_queue_node, struct map_item_saved_data
     // 1000ms / 50 = 20FPS
     int frame_index = (int)(((time_t)clock() - video_queue_node->start_time) / 50) + 1;
 
-    sprintf(filepath, "%s\\%04d.bin", video_queue_node->video_path, frame_index);
+    sprintf(filepath, "%s\\%04d.png", video_queue_node->video_path, frame_index);
     FILE *fp = fopen(filepath, "rb");
-
     if (!fp) {
         video_queue_delete_player(video_queue_node->xuid);
         return;
     }
+    fclose(fp);
 
-    unsigned int val;
-    for (int i = 0; i < 128; ++i) {
-        for (int j = 0; j < 128; ++j) {
-            fread(&val, sizeof(val), 1, fp);
+    struct rgb **pixels = get_png_pixels(filepath);
+    unsigned int val = 0;
+    for (int y = 0; y < 128; ++y) {
+        for (int x = 0; x < 128; ++x) {
+            memcpy((unsigned char *)&val, &pixels[y][x], sizeof(pixels[y][x]));
             TLCALL("?setPixel@MapItemSavedData@@QEAA_NIII@Z",
                 char (*)(struct map_item_saved_data *, int pixel, unsigned int row, unsigned int line),
-                map_data, 0xff000000 | val, j, i);
+                map_data, 0xff000000 | val, x, y);
         }
     }
     TLCALL("?setLocked@MapItemSavedData@@QEAAXXZ",
         void (*)(struct map_item_saved_data *),
         map_data);
 
-    fclose(fp);
+	for (int y = 0; y < 128; y++) {
+		free(pixels[y]);
+	}
+	free(pixels);
+
     video_queue_node->current_frame = frame_index;
 }
 
