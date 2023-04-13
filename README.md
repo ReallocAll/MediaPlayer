@@ -72,3 +72,5 @@ Without their support, this project would not have been possible
 | [uthash](https://github.com/troydhanson/uthash)              | [license](https://github.com/troydhanson/uthash/blob/master/LICENSE)      |
 | [microsoft-pdb](https://github.com/microsoft/microsoft-pdb)  | [license](https://github.com/microsoft/microsoft-pdb/blob/master/LICENSE) |
 | [Horion](https://github.com/horionclient/Horion)             | [license](https://github.com/horionclient/Horion/blob/master/LICENSE)     |
+| [libspng](https://github.com/randy408/libspng/)              | BSD-2-Clause                                                              |
+| [miniz](https://github.com/richgel999/miniz)                 | MIT                                                                       |

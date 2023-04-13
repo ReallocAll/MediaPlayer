@@ -73,3 +73,5 @@ NBS音乐文件请放置到``plugins\MediaPlayer\nbs``文件夹中
 | [uthash](https://github.com/troydhanson/uthash)              | [许可证](https://github.com/troydhanson/uthash/blob/master/LICENSE)      |
 | [microsoft-pdb](https://github.com/microsoft/microsoft-pdb)  | [许可证](https://github.com/microsoft/microsoft-pdb/blob/master/LICENSE) |
 | [Horion](https://github.com/horionclient/Horion)             | [许可证](https://github.com/horionclient/Horion/blob/master/LICENSE)     |
+| [libspng](https://github.com/randy408/libspng/)              | BSD-2-Clause                                                             |
+| [miniz](https://github.com/richgel999/miniz)                 | MIT                                                                      |
