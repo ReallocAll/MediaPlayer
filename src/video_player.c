@@ -64,7 +64,7 @@ void play_video(struct video_queue *video_queue_node, struct map_item_saved_data
     // 1000ms / 50 = 20FPS
     int frame_index = (int)(((time_t)clock() - video_queue_node->start_time) / 50) + 1;
 
-    sprintf(filepath, "%s\\%04d.png", video_queue_node->video_path, frame_index);
+    sprintf(filepath, "%s\\%09d.png", video_queue_node->video_path, frame_index);
     FILE *fp = fopen(filepath, "rb");
     if (!fp) {
         video_queue_delete_player(video_queue_node->xuid);
