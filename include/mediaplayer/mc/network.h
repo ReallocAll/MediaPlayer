@@ -3,6 +3,7 @@
 #include <mediaplayer/cpp_string.h>
 #include "position.h"
 #include "actor.h"
+#include "player.h"
 
 enum boss_bar_event_type {
 	BOSS_BAR_DISPLAY,

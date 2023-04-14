@@ -125,7 +125,8 @@ void music_queue_delete_player(long long xuid)
 			char player_xuid[PLAYER_XUID_STR_LEN];
 			_i64toa(xuid, player_xuid, 10);
 			struct player *player = get_player_by_xuid(g_level, player_xuid);
-			send_boss_event_packet(player, "", 0, BOSS_BAR_HIDE);
+			if (is_player(player))
+				send_boss_event_packet(player, "", 0, BOSS_BAR_HIDE);
 			video_queue_delete_player(xuid);
 			return;
 		}
