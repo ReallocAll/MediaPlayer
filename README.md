@@ -17,11 +17,11 @@ NBS music files should be placed in the ``plugins\MediaPlayer\nbs`` folder
 Use ``/mpm`` as the main command in the game
 The subcommands are ``list``, ``play`` and ``stop``.
 
-| Subcommands | Parameters | Examples    | Explanation         |
-| ----------- | ---------- | ----------- | ------------------- |
-| list        | none       | /mpm list   | Get song index      |
-| play        | Song index | /mpm play 1 | Play song (index 1) |
-| stop        | none       | /mpm stop   | stop playing        |
+| Subcommands | Parameters                            | Examples      | Explanation                           |
+| ----------- | ------------------------------------- | ------------- | ------------------------------------- |
+| list        | none                                  | /mpm list     | Get song index                        |
+| play        | Song index, Optional: Number of loops | /mpm play 1 3 | Play song (index 1, loop three times) |
+| stop        | none                                  | /mpm stop     | stop playing                          |
 
 Note: Before playing music, please use ``/mpm list`` to get the music list first.
 You can also use the ``/mpm`` command inside the game to see how to use it
@@ -45,11 +45,11 @@ Please place the video folder in the ``plugins\MediaPlayer\video`` folder
 Use ``/mpv`` as the main command in the game
 The subcommands are ``list``, ``play`` and ``stop``.
 
-| Subcommands | Parameters  | Examples    | Explanation          |
-| ----------- | ----------- | ----------- | -------------------- |
-| list        | none        | /mpv list   | Get video index      |
-| play        | Video index | /mpv play 1 | Play video (index 1) |
-| stop        | none        | /mpv stop   | stop playing         |
+| Subcommands | Parameters                             | Examples      | Explanation                            |
+| ----------- | -------------------------------------- | ------------- | -------------------------------------- |
+| list        | none                                   | /mpv list     | Get video index                        |
+| play        | Video index, Optional: Number of loops | /mpv play 1 3 | Play video (index 1, loop three times) |
+| stop        | none                                   | /mpv stop     | stop playing                           |
 
 Note: Please use ``/mpv list`` to get the video list before playing the video. And must be holding the used map
 You can also use the ``/mpv`` command in-game to see how to use it
