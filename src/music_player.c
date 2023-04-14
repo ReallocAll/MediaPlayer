@@ -68,7 +68,7 @@ struct note_queue_node *generate_note_queue(FILE *fp, time_t *total_time)
 	return note_queue_node_head;
 }
 
-bool music_queue_add_player(long long xuid, const char *nbs_file_name)
+bool music_queue_add_player(long long xuid, const char *nbs_file_name, int loop)
 {
 	music_queue_delete_player(xuid);
 	char nbs_path[260];
@@ -84,13 +84,14 @@ bool music_queue_add_player(long long xuid, const char *nbs_file_name)
 		server_logger("Failed to allocate memory for new node.", ERR);
 		return false;
 	}
-	play_with_video(xuid, nbs_file_name);
+	play_with_video(xuid, nbs_file_name, loop);
 
 	new_node->xuid = xuid;
 	new_node->note_queue_node = note_queue_head;
 	new_node->note_queue_node_start = note_queue_head;
 	new_node->start_time = clock();
 	new_node->total_time = total_time;
+	new_node->loop = loop;
 	strncpy(new_node->song_name, strtok(_strdup(nbs_file_name), "."), sizeof(new_node->song_name));
 	new_node->next = NULL;
 
@@ -172,7 +173,25 @@ void send_music_sound_packet(void)
 		if (note_node) {
 			music_queue_node_curr->note_queue_node = note_node;
 		} else {
-			music_queue_delete_player(music_queue_node_curr->xuid);
+			if (music_queue_node_curr->loop > 1) {
+				--music_queue_node_curr->loop;
+				// Solution 1
+				music_queue_node_curr->note_queue_node =
+					music_queue_node_curr->note_queue_node_start;
+				music_queue_node_curr->start_time = clock();
+				// music_queue_node_curr->start_time += 3000; // interval
+				play_with_video(music_queue_node_curr->xuid,
+						music_queue_node_curr->song_name,
+						music_queue_node_curr->loop);
+				// Solution 2
+				// char song_path[260];
+				// sprintf(song_path, "%s.nbs", music_queue_node_curr->song_name);
+				// music_queue_add_player(music_queue_node_curr->xuid,
+				// 		song_path,
+				// 		music_queue_node_curr->loop);
+			} else {
+				music_queue_delete_player(music_queue_node_curr->xuid);
+			}
 		}
 
 		music_queue_node_curr = music_queue_node_curr->next;
@@ -222,18 +241,18 @@ void free_music_queue(void)
 }
 
 
-bool is_player_in_music_queue(long long player_xuid)
+struct music_queue_node *music_queue_get_player(long long player_xuid)
 {
 	struct music_queue_node *current = music_queue_head;
 	while (current != NULL) {
 		if (current->xuid == player_xuid)
-			return true;
+			return current;
 		current = current->next;
 	}
-	return false;
+	return NULL;
 }
 
-bool play_with_video(long long player_xuid, const char *filename)
+bool play_with_video(long long player_xuid, const char *filename, int loop)
 {
     int folder_count;
     const char **foldernames = get_foldernames(data_path_video, &folder_count);
@@ -241,7 +260,7 @@ bool play_with_video(long long player_xuid, const char *filename)
         if (strstr(filename, foldernames[i])) {
             char video_path[260];
             sprintf(video_path, "%s\\%s", data_path_video, foldernames[i]);
-            video_queue_add_player(player_xuid, video_path);
+            video_queue_add_player(player_xuid, video_path, loop);
 			return true;
         }
     }

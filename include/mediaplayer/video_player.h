@@ -14,10 +14,11 @@ struct video_queue {
     char video_path[260];
     int total_frames;
     int current_frame;
+    int loop;
     struct video_queue *next;
 };
 
-bool video_queue_add_player(long long xuid, char *video_path);
+bool video_queue_add_player(long long xuid, char *video_path, int loop);
 void video_queue_delete_player(long long xuid);
 void play_video(struct video_queue *video_queue_node, struct map_item_saved_data *map_data);
 void free_video_queue(void);

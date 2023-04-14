@@ -7,7 +7,7 @@ bool proc_mpm_cmd(struct player *player, int argc, const char *argv[], char ***f
         send_text_packet(player, 0, "§6[MediaPlayer] Before playing music,\n");
         send_text_packet(player, 0, "§6[MediaPlayer] please use `/mpm list` to get the music list first.\n");
         send_text_packet(player, 0, "§6[MediaPlayer] /mpm list\n");
-        send_text_packet(player, 0, "§6[MediaPlayer] /mpm play <index: number>\n");
+        send_text_packet(player, 0, "§6[MediaPlayer] /mpm play <index: number> [loop: number]\n");
         send_text_packet(player, 0, "§6[MediaPlayer] /mpm stop\n");
         return false;
     }
@@ -26,10 +26,13 @@ bool proc_mpm_cmd(struct player *player, int argc, const char *argv[], char ***f
             send_text_packet(player, 0, msg);
         }
         return false;
-    } else if (strcmp(argv[1], "play") == 0 && argc == 3) {
+    } else if (strcmp(argv[1], "play") == 0 && argc >= 3 && argc <= 4) {
         int file_index = atoi(argv[2]);
+        int loop = 1;
+        if (argc == 4)
+            loop = atoi(argv[3]);
         if (file_index >= 0 && file_index < *file_count) {
-            if (music_queue_add_player(player_xuid, (*filenames)[file_index])) {
+            if (music_queue_add_player(player_xuid, (*filenames)[file_index], loop)) {
                 char msg[260];
                 sprintf(msg, "§a[MediaPlayer] Now playing music§b %s\n", (*filenames)[file_index]);
                 send_text_packet(player, 0, msg);
@@ -51,7 +54,7 @@ bool proc_mpv_cmd(struct player *player, int argc, const char *argv[], char ***f
         send_text_packet(player, 0, "§6[MediaPlayer] Before playing video,\n");
         send_text_packet(player, 0, "§6[MediaPlayer] please use `/mpv list` to get the video list first.\n");
         send_text_packet(player, 0, "§6[MediaPlayer] /mpv list\n");
-        send_text_packet(player, 0, "§6[MediaPlayer] /mpv play <index: number>\n");
+        send_text_packet(player, 0, "§6[MediaPlayer] /mpv play <index: number> [loop: number]\n");
         send_text_packet(player, 0, "§6[MediaPlayer] /mpv stop\n");
         return false;
     }
@@ -70,14 +73,17 @@ bool proc_mpv_cmd(struct player *player, int argc, const char *argv[], char ***f
             send_text_packet(player, 0, msg);
         }
         return false;
-    } else if (strcmp(argv[1], "play") == 0 && argc == 3) {
+    } else if (strcmp(argv[1], "play") == 0 && argc >= 3 && argc <= 4) {
         int folder_index = atoi(argv[2]);
+        int loop = 1;
+        if (argc == 4)
+            loop = atoi(argv[3]);
         if (folder_index >= 0 && folder_index < *folder_count) {
             char video_path[260];
             sprintf(video_path, "%s\\%s", data_path_video, (*foldernames)[folder_index]);
             sprintf(msg, "§a[MediaPlayer] Now playing video§b %s\n", (*foldernames)[folder_index]);
             send_text_packet(player, 0, msg);
-            video_queue_add_player(player_xuid, video_path);
+            video_queue_add_player(player_xuid, video_path, loop);
             return false;
         }
     } else if (strcmp(argv[1], "stop") == 0 && argc == 2) {
@@ -92,10 +98,10 @@ bool process_cmd(struct player *player, const char *cmd)
 {
     char *cmd_m = _strdup(cmd);
 
-    const char *argv[3];
+    const char *argv[4];
     int argc = 0;
     char *token = strtok(cmd_m, " ");
-    while (token != NULL && argc < 3) {
+    while (token != NULL && argc < 4) {
         argv[argc++] = token;
         token = strtok(NULL, " ");
     }

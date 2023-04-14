@@ -45,16 +45,17 @@ struct music_queue_node {
     struct note_queue_node *note_queue_node_start;
     time_t start_time;
     time_t total_time;
+    int loop;
     char song_name[256];
     struct music_queue_node *next;
 };
 
 struct note_queue_node *generate_note_queue(FILE *fp, time_t *total_time);
 void send_music_sound_packet(void);
-bool music_queue_add_player(long long xuid, const char *nbs_file_name);
+bool music_queue_add_player(long long xuid, const char *nbs_file_name, int loop);
 void music_queue_delete_player(long long xuid);
 void free_note_queue(struct note_queue_node *head);
 void free_music_queue(void);
-bool is_player_in_music_queue(long long player_xuid);
-bool play_with_video(long long player_xuid, const char *filename);
+struct music_queue_node *music_queue_get_player(long long player_xuid);
+bool play_with_video(long long player_xuid, const char *filename, int loop);
 void set_music_boss_bar(struct player *player, time_t total_time, time_t current_time, const char *song_name);

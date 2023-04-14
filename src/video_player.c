@@ -2,7 +2,7 @@
 
 struct video_queue *video_queue_head = NULL;
 
-bool video_queue_add_player(long long xuid, char *video_path)
+bool video_queue_add_player(long long xuid, char *video_path, int loop)
 {
     video_queue_delete_player(xuid);
 	struct video_queue *new_node = (struct video_queue *) malloc(sizeof(struct video_queue));
@@ -19,6 +19,7 @@ bool video_queue_add_player(long long xuid, char *video_path)
 	strncpy(new_node->video_path, video_path, sizeof(new_node->video_path));
 	new_node->total_frames = total_frames;
 	new_node->current_frame = 1;
+	new_node->loop = loop;
 	new_node->next = NULL;
 
 	if (video_queue_head == NULL) {
@@ -61,13 +62,27 @@ void play_video(struct video_queue *video_queue_node, struct map_item_saved_data
     struct player *player = get_player_by_xuid(g_level, player_xuid);
     char filepath[260];
 
+	if (((time_t)clock() - video_queue_node->start_time) <= 0)
+		return;
     // 1000ms / 50 = 20FPS
     int frame_index = (int)(((time_t)clock() - video_queue_node->start_time) / 50) + 1;
 
     sprintf(filepath, "%s\\%09d.png", video_queue_node->video_path, frame_index);
     FILE *fp = fopen(filepath, "rb");
     if (!fp) {
-        video_queue_delete_player(video_queue_node->xuid);
+		if (video_queue_node->loop > 1) {
+			--video_queue_node->loop;
+			// Solution 1
+			video_queue_node->current_frame = 1;
+			video_queue_node->start_time = clock();
+			// video_queue_node->start_time += 3000; // interval
+			// Solution 2
+			// video_queue_add_player(video_queue_node->xuid,
+			// 		video_queue_node->video_path,
+			// 		video_queue_node->loop);
+		} else {
+			video_queue_delete_player(video_queue_node->xuid);
+		}
         return;
     }
     fclose(fp);
