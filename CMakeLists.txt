@@ -7,6 +7,8 @@ set(CMAKE_BUILD_TYPE Debug)
 
 file(GLOB_RECURSE SRC_FILES_DIR
     ${PROJECT_SOURCE_DIR}/src/*.c
+    ${PROJECT_SOURCE_DIR}/include/libspng/*.c
+    ${PROJECT_SOURCE_DIR}/include/miniz/*.c
 )
 
 include_directories(
