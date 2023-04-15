@@ -4,6 +4,7 @@
 #include "logger.h"
 #include "process_png.h"
 #include "file_utils.h"
+#include "music_player.h"
 #include "mc/actor.h"
 #include "mc/player.h"
 #include "mc/level.h"

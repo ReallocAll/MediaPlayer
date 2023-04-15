@@ -57,6 +57,9 @@ void video_queue_delete_player(long long xuid)
 
 void play_video(struct video_queue *video_queue_node, struct map_item_saved_data *map_data)
 {
+	struct music_queue_node *music_queue_node = music_queue_get_player(video_queue_node->xuid);
+	if (music_queue_node && music_queue_node->note_queue_node == music_queue_node->note_queue_node_start)
+		return;
 	char player_xuid[PLAYER_XUID_STR_LEN];
     sprintf_s(player_xuid, PLAYER_XUID_STR_LEN, "%lld", video_queue_node->xuid);
     struct player *player = get_player_by_xuid(g_level, player_xuid);
