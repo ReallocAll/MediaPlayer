@@ -24,7 +24,7 @@ void send_play_sound_packet(struct player *player, const char *sound_name,
 
 	// Never dereference struct string.
 	// Please use functions like memcpy to manipulate data
-	struct string *sound_name_cpp_str = string.string(sound_name);
+	struct string *sound_name_cpp_str = std_string_string(sound_name);
 	// TLCALL("??0PlaySoundPacket@@QEAA@V?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@AEBVVec3@@MM@Z",
 	// 	uintptr_t (*)(uintptr_t pkt, struct string *sound_name,
 	// 				 	struct vec3 *pos, float volume, float pitch),
@@ -46,8 +46,8 @@ void send_text_packet(struct player *player, int mode, const char *msg)
 {
 	uintptr_t pkt = create_packet(9);
 	const char *player_name = get_name_tag((struct actor *)player);
-	struct string *player_name_cpp_str = string.string(player_name);
-	struct string *msg_cpp_str = string.string(msg);
+	struct string *player_name_cpp_str = std_string_string(player_name);
+	struct string *msg_cpp_str = std_string_string(msg);
 	DEREFERENCE(int, pkt, 48) = mode;
  	memcpy((void *)(pkt + 56), player_name_cpp_str, 32);
  	memcpy((void *)(pkt + 88), msg_cpp_str, 32);
@@ -61,7 +61,7 @@ void send_boss_event_packet(struct player *player, const char *name,
 {
 	uintptr_t pkt = create_packet(74);
 	uintptr_t unique_id = DEREFERENCE(uintptr_t, get_unique_id((struct actor *)player), 0);
-	struct string *name_cpp_str = string.string(name);
+	struct string *name_cpp_str = std_string_string(name);
 	DEREFERENCE(uintptr_t, pkt, 56) = unique_id;
 	DEREFERENCE(int, pkt, 72) = type;
  	memcpy((void *)(pkt + 80), name_cpp_str, 32);

@@ -21,7 +21,7 @@ const char *get_name_tag(struct actor *actor)
 		TLCALL("?getNameTag@Actor@@UEBAAEBV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@XZ",
 			struct string *(*)(struct actor *actor),
 			actor);
-	return string.c_str(cpp_str);
+	return std_string_c_str(cpp_str);
 }
 
 unsigned get_entity_type_id(struct actor *actor)

@@ -9,11 +9,11 @@ struct player *get_server_player(struct server_network_handler *handler, uintptr
 
 const char *get_player_xuid(struct player *player)
 {
-	struct string *xuid_cpp_str = string.string("0000000000000000");
+	struct string *xuid_cpp_str = std_string_string("0000000000000000");
 	TLCALL("?getXuid@Player@@UEBA?AV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@XZ",
 		struct string *(*)(struct player *, struct string *),
 		player, xuid_cpp_str);
-	const char *xuid = string.c_str(xuid_cpp_str);
+	const char *xuid = std_string_c_str(xuid_cpp_str);
 	free(xuid_cpp_str);
 	return xuid;
 }

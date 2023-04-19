@@ -21,8 +21,8 @@ TLHOOK(change_setting_command_setup, void,
 	"?setup@ChangeSettingCommand@@SAXAEAVCommandRegistry@@@Z",
 	uintptr_t _this)
 {
-	struct string *cmd_music = string.string("mpm");
-	struct string *cmd_video = string.string("mpv");
+	struct string *cmd_music = std_string_string("mpm");
+	struct string *cmd_video = std_string_string("mpv");
 	TLCALL("?registerCommand@CommandRegistry@@QEAAXAEBV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@PEBDW4CommandPermissionLevel@@UCommandFlag@@3@Z",
 		void (*)(uintptr_t, struct string *, const char *, char, short, short),
 		_this, cmd_music, "mediaplayer music", 0, 0, 0x80);
@@ -39,7 +39,7 @@ TLHOOK(on_player_cmd, void,
 	struct server_network_handler* _this, uintptr_t id, uintptr_t pkt)
 {
 	struct player* player = get_server_player(_this, id, pkt);
-	const char *cmd = string.c_str(REFERENCE(struct string, pkt, 48));
+	const char *cmd = std_string_c_str(REFERENCE(struct string, pkt, 48));
 	if (player && !process_cmd(player, cmd))
 		return;
 
@@ -121,5 +121,12 @@ bool load_plugin(void)
 	if (!using_ll_preloader_api)
 		lh_enable_all_hook();
 
+	return true;
+}
+
+bool unload_plugin(void)
+{
+	if (!using_ll_preloader_api)
+		lh_uninit();
 	return true;
 }

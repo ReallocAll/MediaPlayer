@@ -1,9 +1,11 @@
 #pragma once
 #include <littlehooker/littlehooker.h>
 
-struct string {
-    struct string *(*string)(const char *c_str);
-    const char *(*c_str)(struct string *cpp_str);
-};
+struct string;
 
-extern struct string string;
+
+// std::string::string(const char *c_str)
+struct string *std_string_string(const char *c_str);
+// std::string::c_str()
+const char *std_string_c_str(struct string *std_str);
+
