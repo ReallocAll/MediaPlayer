@@ -2,14 +2,14 @@
 
 [![wakatime](https://wakatime.com/badge/user/2838d0e1-1416-4f45-bc46-cbda8f4d9e75/project/193328a5-c16a-4ad4-9ab2-f18b70349042.svg)](https://wakatime.com/badge/user/2838d0e1-1416-4f45-bc46-cbda8f4d9e75/project/193328a5-c16a-4ad4-9ab2-f18b70349042)
 
-[![CodeFactor](https://www.codefactor.io/repository/github/willowsaucer/mediaplayer/badge)](https://www.codefactor.io/repository/github/willowsaucer/mediaplayer)
+[![CodeFactor](https://www.codefactor.io/repository/github/extcanary/mediaplayer/badge)](https://www.codefactor.io/repository/github/extcanary/mediaplayer)
 
 [English](README.md) | 简体中文
 
 
 ## 简介
 本插件用于在BDS服务器播放NBS音乐和地图视频。
-本项目使用了[LittleHooker](https://github.com/WillowSauceR/LittleHooker)框架进行HOOK。
+本项目使用了[LittleHooker](https://github.com/ExtcanaRy/LittleHooker)框架进行HOOK。
 
 ## 使用
 ### NBS 音乐播放
@@ -71,7 +71,7 @@ NBS音乐文件请放置到``plugins\MediaPlayer\nbs``文件夹中
 ## 致谢
 
 - [yqs112358](https://github.com/yqs112358) 提供了在发包层面的技术支持
-- [lgc2333](https://github.com/lgc2333) 参与了[nbsparser](https://github.com/WillowSauceR/nbsparser)的开发，提供了基础技术支持
+- [lgc2333](https://github.com/lgc2333) 参与了[nbsparser](https://github.com/ExtcanaRy/nbsparser)的开发，提供了基础技术支持
 
 没有他们的支持，这个项目不可能实现
 
@@ -79,8 +79,8 @@ NBS音乐文件请放置到``plugins\MediaPlayer\nbs``文件夹中
 
 | 项目                                                         | 许可证                                                                   |
 | ------------------------------------------------------------ | ------------------------------------------------------------------------ |
-| [LittleHooker](https://github.com/WillowSauceR/LittleHooker) | GPL-3.0                                                                  |
-| [nbsparser](https://github.com/WillowSauceR/nbsparser)       | GPL-3.0                                                                  |
+| [LittleHooker](https://github.com/ExtcanaRy/LittleHooker) | GPL-3.0                                                                  |
+| [nbsparser](https://github.com/ExtcanaRy/nbsparser)       | GPL-3.0                                                                  |
 | [dirent](https://github.com/tronkko/dirent)                  | MIT                                                                      |
 | [minhook](https://github.com/TsudaKageyu/minhook)            | [许可证](https://github.com/TsudaKageyu/minhook/blob/master/LICENSE.txt) |
 | [uthash](https://github.com/troydhanson/uthash)              | [许可证](https://github.com/troydhanson/uthash/blob/master/LICENSE)      |
