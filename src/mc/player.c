@@ -2,7 +2,8 @@
 
 struct player *get_server_player(struct server_network_handler *handler, uintptr_t id, uintptr_t pkt)
 {
-	return TLCALL("?_getServerPlayer@ServerNetworkHandler@@EEAAPEAVServerPlayer@@AEBVNetworkIdentifier@@W4SubClientId@@@Z",
+	return TLCALL("?_getServerPlayer@ServerNetworkHandler@@EEAAPEAVServerPlayer@@"
+					"AEBVNetworkIdentifier@@W4SubClientId@@@Z",
 					struct player *(*)(struct server_network_handler *handler, uintptr_t id, uintptr_t pkt),
 					REFERENCE(struct server_network_handler, handler, -16), id, DEREFERENCE(char, pkt, 16));
 }
