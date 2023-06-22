@@ -24,7 +24,7 @@ jobs:
           New-Item -ItemType directory -Path build
           cmake -S . -B build
           cmake --build build/ --config Debug -j
-          cmake --build build/ --config Release -j
+          cmake --build build/ --config RelWithDebInfo -j
 
       - name: Upload build files
         uses: actions/upload-artifact@v3
@@ -32,4 +32,4 @@ jobs:
           name: artifact
           path: |
             ./build/Debug
-            ./build/Release
+            ./build/RelWithDebInfo
