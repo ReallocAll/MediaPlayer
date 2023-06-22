@@ -120,5 +120,6 @@ bool process_cmd(struct player *player, const char *cmd)
             free_filenames(foldernames, folder_count);
     }
 
+    free(cmd_m);
     return ret;
 }

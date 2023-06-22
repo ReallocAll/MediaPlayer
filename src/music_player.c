@@ -71,6 +71,7 @@ struct note_queue_node *generate_note_queue(FILE *fp, time_t *total_time)
 bool music_queue_add_player(long long xuid, const char *nbs_file_name, int loop)
 {
 	music_queue_delete_player(xuid);
+	char *nbs_file_name_new = _strdup(nbs_file_name);
 	char nbs_path[260];
 	sprintf(nbs_path, "%s\\%s", data_path_nbs, nbs_file_name);
 	FILE *fp = fopen(nbs_path, "rb");
@@ -92,7 +93,7 @@ bool music_queue_add_player(long long xuid, const char *nbs_file_name, int loop)
 	new_node->start_time = clock();
 	new_node->total_time = total_time;
 	new_node->loop = loop;
-	strncpy(new_node->song_name, strtok(_strdup(nbs_file_name), "."), sizeof(new_node->song_name));
+	strncpy(new_node->song_name, strtok(nbs_file_name_new, "."), sizeof(new_node->song_name));
 	new_node->next = NULL;
 
 	if (music_queue_head == NULL) {
@@ -105,6 +106,7 @@ bool music_queue_add_player(long long xuid, const char *nbs_file_name, int loop)
 		curr_node = curr_node->next;
 	}
 	curr_node->next = new_node;
+	free(nbs_file_name_new);
 	return true;
 }
 
