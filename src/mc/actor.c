@@ -31,9 +31,9 @@ unsigned get_entity_type_id(struct actor *actor)
 					actor);
 }
 
-uintptr_t get_unique_id(struct actor *actor)
+uintptr_t get_or_create_unique_id(struct actor *actor)
 {
-	return TLCALL("?getUniqueID@Actor@@QEBAAEBUActorUniqueID@@XZ",
+	return TLCALL("?getOrCreateUniqueID@Actor@@QEBAAEBUActorUniqueID@@XZ",
 					uintptr_t (*)(struct actor *actor),
 					actor);
 }

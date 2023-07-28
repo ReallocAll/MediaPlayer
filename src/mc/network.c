@@ -60,7 +60,7 @@ void send_boss_event_packet(struct player *player, const char *name,
 							float per, enum boss_bar_event_type type)
 {
 	uintptr_t pkt = create_packet(74);
-	uintptr_t unique_id = DEREFERENCE(uintptr_t, get_unique_id((struct actor *)player), 0);
+	uintptr_t unique_id = DEREFERENCE(uintptr_t, get_or_create_unique_id((struct actor *)player), 0);
 	struct string *name_cpp_str = std_string_string(name);
 	DEREFERENCE(uintptr_t, pkt, 56) = unique_id;
 	DEREFERENCE(int, pkt, 72) = type;
