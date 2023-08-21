@@ -75,14 +75,8 @@ void play_video(struct video_queue *video_queue_node, struct map_item_saved_data
     if (!fp) {
 		if (video_queue_node->loop > 1) {
 			--video_queue_node->loop;
-			// Solution 1
 			video_queue_node->current_frame = 1;
 			video_queue_node->start_time = clock();
-			// video_queue_node->start_time += 3000; // interval
-			// Solution 2
-			// video_queue_add_player(video_queue_node->xuid,
-			// 		video_queue_node->video_path,
-			// 		video_queue_node->loop);
 		} else {
 			video_queue_delete_player(video_queue_node->xuid);
 		}
