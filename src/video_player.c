@@ -1,6 +1,8 @@
 #include <mediaplayer/video_player.h>
 
-struct video_queue *video_queue_head = NULL;
+
+struct video_queue *video_queue_array = NULL;
+int video_queue_size = 0;
 
 bool video_queue_add_player(long long xuid, char *video_path, int loop)
 {
@@ -20,38 +22,28 @@ bool video_queue_add_player(long long xuid, char *video_path, int loop)
 	new_node->total_frames = total_frames;
 	new_node->current_frame = 1;
 	new_node->loop = loop;
-	new_node->next = NULL;
 
-	if (video_queue_head == NULL) {
-		video_queue_head = new_node;
-		return true;
-	}
+    video_queue_array = (struct video_queue *) 
+			realloc(video_queue_array, (video_queue_size + 1) * sizeof(struct video_queue));
+    video_queue_array[video_queue_size++] = *new_node;
 
-	struct video_queue *curr_node = video_queue_head;
-	while (curr_node->next != NULL) {
-		curr_node = curr_node->next;
-	}
-	curr_node->next = new_node;
+    free(new_node);
+
 	return true;
 }
 
 void video_queue_delete_player(long long xuid)
 {
-	struct video_queue *curr_node = video_queue_head;
-	struct video_queue *prev_node = NULL;
-
-	while (curr_node != NULL) {
-		if (curr_node->xuid == xuid) {
-			if (prev_node != NULL)
-				prev_node->next = curr_node->next;
-			else
-				video_queue_head = curr_node->next;
-
-			free(curr_node);
+	for (int i = 0; i < video_queue_size; i++) {
+		if (video_queue_array[i].xuid == xuid) {
+			for (int j = i; j < video_queue_size - 1; j++) {
+				video_queue_array[j] = video_queue_array[j + 1];
+			}
+			video_queue_array = (struct video_queue *)
+					realloc(video_queue_array, (video_queue_size - 1) * sizeof(struct video_queue));
+			video_queue_size--;
 			return;
 		}
-		prev_node = curr_node;
-		curr_node = curr_node->next;
 	}
 }
 
@@ -108,23 +100,16 @@ void play_video(struct video_queue *video_queue_node, struct map_item_saved_data
 
 void free_video_queue(void)
 {
-	struct video_queue *current = video_queue_head;
-	struct video_queue *next;
-	while (current != NULL) {
-		next = current->next;
-		free(current);
-		current = next;
-	}
-	video_queue_head = NULL;
+    free(video_queue_array);
+    video_queue_array = NULL;
+    video_queue_size = 0;
 }
 
 struct video_queue *video_queue_get_player(long long player_xuid)
 {
-	struct video_queue *current = video_queue_head;
-	while (current != NULL) {
-		if (current->xuid == player_xuid)
-			return current;
-		current = current->next;
-	}
-	return NULL;
+    for (int i = 0; i < video_queue_size; i++) {
+        if (video_queue_array[i].xuid == player_xuid)
+            return &video_queue_array[i];
+    }
+    return NULL;
 }

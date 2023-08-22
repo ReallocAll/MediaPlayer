@@ -16,7 +16,6 @@ struct video_queue {
     int total_frames;
     int current_frame;
     int loop;
-    struct video_queue *next;
 };
 
 bool video_queue_add_player(long long xuid, char *video_path, int loop);
