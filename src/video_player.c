@@ -77,23 +77,21 @@ void play_video(struct video_queue *video_queue_node, struct map_item_saved_data
     fclose(fp);
 
     struct rgb **pixels = get_png_pixels(filepath);
-    unsigned int val = 0;
+    static void *set_pixel_func = NULL;
+    if (!set_pixel_func)
+        set_pixel_func = dlsym("?setPixel@MapItemSavedData@@QEAA_NIII@Z");
     for (int y = 0; y < 128; ++y) {
         for (int x = 0; x < 128; ++x) {
-            memcpy((unsigned char *)&val, &pixels[y][x], sizeof(pixels[y][x]));
-            TLCALL("?setPixel@MapItemSavedData@@QEAA_NIII@Z",
+            VIRTUAL_CALL(set_pixel_func,
                 char (*)(struct map_item_saved_data *, int pixel, unsigned int row, unsigned int line),
-                map_data, 0xff000000 | val, x, y);
+                map_data, 0xFF000000 | *(unsigned int *)&pixels[y][x], x, y);
         }
+		free(pixels[y]);
     }
+	free(pixels);
     TLCALL("?setLocked@MapItemSavedData@@QEAAXXZ",
         void (*)(struct map_item_saved_data *),
         map_data);
-
-	for (int y = 0; y < 128; y++) {
-		free(pixels[y]);
-	}
-	free(pixels);
 
     video_queue_node->current_frame = frame_index;
 }
