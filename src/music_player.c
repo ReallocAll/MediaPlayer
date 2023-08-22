@@ -178,20 +178,10 @@ void send_music_sound_packet(void)
 		} else {
 			if (music_queue_node_curr->loop > 1) {
 				--music_queue_node_curr->loop;
-				// Solution 1
 				music_queue_node_curr->note_queue_node =
 					music_queue_node_curr->note_queue_node_start;
 				music_queue_node_curr->start_time = clock();
 				music_queue_node_curr->start_time += 3000; // interval
-				// play_with_video(music_queue_node_curr->xuid,
-				// 		music_queue_node_curr->song_name,
-				// 		music_queue_node_curr->loop);
-				// Solution 2
-				// char song_path[260];
-				// sprintf(song_path, "%s.nbs", music_queue_node_curr->song_name);
-				// music_queue_add_player(music_queue_node_curr->xuid,
-				// 		song_path,
-				// 		music_queue_node_curr->loop);
 			} else {
 				music_queue_delete_player(music_queue_node_curr->xuid);
 			}
