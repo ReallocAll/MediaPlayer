@@ -171,7 +171,7 @@ void send_music_sound_packet(void)
 		}
 		if (current_time)
 			set_music_boss_bar(player, music_queue_node_curr->total_time,
-								current_time, music_queue_node_curr->song_name);
+				music_queue_node_curr->note_queue_node->time, music_queue_node_curr->song_name);
 
 		if (note_node) {
 			music_queue_node_curr->note_queue_node = note_node;
