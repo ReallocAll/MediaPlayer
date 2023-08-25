@@ -18,11 +18,16 @@ NBS音乐文件请放置到``plugins\MediaPlayer\nbs``文件夹中
 在游戏中使用``/mpm``作为主命令
 子命令为``list``，``play``和``stop``。
 
-| 子命令 | 参数                     | 示例          | 解释                        |
-| ------ | ------------------------ | ------------- | --------------------------- |
-| list   | 无                       | /mpm list     | 获取歌曲索引                |
-| play   | 歌曲索引，可选：循环次数 | /mpm play 1 3 | 播放歌曲(索引为1， 循环3次) |
-| stop   | 无                       | /mpm stop     | 停止播放                    |
+| 子命令 | 参数                                       | 示例            | 解释                                               |
+| ------ | ------------------------------------------ | --------------- | -------------------------------------------------- |
+| list   | 无                                         | /mpm list       | 获取歌曲索引                                       |
+| play   | 歌曲索引，可选：循环次数，可选：进度条类型 | /mpm play 1 3 1 | 播放歌曲(索引为1， 循环3次，使用actionbar显示进度) |
+| stop   | 无                                         | /mpm stop       | 停止播放                                           |
+
+进度条类型：
+0: bossbar
+1: actionbar
+2: 不显示
 
 注意：在播放音乐之前，请先使用``/mpm list``来获取音乐列表。
 具体使用方法，也可以在游戏内使用``/mpm``命令查看
@@ -77,14 +82,14 @@ NBS音乐文件请放置到``plugins\MediaPlayer\nbs``文件夹中
 
 ## 许可证
 
-| 项目                                                         | 许可证                                                                   |
-| ------------------------------------------------------------ | ------------------------------------------------------------------------ |
-| [LittleHooker](https://github.com/ExtcanaRy/LittleHooker) | GPL-3.0                                                                  |
-| [nbsparser](https://github.com/ExtcanaRy/nbsparser)       | GPL-3.0                                                                  |
-| [dirent](https://github.com/tronkko/dirent)                  | MIT                                                                      |
-| [minhook](https://github.com/TsudaKageyu/minhook)            | [许可证](https://github.com/TsudaKageyu/minhook/blob/master/LICENSE.txt) |
-| [uthash](https://github.com/troydhanson/uthash)              | [许可证](https://github.com/troydhanson/uthash/blob/master/LICENSE)      |
-| [microsoft-pdb](https://github.com/microsoft/microsoft-pdb)  | [许可证](https://github.com/microsoft/microsoft-pdb/blob/master/LICENSE) |
-| [Horion](https://github.com/horionclient/Horion)             | [许可证](https://github.com/horionclient/Horion/blob/master/LICENSE)     |
-| [libspng](https://github.com/randy408/libspng/)              | BSD-2-Clause                                                             |
-| [miniz](https://github.com/richgel999/miniz)                 | MIT                                                                      |
+| 项目                                                        | 许可证                                                                   |
+| ----------------------------------------------------------- | ------------------------------------------------------------------------ |
+| [LittleHooker](https://github.com/ExtcanaRy/LittleHooker)   | GPL-3.0                                                                  |
+| [nbsparser](https://github.com/ExtcanaRy/nbsparser)         | GPL-3.0                                                                  |
+| [dirent](https://github.com/tronkko/dirent)                 | MIT                                                                      |
+| [minhook](https://github.com/TsudaKageyu/minhook)           | [许可证](https://github.com/TsudaKageyu/minhook/blob/master/LICENSE.txt) |
+| [uthash](https://github.com/troydhanson/uthash)             | [许可证](https://github.com/troydhanson/uthash/blob/master/LICENSE)      |
+| [microsoft-pdb](https://github.com/microsoft/microsoft-pdb) | [许可证](https://github.com/microsoft/microsoft-pdb/blob/master/LICENSE) |
+| [Horion](https://github.com/horionclient/Horion)            | [许可证](https://github.com/horionclient/Horion/blob/master/LICENSE)     |
+| [libspng](https://github.com/randy408/libspng/)             | BSD-2-Clause                                                             |
+| [miniz](https://github.com/richgel999/miniz)                | MIT                                                                      |

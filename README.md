@@ -17,11 +17,16 @@ NBS music files should be placed in the ``plugins\MediaPlayer\nbs`` folder
 Use ``/mpm`` as the main command in the game
 The subcommands are ``list``, ``play`` and ``stop``.
 
-| Subcommands | Parameters                            | Examples      | Explanation                           |
-| ----------- | ------------------------------------- | ------------- | ------------------------------------- |
-| list        | none                                  | /mpm list     | Get song index                        |
-| play        | Song index, Optional: Number of loops | /mpm play 1 3 | Play song (index 1, loop three times) |
-| stop        | none                                  | /mpm stop     | stop playing                          |
+| Subcommands | Parameters                                                    | Examples        | Explanation                                                       |
+| ----------- | ------------------------------------------------------------- | --------------- | ----------------------------------------------------------------- |
+| list        | None                                                          | /mpm list       | Get song index                                                    |
+| play        | song index, optional: loop count, optional: progress bar type | /mpm play 1 3 1 | play song (index 1, loop 3 times, use actionbar to show progress) |
+| stop        | none                                                          | /mpm stop       | stop play                                                         |
+
+Progress bar type:
+0: bossbar
+1: actionbar
+2: not displayed
 
 Note: Before playing music, please use ``/mpm list`` to get the music list first.
 You can also use the ``/mpm`` command inside the game to see how to use it
@@ -76,14 +81,14 @@ Without their support, this project would not have been possible
 
 ## License
 
-| Project                                                      | License                                                                   |
-| ------------------------------------------------------------ | ------------------------------------------------------------------------- |
-| [LittleHooker](https://github.com/ExtcanaRy/LittleHooker) | GPL-3.0                                                                   |
-| [nbsparser](https://github.com/ExtcanaRy/nbsparser)       | GPL-3.0                                                                   |
-| [dirent](https://github.com/tronkko/dirent)                  | MIT                                                                       |
-| [minhook](https://github.com/TsudaKageyu/minhook)            | [license](https://github.com/TsudaKageyu/minhook/blob/master/LICENSE.txt) |
-| [uthash](https://github.com/troydhanson/uthash)              | [license](https://github.com/troydhanson/uthash/blob/master/LICENSE)      |
-| [microsoft-pdb](https://github.com/microsoft/microsoft-pdb)  | [license](https://github.com/microsoft/microsoft-pdb/blob/master/LICENSE) |
-| [Horion](https://github.com/horionclient/Horion)             | [license](https://github.com/horionclient/Horion/blob/master/LICENSE)     |
-| [libspng](https://github.com/randy408/libspng/)              | BSD-2-Clause                                                              |
-| [miniz](https://github.com/richgel999/miniz)                 | MIT                                                                       |
+| Project                                                     | License                                                                   |
+| ----------------------------------------------------------- | ------------------------------------------------------------------------- |
+| [LittleHooker](https://github.com/ExtcanaRy/LittleHooker)   | GPL-3.0                                                                   |
+| [nbsparser](https://github.com/ExtcanaRy/nbsparser)         | GPL-3.0                                                                   |
+| [dirent](https://github.com/tronkko/dirent)                 | MIT                                                                       |
+| [minhook](https://github.com/TsudaKageyu/minhook)           | [license](https://github.com/TsudaKageyu/minhook/blob/master/LICENSE.txt) |
+| [uthash](https://github.com/troydhanson/uthash)             | [license](https://github.com/troydhanson/uthash/blob/master/LICENSE)      |
+| [microsoft-pdb](https://github.com/microsoft/microsoft-pdb) | [license](https://github.com/microsoft/microsoft-pdb/blob/master/LICENSE) |
+| [Horion](https://github.com/horionclient/Horion)            | [license](https://github.com/horionclient/Horion/blob/master/LICENSE)     |
+| [libspng](https://github.com/randy408/libspng/)             | BSD-2-Clause                                                              |
+| [miniz](https://github.com/richgel999/miniz)                | MIT                                                                       |

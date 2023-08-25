@@ -31,6 +31,11 @@ static const char *BUILTIN_INSTRUMENT[NUM_NOTES] = {
     "note.pling"
 };
 
+enum music_bar_type {
+    MUSIC_BAR_TYPE_BOSS_BAR,
+    MUSIC_BAR_TYPE_ACTION_BAR
+};
+
 struct note_queue_node {
     int time;
     int instrument;
@@ -46,16 +51,17 @@ struct music_queue_node {
     time_t start_time;
     time_t total_time;
     int loop;
+    enum music_bar_type music_bar_type;
     char song_name[256];
     struct music_queue_node *next;
 };
 
 struct note_queue_node *generate_note_queue(FILE *fp, time_t *total_time);
 void send_music_sound_packet(void);
-bool music_queue_add_player(long long xuid, const char *nbs_file_name, int loop);
+bool music_queue_add_player(long long xuid, const char *nbs_file_name, int loop, enum music_bar_type music_bar_type);
 void music_queue_delete_player(long long xuid);
 void free_note_queue(struct note_queue_node *head);
 void free_music_queue(void);
 struct music_queue_node *music_queue_get_player(long long player_xuid);
 bool play_with_video(long long player_xuid, const char *filename, int loop);
-void set_music_boss_bar(struct player *player, time_t total_time, time_t current_time, const char *song_name);
+void set_music_bar(struct player *player, struct music_queue_node *node);

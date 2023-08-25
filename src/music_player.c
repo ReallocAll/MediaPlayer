@@ -68,7 +68,7 @@ struct note_queue_node *generate_note_queue(FILE *fp, time_t *total_time)
 	return note_queue_node_head;
 }
 
-bool music_queue_add_player(long long xuid, const char *nbs_file_name, int loop)
+bool music_queue_add_player(long long xuid, const char *nbs_file_name, int loop, enum music_bar_type music_bar_type)
 {
 	music_queue_delete_player(xuid);
 	char *nbs_file_name_new = _strdup(nbs_file_name);
@@ -93,6 +93,7 @@ bool music_queue_add_player(long long xuid, const char *nbs_file_name, int loop)
 	new_node->start_time = clock();
 	new_node->total_time = total_time;
 	new_node->loop = loop;
+	new_node->music_bar_type = music_bar_type;
 	strncpy(new_node->song_name, strtok(nbs_file_name_new, "."), sizeof(new_node->song_name));
 	new_node->next = NULL;
 
@@ -170,8 +171,7 @@ void send_music_sound_packet(void)
 			send_play_sound_packet(player, sound_name, player_pos, note_node->volume, note_node->pitch);
 		}
 		if (current_time)
-			set_music_boss_bar(player, music_queue_node_curr->total_time,
-				music_queue_node_curr->note_queue_node->time, music_queue_node_curr->song_name);
+			set_music_bar(player, music_queue_node_curr);
 
 		if (note_node) {
 			music_queue_node_curr->note_queue_node = note_node;
@@ -191,22 +191,32 @@ void send_music_sound_packet(void)
 	}
 }
 
-void set_music_boss_bar(struct player *player, time_t total_time, time_t current_time, const char *song_name)
+void set_music_bar(struct player *player, struct music_queue_node *node)
 {
-	int total_time_min = (int)(total_time / 1000 / 60);
-	int total_time_sec = ((int)(total_time / 1000)) % 60;
-	int passed_time_min = (int)(current_time / 1000 / 60);
-	int passed_time_sec = ((int)(current_time / 1000)) % 60;
-	float passed_rate = (float)current_time / (float)total_time;
+	int total_time_min = (int)(node->total_time / 1000 / 60);
+	int total_time_sec = ((int)(node->total_time / 1000)) % 60;
+	int passed_time_min = (int)(node->note_queue_node->time / 1000 / 60);
+	int passed_time_sec = ((int)(node->note_queue_node->time / 1000)) % 60;
+	float passed_rate = (float)node->note_queue_node->time / (float)node->total_time;
 	char msg[128];
-	sprintf(msg, "§bMediaPlayer §7| §e%s §7| §a%02d:%02d/%02d:%02d",
-			song_name,
+	sprintf(msg, "§e♫ %s §7| §a√ %02d:%02d/%02d:%02d",
+			node->song_name,
 			passed_time_min,
 			passed_time_sec,
 			total_time_min,
 			total_time_sec);
-	send_boss_event_packet(player, msg, passed_rate, BOSS_BAR_HIDE);
-	send_boss_event_packet(player, msg, passed_rate, BOSS_BAR_DISPLAY);
+
+	switch (node->music_bar_type) {
+	case MUSIC_BAR_TYPE_BOSS_BAR:
+		send_boss_event_packet(player, msg, passed_rate, BOSS_BAR_HIDE);
+		send_boss_event_packet(player, msg, passed_rate, BOSS_BAR_DISPLAY);
+		break;
+	case MUSIC_BAR_TYPE_ACTION_BAR:
+		send_text_packet(player, TEXT_TYPE_JUKEBOX_POPUP, msg);
+		break;
+	default:
+		break;
+	}
 }
 
 void free_note_queue(struct note_queue_node *head)
