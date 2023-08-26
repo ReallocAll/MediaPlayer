@@ -207,12 +207,20 @@ void set_music_bar(struct player *player, struct music_queue_node *node)
 			total_time_sec);
 
 	switch (node->music_bar_type) {
+	case MUSIC_BAR_TYPE_NOT_DISPLAY:
+		break;
 	case MUSIC_BAR_TYPE_BOSS_BAR:
 		send_boss_event_packet(player, msg, passed_rate, BOSS_BAR_HIDE);
 		send_boss_event_packet(player, msg, passed_rate, BOSS_BAR_DISPLAY);
 		break;
-	case MUSIC_BAR_TYPE_ACTION_BAR:
+	case MUSIC_BAR_TYPE_ACTION_BAR_JUKEBOX_POPUP:
 		send_text_packet(player, TEXT_TYPE_JUKEBOX_POPUP, msg);
+		break;
+	case MUSIC_BAR_TYPE_ACTION_BAR_POPUP:
+		send_text_packet(player, TEXT_TYPE_POPUP, msg);
+		break;
+	case MUSIC_BAR_TYPE_ACTION_BAR_TIP:
+		send_text_packet(player, TEXT_TYPE_TIP, msg);
 		break;
 	default:
 		break;

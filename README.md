@@ -20,13 +20,15 @@ The subcommands are ``list``, ``play`` and ``stop``.
 | Subcommands | Parameters                                                    | Examples        | Explanation                                                       |
 | ----------- | ------------------------------------------------------------- | --------------- | ----------------------------------------------------------------- |
 | list        | None                                                          | /mpm list       | Get song index                                                    |
-| play        | song index, optional: loop count, optional: progress bar type | /mpm play 1 3 1 | play song (index 1, loop 3 times, use actionbar to show progress) |
+| play        | song index, optional: loop count, optional: progress bar type | /mpm play 1 3 1 | play song (index 1, loop 3 times, use bossbar to show progress) |
 | stop        | none                                                          | /mpm stop       | stop play                                                         |
 
 Progress bar type:
-0: bossbar
-1: actionbar
-2: not displayed
+0: not displayed
+1: bossbar
+2: actionbar: JUKEBOX_POPUP
+3: actionbar: POPUP
+4: actionbar: TIP
 
 Note: Before playing music, please use ``/mpm list`` to get the music list first.
 You can also use the ``/mpm`` command inside the game to see how to use it
