@@ -5,6 +5,6 @@
 
 struct level;
 
-struct player *get_player_by_xuid(struct level *level, const char *xuid);
+struct player *get_player_by_xuid(const char *xuid);
 
 extern struct level *g_level;

@@ -54,7 +54,7 @@ void play_video(struct video_queue *video_queue_node, struct map_item_saved_data
 		return;
 	char player_xuid[PLAYER_XUID_STR_LEN];
     sprintf_s(player_xuid, PLAYER_XUID_STR_LEN, "%lld", video_queue_node->xuid);
-    struct player *player = get_player_by_xuid(g_level, player_xuid);
+    struct player *player = get_player_by_xuid(player_xuid);
     char filepath[260];
 
 	if (((time_t)clock() - video_queue_node->start_time) <= 0)

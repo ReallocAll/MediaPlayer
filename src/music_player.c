@@ -127,7 +127,7 @@ void music_queue_delete_player(long long xuid)
 			free(curr_node);
 			char player_xuid[PLAYER_XUID_STR_LEN];
 			_i64toa(xuid, player_xuid, 10);
-			struct player *player = get_player_by_xuid(g_level, player_xuid);
+			struct player *player = get_player_by_xuid(player_xuid);
 			if (is_player(player))
 				send_boss_event_packet(player, "", 0, BOSS_BAR_HIDE);
 			video_queue_delete_player(xuid);
@@ -151,7 +151,7 @@ void send_music_sound_packet(void)
 	struct music_queue_node *music_queue_node_curr = music_queue_head;
 	while (music_queue_node_curr != NULL) {
 		sprintf_s(player_xuid, PLAYER_XUID_STR_LEN, "%lld", music_queue_node_curr->xuid);
-		player = get_player_by_xuid(g_level, player_xuid);
+		player = get_player_by_xuid(player_xuid);
 		if (!player) {
 			struct music_queue_node *to_delete = music_queue_node_curr;
 			music_queue_node_curr = music_queue_node_curr->next;
