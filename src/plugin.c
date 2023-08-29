@@ -103,7 +103,8 @@ bool init_hooks(void)
 void create_plugin_dir(void)
 {
 	// also init global path variables
-	GetCurrentDirectoryA(260, bds_path);
+	// GetCurrentDirectoryA(260, bds_path);
+	strcpy(bds_path, ".");
 
 	sprintf(data_path, "%s\\plugins\\MediaPlayer", bds_path);
 	sprintf(data_path_nbs, "%s\\nbs", data_path);
