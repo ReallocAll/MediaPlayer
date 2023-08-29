@@ -78,9 +78,7 @@ bool using_ll_preloader_api = false;
 
 bool check_ll_preloader(void)
 {
-    FILE *fp = fopen("LLPreloader.dll", "rb");
-	if (fp) {
-		fclose(fp);
+	if (GetModuleHandleA("LLPreloader")) {
 		puts("00:00:00 INFO [MediaPlayer] The LLPreLoader is detected and is using the HookAPI it provides.");
 		using_ll_preloader_api = true;
 		return true;
