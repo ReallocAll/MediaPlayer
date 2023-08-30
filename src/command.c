@@ -6,7 +6,7 @@ bool proc_mpm_cmd(struct player *player, int argc, const char *argv[], char ***f
         send_text_packet(player, TEXT_TYPE_RAW, "§6[MediaPlayer] Usage:\n");
         send_text_packet(player, TEXT_TYPE_RAW, "§6[MediaPlayer] Before playing music,\n");
         send_text_packet(player, TEXT_TYPE_RAW, "§6[MediaPlayer] please use `/mpm list` to get the music list first.\n");
-        send_text_packet(player, TEXT_TYPE_RAW, "§6[MediaPlayer] /mpm list\n");
+        send_text_packet(player, TEXT_TYPE_RAW, "§6[MediaPlayer] /mpm list [name: string]\n");
         send_text_packet(player, TEXT_TYPE_RAW, "§6[MediaPlayer] /mpm play <index: number> [loop: number] [music bar type: number]\n");
         send_text_packet(player, TEXT_TYPE_RAW, "§6[MediaPlayer] /mpm stop\n");
         return false;
@@ -19,9 +19,11 @@ bool proc_mpm_cmd(struct player *player, int argc, const char *argv[], char ***f
         send_text_packet(player, TEXT_TYPE_RAW, "§c[MediaPlayer] No playable NBS music!\n");
         return false;
     }
-    if (strcmp(argv[1], "list") == 0 && argc == 2) {
+    if (strcmp(argv[1], "list") == 0 && argc >= 2 && argc <= 3) {
         send_text_packet(player, TEXT_TYPE_RAW, "§a[MediaPlayer]§6[Index]§b Music List\n");
         for (int index = 0; index < *file_count; index++) {
+            if (argc == 3 && !strstr((*filenames)[index], argv[2]))
+                continue;
             sprintf(msg, "§a[MediaPlayer]§6[%d]§b %s\n", index, (*filenames)[index]);
             send_text_packet(player, TEXT_TYPE_RAW, msg);
         }
@@ -56,7 +58,7 @@ bool proc_mpv_cmd(struct player *player, int argc, const char *argv[], char ***f
         send_text_packet(player, TEXT_TYPE_RAW, "§6[MediaPlayer] Usage:\n");
         send_text_packet(player, TEXT_TYPE_RAW, "§6[MediaPlayer] Before playing video,\n");
         send_text_packet(player, TEXT_TYPE_RAW, "§6[MediaPlayer] please use `/mpv list` to get the video list first.\n");
-        send_text_packet(player, TEXT_TYPE_RAW, "§6[MediaPlayer] /mpv list\n");
+        send_text_packet(player, TEXT_TYPE_RAW, "§6[MediaPlayer] /mpv list [name: list]\n");
         send_text_packet(player, TEXT_TYPE_RAW, "§6[MediaPlayer] /mpv play <index: number> [loop: number]\n");
         send_text_packet(player, TEXT_TYPE_RAW, "§6[MediaPlayer] /mpv stop\n");
         return false;
@@ -69,9 +71,11 @@ bool proc_mpv_cmd(struct player *player, int argc, const char *argv[], char ***f
         send_text_packet(player, TEXT_TYPE_RAW, "§c[MediaPlayer] No playable video!\n");
         return false;
     }
-    if (strcmp(argv[1], "list") == 0 && argc == 2) {
+    if (strcmp(argv[1], "list") == 0 && argc >= 2 && argc <= 3) {
         send_text_packet(player, TEXT_TYPE_RAW, "§a[MediaPlayer]§6[Index]§b Video List\n");
         for (int index = 0; index < *folder_count; index++) {
+            if (argc == 3 && !strstr((*foldernames)[index], argv[2]))
+                continue;
             sprintf(msg, "§a[MediaPlayer]§6[%d]§b %s\n", index, (*foldernames)[index]);
             send_text_packet(player, TEXT_TYPE_RAW, msg);
         }
