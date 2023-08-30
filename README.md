@@ -14,21 +14,30 @@ This project uses the [LittleHooker](https://github.com/ExtcanaRy/LittleHooker) 
 ### NBS music playback
 NBS music files should be placed in the ``plugins\MediaPlayer\nbs`` folder
 
-Use ``/mpm`` as the main command in the game
-The subcommands are ``list``, ``play`` and ``stop``.
+#### Commands
 
-| Subcommands | Parameters                                                    | Examples        | Explanation                                                       |
-| ----------- | ------------------------------------------------------------- | --------------- | ----------------------------------------------------------------- |
-| list        | None                                                          | /mpm list       | Get song index                                                    |
-| play        | song index, optional: loop count, optional: progress bar type | /mpm play 1 3 1 | play song (index 1, loop 3 times, use bossbar to show progress) |
-| stop        | none                                                          | /mpm stop       | stop play                                                         |
+``mpm``
+- Main command, executed for help
 
-Progress bar type:
-0: not displayed
-1: bossbar
-2: actionbar: JUKEBOX_POPUP
-3: actionbar: POPUP
-4: actionbar: TIP
+``mpm list [name: string]``
+- Lists all music and displays the name and index.
+- If you provide the parameter: search keyword ``name``, only the items that match the search will be displayed.
+
+``mpm play <index: number> [loop: number] [music bar type: number]``
+- Play the music at the specified index ``index``.
+- If parameter is provided: loop number ``loop``, then play the music in a loop for the specified number of times.
+- If parameter: music bar type ``music bar type`` is provided, the specified type is used, and one of the following codes must be entered
+
+| code | progress bar type        |
+| ---- | ------------------------ |
+| 0    | do not show              |
+| 1    | bossbar                  |
+| 2    | actionbar: JUKEBOX_POPUP |
+| 3    | actionbar: POPUP         |
+| 4    | actionbar: TIP           |
+
+``mpm stop``
+- Stop playing music, or video if playing video at the same time.
 
 Note: Before playing music, please use ``/mpm list`` to get the music list first.
 You can also use the ``/mpm`` command inside the game to see how to use it
@@ -49,14 +58,21 @@ It's not easy to make original nbs music ~ come and support them!
 ### Video playback
 Please place the video folder in the ``plugins\MediaPlayer\video`` folder
 
-Use ``/mpv`` as the main command in the game
-The subcommands are ``list``, ``play`` and ``stop``.
+#### Commands
 
-| Subcommands | Parameters                             | Examples      | Explanation                            |
-| ----------- | -------------------------------------- | ------------- | -------------------------------------- |
-| list        | none                                   | /mpv list     | Get video index                        |
-| play        | Video index, Optional: Number of loops | /mpv play 1 3 | Play video (index 1, loop three times) |
-| stop        | none                                   | /mpv stop     | stop playing                           |
+``mpv``
+- Main command, executed for help
+
+``mpv list [name: string]``
+- Lists all music and displays the name and index.
+- If you provide the parameter: search keyword ``name``, then only the items with successful search matches will be displayed.
+
+``mpv play <index: number> [loop: number]``
+- Play the music at the specified index ``index``.
+- If you provide a parameter: loop number ``loop``, then play the video in a loop for the specified number of times.
+
+``mpv stop``
+- Stop the video.
 
 Note: Please use ``/mpv list`` to get the video list before playing the video. And must be holding the used map
 You can also use the ``/mpv`` command in-game to see how to use it
