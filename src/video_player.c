@@ -79,7 +79,7 @@ void play_video(struct video_queue *video_queue_node, struct map_item_saved_data
     struct rgb **pixels = get_png_pixels(filepath);
     static void *set_pixel_func = NULL;
     if (!set_pixel_func)
-        set_pixel_func = dlsym("?setPixel@MapItemSavedData@@QEAA_NIII@Z");
+        set_pixel_func = dlsym_auto("?setPixel@MapItemSavedData@@QEAA_NIII@Z");
     for (int y = 0; y < 128; ++y) {
         for (int x = 0; x < 128; ++x) {
             VIRTUAL_CALL(set_pixel_func,
