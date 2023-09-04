@@ -1,12 +1,13 @@
 #pragma once
 
 struct vec3 {
-	float x;
-    float y;
-    float z;
+	float x, y, z;
 };
 
 struct vec2 {
-	float x;
-    float y;
+	float x, y;
+};
+
+struct block_pos {
+	int x, y, z;
 };

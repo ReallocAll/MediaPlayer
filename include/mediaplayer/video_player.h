@@ -18,8 +18,12 @@ struct video_queue {
     int loop;
 };
 
+struct screen_pos {
+    int x, y;
+};
+
 bool video_queue_add_player(long long xuid, char *video_path, int loop);
 void video_queue_delete_player(long long xuid);
-void play_video(struct video_queue *video_queue_node, struct map_item_saved_data *map_data);
+void play_video(struct video_queue *video_queue_node, struct map_item_saved_data *map_data, struct screen_pos *screen_pos);
 void free_video_queue(void);
 struct video_queue *video_queue_get_player(long long player_xuid);

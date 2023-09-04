@@ -59,10 +59,47 @@ TLHOOK(map_item_update, void,
 	struct player *player = (struct player *)actor;
 	const char *player_xuid = get_player_xuid(player);
 	struct video_queue *video_queue_node = video_queue_get_player(atoll(player_xuid));
+	struct screen_pos screen_pos = {0, 0};
+
 	if (video_queue_node) {
-		play_video(video_queue_node, map_data);
+		play_video(video_queue_node, map_data, &screen_pos);
 	} else {
 		map_item_update.original(map_item, level, actor, map_data);
+	}
+}
+
+// make MapItemSavedData::tickByBlock always be called
+TLHOOK(MapItem_doesDisplayPlayerMarkers, bool,
+	"?doesDisplayPlayerMarkers@MapItem@@SA_NAEBVItemStack@@@Z",
+	const struct ItemStack *a1)
+{
+	bool ret = MapItem_doesDisplayPlayerMarkers.original(a1);
+	return true;
+}
+
+TLHOOK(MapItemSavedData_tickByBlock, void,
+	"?tickByBlock@MapItemSavedData@@QEAAXAEBVBlockPos@@AEAVBlockSource@@@Z",
+	struct map_item_saved_data *this, const struct block_pos *bl_pos, struct block_source *bs)
+{
+	static struct block_pos start_pos  = {255, -255, 255};
+	static struct block_pos end_pos = {-255, 255, -255};
+	if (bl_pos->x <= start_pos.x && bl_pos->y >= start_pos.y && bl_pos->z <= start_pos.z) {
+		start_pos = *bl_pos;
+	}
+	if (bl_pos->x >= end_pos.x && bl_pos->y <= end_pos.y && bl_pos->z >= end_pos.z) {
+		end_pos = *bl_pos;
+	}
+	struct video_queue *video_queue_node = video_queue_get_player(-1);
+	if (video_queue_node) {
+		struct screen_pos screen_pos;
+		if (start_pos.x - end_pos.x != 0)
+			screen_pos.x = bl_pos->x - start_pos.x;
+		else
+			screen_pos.x = bl_pos->z - start_pos.z;
+		screen_pos.y = start_pos.y - bl_pos->y;
+		play_video(video_queue_node, this, &screen_pos);
+	} else {
+		MapItemSavedData_tickByBlock.original(this, bl_pos, bs);
 	}
 }
 
@@ -95,6 +132,8 @@ bool init_hooks(void)
 	change_setting_command_setup.init(&change_setting_command_setup);
 	on_player_cmd.init(&on_player_cmd);
 	map_item_update.init(&map_item_update);
+	MapItemSavedData_tickByBlock.init(&MapItemSavedData_tickByBlock);
+	MapItem_doesDisplayPlayerMarkers.init(&MapItem_doesDisplayPlayerMarkers);
 	return true;
 }
 
