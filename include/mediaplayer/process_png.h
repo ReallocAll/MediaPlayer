@@ -13,5 +13,10 @@ struct start_pixel {
     int x, y;
 };
 
-void get_png_pixels(const char *filename, struct spng_ihdr *ihdr, bool get_ihdr,
-                            struct start_pixel *start_pixel, int (*inner_pixels)[128][128]);
+// get the pixels from a png file
+// please use free() to free the returned pointer after use
+unsigned char *get_pixels(const char *filename, struct spng_ihdr *ihdr, bool get_ihdr);
+
+// copy 128 pixels from image to map line by line
+void set_pixels(unsigned char *image, struct map_item_saved_data *map_data,
+                struct start_pixel *start_pixel, struct spng_ihdr *ihdr);

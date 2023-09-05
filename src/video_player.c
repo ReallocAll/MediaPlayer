@@ -125,22 +125,16 @@ void play_video(struct video_queue *video_queue_node, struct map_item_saved_data
     // get start pixel
     struct spng_ihdr ihdr;
     struct start_pixel start_pixel = {abs(screen_pos->x * 128), abs(screen_pos->y * 128)};
-    get_png_pixels(filepath, &ihdr, true, &start_pixel, NULL);
+    get_pixels(filepath, &ihdr, true);
 
     // check if out of screen
     if (start_pixel.x + 128 > ihdr.width || start_pixel.y + 128 > ihdr.height)
         return;
 
     // fill pixels to map
-    int (*inner_pixels)[128][128];
-    inner_pixels = *((void **)map_data + 6);
-    get_png_pixels(filepath, &ihdr, false, &start_pixel, inner_pixels);
-    set_pixel_dirty(map_data, 0, 0);
-    set_pixel_dirty(map_data, 127, 127);
-    TLCALL("?setLocked@MapItemSavedData@@QEAAXXZ",
-           void (*)(struct map_item_saved_data *),
-           map_data);
-
+    unsigned char *image = get_pixels(filepath, &ihdr, false);
+    set_pixels(image, map_data, &start_pixel, &ihdr);
+    free(image);
     video_queue_node->current_frame = frame_index;
 }
 
