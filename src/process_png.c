@@ -33,17 +33,13 @@ void get_png_pixels(const char *filename, struct spng_ihdr *ihdr, bool get_ihdr,
         goto error;
 
     ret = spng_decode_image(ctx, image, image_size, SPNG_FMT_RGBA8, 0);
-
     if(ret)
         goto error;
-    
-    for(unsigned x = 0; x < 128; x++) {
-        for(unsigned y = 0; y < 128; y++) {
-            // get pixel from image
-            unsigned char *pixel = image + ((x + start_pixel->y) * ihdr->width + (y + start_pixel->x)) * 4;
-            // set pixel to map pixel array
-            (*inner_pixels)[x][y] = 0xFF000000 | *(unsigned int *)pixel;
-        }
+
+    // copy 128 pixels from image to map line by line
+    for(unsigned y = 0; y < 128; y++) {
+        unsigned char *base_pixel = image + ((y + start_pixel->y) * ihdr->width + start_pixel->x) * 4;
+        memcpy(&(*inner_pixels)[y], base_pixel, 128 * 4);
     }
 
 error:
