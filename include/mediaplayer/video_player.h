@@ -9,6 +9,8 @@
 #include "mc/player.h"
 #include "mc/level.h"
 
+PTP_POOL thread_pool;
+
 struct video_queue {
     long long xuid;
     time_t start_time;
@@ -16,6 +18,8 @@ struct video_queue {
     int total_frames;
     int current_frame;
     int loop;
+    unsigned char *image;
+    struct spng_ihdr ihdr;
 };
 
 struct screen_pos {

@@ -2,15 +2,13 @@
 
 // get the pixels from a png file
 // please use free() to free the returned pointer after use
-unsigned char *get_pixels(const char *filename, struct spng_ihdr *ihdr, bool get_ihdr)
+void get_pixels(FILE *png, struct spng_ihdr *ihdr,
+                unsigned char *image, bool get_ihdr)
 {
-    FILE *png;
     int ret = 0;
     spng_ctx *ctx = NULL;
-    unsigned char *image = NULL;
-    size_t image_size;
+    size_t image_size = 0;
 
-    png = fopen(filename, "rb");
     if(png == NULL)
         goto error;
 
@@ -22,15 +20,11 @@ unsigned char *get_pixels(const char *filename, struct spng_ihdr *ihdr, bool get
     spng_set_png_file(ctx, png);
 
     ret = spng_get_ihdr(ctx, ihdr);
-    if(ret || get_ihdr)
+    if(ret || get_ihdr || !image)
         goto error;
 
     ret = spng_decoded_image_size(ctx, SPNG_FMT_RGBA8, &image_size);
     if(ret)
-        goto error;
-
-    image = malloc(image_size);
-    if(image == NULL)
         goto error;
 
     ret = spng_decode_image(ctx, image, image_size, SPNG_FMT_RGBA8, 0);
@@ -38,9 +32,7 @@ unsigned char *get_pixels(const char *filename, struct spng_ihdr *ihdr, bool get
         goto error;
 
 error:
-    fclose(png);
     spng_ctx_free(ctx);
-    return image;
 }
 
 void set_pixels(unsigned char *image, struct map_item_saved_data *map_data,
@@ -48,10 +40,24 @@ void set_pixels(unsigned char *image, struct map_item_saved_data *map_data,
 {
     int (*inner_pixels)[128][128];
     inner_pixels = *((void **)map_data + 6);
+    if (!image)
+        return;
     for(unsigned y = 0; y < 128; y++) {
-        unsigned char *base_pixel = image + ((y + start_pixel->y) * ihdr->width + start_pixel->x) * 4;
+        unsigned char *base_pixel = 
+            image + ((y + start_pixel->y) * ihdr->width + start_pixel->x) * 4;
         memcpy(&(*inner_pixels)[y], base_pixel, 128 * 4);
     }
-    set_pixel_dirty(map_data, 0, 0);
-    set_pixel_dirty(map_data, 127, 127);
+    set_pixel_dirty(map_data);
+}
+
+void set_pixel_dirty(struct map_item_saved_data *this)
+{
+    *(short *)((char *)this + 121) = 257;
+    __int64 item = *(__int64 *)*((uintptr_t *)this + 12);
+    // set the pixel as dirty and set the row and line boundaries
+    *(char *)(item + 32) = 1;
+    *(int *)(item + 36) = 0;
+    *(int *)(item + 40) = 0;
+    *(int *)(item + 44) = 127;
+    *(int *)(item + 48) = 127;
 }
