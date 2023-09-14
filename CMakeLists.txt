@@ -1,6 +1,7 @@
 cmake_minimum_required(VERSION 3.21)
 
 project(MediaPlayer)
+project(convert)
 
 set(CMAKE_C_STANDARD 17)
 set(CMAKE_BUILD_TYPE Debug)
@@ -42,6 +43,8 @@ add_link_options(
 set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} /NODEFAULTLIB:MSVCRTD")
 
 add_library(MediaPlayer SHARED ${SRC_FILES_DIR})
+
+add_executable(convert ${PROJECT_SOURCE_DIR}/tools/convert.c)
 
 set_target_properties(MediaPlayer PROPERTIES OUTPUT_NAME "MediaPlayer")
 
