@@ -271,6 +271,7 @@ bool play_with_video(long long player_xuid, const char *filename, int loop)
         if (strstr(filename, foldernames[i])) {
             char video_path[260];
             sprintf(video_path, "%s\\%s", data_path_video, foldernames[i]);
+			video_queue_delete_player(player_xuid);
             video_queue_add_player(player_xuid, video_path, loop);
 			return true;
         }

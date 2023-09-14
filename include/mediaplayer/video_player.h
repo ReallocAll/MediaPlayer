@@ -11,6 +11,18 @@
 
 PTP_POOL thread_pool;
 
+static struct block_pos start_pos  = {255, -255, 255};
+static struct block_pos end_pos = {-255, 255, -255};
+
+enum direction {
+    DIRECTION_NEG_Y,
+    DIRECTION_POS_Y,
+    DIRECTION_NEG_Z,
+    DIRECTION_POS_Z,
+    DIRECTION_NEG_X,
+    DIRECTION_POS_X,
+};
+
 struct video_queue {
     long long xuid;
     time_t start_time;
@@ -20,6 +32,7 @@ struct video_queue {
     int loop;
     unsigned char *image;
     struct spng_ihdr ihdr;
+    PTP_WORK thread_pool_work;
 };
 
 struct screen_pos {

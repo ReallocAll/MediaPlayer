@@ -81,21 +81,31 @@ TLHOOK(MapItemSavedData_tickByBlock, void,
 	"?tickByBlock@MapItemSavedData@@QEAAXAEBVBlockPos@@AEAVBlockSource@@@Z",
 	struct map_item_saved_data *this, const struct block_pos *bl_pos, struct block_source *bs)
 {
-	static struct block_pos start_pos  = {255, -255, 255};
-	static struct block_pos end_pos = {-255, 255, -255};
-	if (bl_pos->x <= start_pos.x && bl_pos->y >= start_pos.y && bl_pos->z <= start_pos.z) {
+	int reverse_offset = 0;
+	if (bl_pos->x <= start_pos.x && bl_pos->y >= start_pos.y && bl_pos->z <= start_pos.z) 
 		start_pos = *bl_pos;
-	}
-	if (bl_pos->x >= end_pos.x && bl_pos->y <= end_pos.y && bl_pos->z >= end_pos.z) {
+	if (bl_pos->x >= end_pos.x && bl_pos->y <= end_pos.y && bl_pos->z >= end_pos.z) 
 		end_pos = *bl_pos;
-	}
+	struct block *bl =
+		TLCALL("?getBlock@BlockSource@@UEBAAEBVBlock@@AEBVBlockPos@@@Z",
+				struct block *(*)(struct block_source *, const struct block_pos *),
+				bs, bl_pos);
+	enum direction dire =
+		TLCALL("?getFacingDirection@FaceDirectionalBlock@@SAEAEBVBlock@@_N@Z",
+			unsigned char (*)(const struct block *, bool),
+			bl, false);
+	if (dire == DIRECTION_NEG_Z)
+		reverse_offset = abs(start_pos.x - end_pos.x);
+	else if (dire == DIRECTION_POS_X)
+		reverse_offset = abs(start_pos.z - end_pos.z);
+
 	struct video_queue *video_queue_node = video_queue_get_player(-1);
 	if (video_queue_node) {
 		struct screen_pos screen_pos;
 		if (start_pos.x - end_pos.x != 0)
-			screen_pos.x = bl_pos->x - start_pos.x;
+			screen_pos.x = abs(bl_pos->x - start_pos.x - reverse_offset);
 		else
-			screen_pos.x = bl_pos->z - start_pos.z;
+			screen_pos.x = abs(bl_pos->z - start_pos.z - reverse_offset);
 		screen_pos.y = start_pos.y - bl_pos->y;
 		play_video(video_queue_node, this, &screen_pos);
 	} else {

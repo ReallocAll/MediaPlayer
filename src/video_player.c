@@ -15,17 +15,16 @@ void CALLBACK get_video_frame(PTP_CALLBACK_INSTANCE instance, PVOID parameter, P
     fclose(fp);
     node->image = malloc(node->ihdr.width * node->ihdr.height * 4);
     sprintf_s(player_xuid, PLAYER_XUID_STR_LEN, "%lld", node->xuid);
-    while (true) {
+    while (node->image) {
 		if (!get_player_by_xuid(player_xuid)) {
-			video_queue_delete_player(node->xuid);
-            free(node->image);
-            CloseThreadpoolWork(work);
-			return;
-		}
+		    video_queue_delete_player(node->xuid);
+            return;
+        }
+
         // 1000ms / 50 = 20FPS
         int frame_index = (int)(((time_t)clock() - node->start_time) / 50) + 1;
         if (frame_index == node->current_frame) {
-            Sleep(10);
+            Sleep(1);
             continue;
         }
 
@@ -38,8 +37,6 @@ void CALLBACK get_video_frame(PTP_CALLBACK_INSTANCE instance, PVOID parameter, P
                 node->start_time = clock();
             } else {
                 video_queue_delete_player(node->xuid);
-                free(node->image);
-                CloseThreadpoolWork(work);
                 return;
             }
         }
@@ -80,14 +77,30 @@ bool video_queue_add_player(long long xuid, char *video_path, int loop)
         return false;
     }
     SubmitThreadpoolWork(work);
+    node->thread_pool_work = work;
 
     return true;
 }
 
+void reset_screen_pos(void)
+{
+    start_pos.x = 255;
+    start_pos.y = -255;
+    start_pos.z = 255;
+    end_pos.x = -255;
+    end_pos.y = 255;
+    end_pos.z = -255;
+}
+
 void video_queue_delete_player(long long xuid)
 {
+    reset_screen_pos();
     for (int i = 0; i < video_queue_size; i++) {
         if (video_queue_array[i].xuid == xuid) {
+            CloseThreadpoolWork(video_queue_array[i].thread_pool_work);
+            unsigned char *image = video_queue_array[i].image;
+            video_queue_array[i].image = NULL;
+            free(image);
             for (int j = i; j < video_queue_size - 1; j++) {
                 video_queue_array[j] = video_queue_array[j + 1];
             }
