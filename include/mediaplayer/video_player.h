@@ -32,7 +32,7 @@ struct video_queue {
     int loop;
     unsigned char *image;
     struct spng_ihdr ihdr;
-    PTP_WORK thread_pool_work;
+    bool deleted;
 };
 
 struct screen_pos {

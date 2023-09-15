@@ -15,10 +15,10 @@ void CALLBACK get_video_frame(PTP_CALLBACK_INSTANCE instance, PVOID parameter, P
     fclose(fp);
     node->image = malloc(node->ihdr.width * node->ihdr.height * 4);
     sprintf_s(player_xuid, PLAYER_XUID_STR_LEN, "%lld", node->xuid);
-    while (node->image) {
+    while (!node->deleted) {
 		if (!get_player_by_xuid(player_xuid)) {
 		    video_queue_delete_player(node->xuid);
-            return;
+            goto exit;
         }
 
         // 1000ms / 50 = 20FPS
@@ -37,7 +37,7 @@ void CALLBACK get_video_frame(PTP_CALLBACK_INSTANCE instance, PVOID parameter, P
                 node->start_time = clock();
             } else {
                 video_queue_delete_player(node->xuid);
-                return;
+                goto exit;
             }
         }
 
@@ -45,6 +45,9 @@ void CALLBACK get_video_frame(PTP_CALLBACK_INSTANCE instance, PVOID parameter, P
         node->current_frame = frame_index;
         fclose(fp);
     }
+exit:
+    free(node->image);
+    CloseThreadpoolWork(work);
 }
 
 bool video_queue_add_player(long long xuid, char *video_path, int loop)
@@ -69,6 +72,7 @@ bool video_queue_add_player(long long xuid, char *video_path, int loop)
     node->current_frame = 1;
     node->loop = loop;
     node->image = NULL;
+    node->deleted = false;
 
 
     PTP_WORK work = CreateThreadpoolWork(get_video_frame, (PVOID)node, NULL);
@@ -77,7 +81,6 @@ bool video_queue_add_player(long long xuid, char *video_path, int loop)
         return false;
     }
     SubmitThreadpoolWork(work);
-    node->thread_pool_work = work;
 
     return true;
 }
@@ -97,10 +100,8 @@ void video_queue_delete_player(long long xuid)
     reset_screen_pos();
     for (int i = 0; i < video_queue_size; i++) {
         if (video_queue_array[i].xuid == xuid) {
-            CloseThreadpoolWork(video_queue_array[i].thread_pool_work);
-            unsigned char *image = video_queue_array[i].image;
-            video_queue_array[i].image = NULL;
-            free(image);
+            video_queue_array[i].deleted = true;
+            Sleep(10);  // wait for thread get_video_frame to exit
             for (int j = i; j < video_queue_size - 1; j++) {
                 video_queue_array[j] = video_queue_array[j + 1];
             }
@@ -114,8 +115,10 @@ void video_queue_delete_player(long long xuid)
 
 void play_video(struct video_queue *node, struct map_item_saved_data *map_data, struct screen_pos *screen_pos)
 {
-    struct music_queue_node *music_queue_node = music_queue_get_player(node->xuid);
-    if (music_queue_node && music_queue_node->note_queue_node == music_queue_node->note_queue_node_start)
+    struct music_queue_node *music_node = music_queue_get_player(node->xuid);
+    if (music_node && music_node->note_queue_node == music_node->note_queue_node_start)
+        return;
+    if (node->deleted)
         return;
     char player_xuid[PLAYER_XUID_STR_LEN];
     sprintf_s(player_xuid, PLAYER_XUID_STR_LEN, "%lld", node->xuid);
