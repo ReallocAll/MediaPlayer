@@ -7,10 +7,10 @@ int main(void)
     int width, height, rate;
     char cmd[256];
 
-    printf("Height(7): ");
+    printf("Height(4): ");
     scanf("%d", &height);
 
-    printf("Width(4): ");
+    printf("Width(7): ");
     scanf("%d", &width);
 
     printf("Rate(1000): ");
