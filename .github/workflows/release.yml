@@ -31,7 +31,7 @@ on:
       rel_tag:
         description: 'Release Tag'     
         required: false
-        default: 'v'
+        default: ''
         type: string
       rel_desc_body:
         description: 'Release Description Body'     
@@ -55,7 +55,7 @@ jobs:
           echo "tag_name=${{ inputs.rel_tag }}" >> $GITHUB_OUTPUT
           
           if [ -z "${{ inputs.rel_title }}" ]; then
-            echo "title=${{ inputs.rel_tag }}" >> $GITHUB_OUTPUT
+            echo "title=v${{ inputs.rel_tag }}" >> $GITHUB_OUTPUT
           else
             echo "title=${{ inputs.rel_title }}" >> $GITHUB_OUTPUT
           fi
@@ -89,7 +89,7 @@ jobs:
       - name: Zip Release
         uses: TheDoctor0/zip-release@0.7.1
         with:
-          filename: MediaPlayer_${{ steps.rel_info.outputs.tag_name }}.zip
+          filename: MediaPlayer_v${{ steps.rel_info.outputs.tag_name }}.zip
           path: .
           directory: release
 
@@ -109,4 +109,43 @@ jobs:
           prerelease: ${{ inputs.pre_release }}
           body: ${{ steps.rel_info.outputs.desc_body }}
           files: |
-            ./release/MediaPlayer_${{ steps.rel_info.outputs.tag_name }}.zip
+            ./release/MediaPlayer_v${{ steps.rel_info.outputs.tag_name }}.zip
+
+      - name: Checkout tooth
+        uses: actions/checkout@v4.0.0
+        with:
+          repository: ExtcanaRy/MediaPlayer-tooth
+          path: tooth
+          ssh-key: ${{ secrets.SSH_PRIVATE_KEY }}
+          persist-credentials: true
+
+      - name: Update tooth files
+        if: inputs.release
+        run: |
+          tree
+          cd ./tooth/
+          cp ../release/MediaPlayer.dll ./
+          cp ../release/MediaPlayer.pdb ./
+          cp ../release/MediaPlayer/video/convert.exe ./
+          $out = Get-Content -Path "tooth.json" | ForEach-Object { $_ -replace '"version": ".*"', '"version": "${{ steps.rel_info.outputs.tag_name }}"' }
+          $out | Out-File -FilePath "tooth.json"
+          git config user.name github-actions
+          git config user.email github-actions@github.com
+          git commit -a -m "v${{ steps.rel_info.outputs.tag_name }}"
+          
+      - name: Push tooth
+        uses: ad-m/github-push-action@master
+        with:
+          ssh: true
+          directory: tooth
+          repository: ExtcanaRy/MediaPlayer-tooth
+
+      - name: Release tooth
+        uses: softprops/action-gh-release@v0.1.15
+        if: inputs.release
+        with:
+          repository: ExtcanaRy/MediaPlayer-tooth
+          tag_name: v${{ steps.rel_info.outputs.tag_name }}
+          name: v${{ steps.rel_info.outputs.tag_name }}
+          body: v${{ steps.rel_info.outputs.tag_name }}
+          token: ${{ secrets.PAT_KEY }}
