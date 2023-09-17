@@ -6,41 +6,41 @@ struct music_queue_node *music_queue_head = NULL;
 
 struct note_queue_node *generate_note_queue(FILE *fp, time_t *total_time)
 {
-	struct note_queue_node *note_queue_node_head = NULL;
-	struct note_queue_node *note_queue_node_tail = NULL;
+	struct note_queue_node *note_node_head = NULL;
+	struct note_queue_node *note_node_tail = NULL;
 
 	struct nbs_header *nbs_header = nbs_parse_header(fp);
 	struct nbs_notes *notes_head = nbs_parse_notes(fp, nbs_header->version);
 	struct nbs_layers *layers_head = nbs_parse_layers(fp, nbs_header->song_layers, nbs_header->version);
 	struct nbs_instruments *instruments_head = nbs_parse_instruments(fp, nbs_header->song_layers, nbs_header->version);
 
-	struct nbs_notes *notes_curr = notes_head;
+	struct nbs_notes *notes = notes_head;
 	float time_per_tick = (float)(20.0f / nbs_header->tempo * 50.0f);
-	while (notes_curr != NULL) {
+	while (notes != NULL) {
 
-		struct nbs_layers *layers_curr = layers_head;
-		for (int layer_count = 0; layer_count < notes_curr->layer; layer_count++) {
-			layers_curr = layers_curr->next;
+		struct nbs_layers *layers_node = layers_head;
+		for (int layer_count = 0; layer_count < notes->layer; layer_count++) {
+			layers_node = layers_node->next;
 		}
 
-		struct nbs_instruments *instrument_curr = instruments_head;
+		struct nbs_instruments *instrument_node = instruments_head;
 		int instrument_pitch = 45;
-		for (int instrument_id = 0; instrument_curr && instrument_curr->next && instrument_id < notes_curr->instrument; instrument_id++) {
-			instrument_curr = instrument_curr->next;
-			instrument_pitch = (int)instrument_curr->pitch;
+		for (int instrument_id = 0; instrument_node && instrument_node->next && instrument_id < notes->instrument; instrument_id++) {
+			instrument_node = instrument_node->next;
+			instrument_pitch = (int)instrument_node->pitch;
 		}
 
-		int instrument = (0 <= notes_curr->instrument && notes_curr->instrument <= 15)
-							 ? notes_curr->instrument : 0;
-		float volume = ((float)notes_curr->velocity / 100.0f) * ((float)layers_curr->volume / 100.0f);
-		float final_key = (float)notes_curr->key + (float)(instrument_pitch - 45) + (float)((float)notes_curr->pitch / 100.0f);
+		int instrument = (0 <= notes->instrument && notes->instrument <= 15)
+							 ? notes->instrument : 0;
+		float volume = ((float)notes->velocity / 100.0f) * ((float)layers_node->volume / 100.0f);
+		float final_key = (float)notes->key + (float)(instrument_pitch - 45) + (float)((float)notes->pitch / 100.0f);
 		float pitch = powf(2, (float)((final_key - 45) / 12.0f));
 
-		int note_time = (int)((float)notes_curr->tick * time_per_tick);
+		int note_time = (int)((float)notes->tick * time_per_tick);
 
 		struct note_queue_node *new_note_node = (struct note_queue_node *) malloc(sizeof(struct note_queue_node));
 		if (!new_note_node)
-			return (struct note_queue_node *)NULL;
+			return NULL;
 
 		new_note_node->time = note_time;
 		new_note_node->instrument = instrument;
@@ -48,15 +48,15 @@ struct note_queue_node *generate_note_queue(FILE *fp, time_t *total_time)
 		new_note_node->pitch = pitch;
 		new_note_node->next = NULL;
 
-		if (note_queue_node_head == NULL) {
-			note_queue_node_head = new_note_node;
-			note_queue_node_tail = new_note_node;
+		if (note_node_head == NULL) {
+			note_node_head = new_note_node;
+			note_node_tail = new_note_node;
 		} else {
-			note_queue_node_tail->next = new_note_node;
-			note_queue_node_tail = new_note_node;
+			note_node_tail->next = new_note_node;
+			note_node_tail = new_note_node;
 		}
 
-		notes_curr = notes_curr->next;
+		notes = notes->next;
 	}
 
 	nbs_free_header(nbs_header);
@@ -64,8 +64,8 @@ struct note_queue_node *generate_note_queue(FILE *fp, time_t *total_time)
 	nbs_free_layers(layers_head);
 	nbs_free_instruments(instruments_head);
 
-	*total_time = note_queue_node_tail->time;
-	return note_queue_node_head;
+	*total_time = note_node_tail->time;
+	return note_node_head;
 }
 
 bool music_queue_add_player(long long xuid, const char *nbs_file_name, int loop, enum music_bar_type music_bar_type)
@@ -78,27 +78,27 @@ bool music_queue_add_player(long long xuid, const char *nbs_file_name, int loop,
 	if (!fp)
 		return false;
 	time_t total_time = 0;
-	struct note_queue_node *note_queue_head = generate_note_queue(fp, &total_time);
+	struct note_queue_node *node_head = generate_note_queue(fp, &total_time);
 	fclose(fp);
-	struct music_queue_node *new_node = (struct music_queue_node *) malloc(sizeof(struct music_queue_node));
-	if (new_node == NULL) {
+	struct music_queue_node *node = (struct music_queue_node *) malloc(sizeof(struct music_queue_node));
+	if (node == NULL) {
 		server_logger("Failed to allocate memory for new node.", ERR);
 		return false;
 	}
 	play_with_video(xuid, nbs_file_name, loop);
 
-	new_node->xuid = xuid;
-	new_node->note_queue_node = note_queue_head;
-	new_node->note_queue_node_start = note_queue_head;
-	new_node->start_time = clock();
-	new_node->total_time = total_time;
-	new_node->loop = loop;
-	new_node->music_bar_type = music_bar_type;
-	strncpy(new_node->song_name, strtok(nbs_file_name_new, "."), sizeof(new_node->song_name));
-	new_node->next = NULL;
+	node->xuid = xuid;
+	node->note_queue_node = node_head;
+	node->note_queue_node_start = node_head;
+	node->start_time = clock();
+	node->total_time = total_time;
+	node->loop = loop;
+	node->music_bar_type = music_bar_type;
+	strncpy(node->song_name, strtok(nbs_file_name_new, "."), sizeof(node->song_name));
+	node->next = NULL;
 
 	if (music_queue_head == NULL) {
-		music_queue_head = new_node;
+		music_queue_head = node;
 		return true;
 	}
 
@@ -106,25 +106,25 @@ bool music_queue_add_player(long long xuid, const char *nbs_file_name, int loop,
 	while (curr_node->next != NULL) {
 		curr_node = curr_node->next;
 	}
-	curr_node->next = new_node;
+	curr_node->next = node;
 	free(nbs_file_name_new);
 	return true;
 }
 
 void music_queue_delete_player(long long xuid)
 {
-	struct music_queue_node *curr_node = music_queue_head;
-	struct music_queue_node *prev_node = NULL;
+	struct music_queue_node *node = music_queue_head;
+	struct music_queue_node *node_prev = NULL;
 
-	while (curr_node != NULL) {
-		if (curr_node->xuid == xuid) {
-			free_note_queue(curr_node->note_queue_node_start);
-			if (prev_node != NULL)
-				prev_node->next = curr_node->next;
+	while (node != NULL) {
+		if (node->xuid == xuid) {
+			free_note_queue(node->note_queue_node_start);
+			if (node_prev != NULL)
+				node_prev->next = node->next;
 			else
-				music_queue_head = curr_node->next;
+				music_queue_head = node->next;
 
-			free(curr_node);
+			free(node);
 			char player_xuid[PLAYER_XUID_STR_LEN];
 			_i64toa(xuid, player_xuid, 10);
 			struct player *player = get_player_by_xuid(player_xuid);
@@ -133,8 +133,8 @@ void music_queue_delete_player(long long xuid)
 			video_queue_delete_player(xuid);
 			return;
 		}
-		prev_node = curr_node;
-		curr_node = curr_node->next;
+		node_prev = node;
+		node = node->next;
 	}
 }
 
@@ -148,21 +148,21 @@ void send_music_sound_packet(void)
 	time_t total_time;
 	time_t current_time = 0;
 
-	struct music_queue_node *music_queue_node_curr = music_queue_head;
-	while (music_queue_node_curr != NULL) {
-		sprintf_s(player_xuid, PLAYER_XUID_STR_LEN, "%lld", music_queue_node_curr->xuid);
+	struct music_queue_node *node = music_queue_head;
+	while (node != NULL) {
+		sprintf_s(player_xuid, PLAYER_XUID_STR_LEN, "%lld", node->xuid);
 		player = get_player_by_xuid(player_xuid);
 		if (!player) {
-			struct music_queue_node *to_delete = music_queue_node_curr;
-			music_queue_node_curr = music_queue_node_curr->next;
+			struct music_queue_node *to_delete = node;
+			node = node->next;
 			music_queue_delete_player(to_delete->xuid);
 			continue;
 		}
 		player_pos = actor_get_pos((struct actor *)player);
 
 		struct note_queue_node *note_node;
-		for (note_node = music_queue_node_curr->note_queue_node;
-			note_node && (time_t)note_node->time + music_queue_node_curr->start_time < clock();
+		for (note_node = node->note_queue_node;
+			note_node && (time_t)note_node->time + node->start_time < clock();
 			note_node = note_node->next) {
 
 			sound_name = BUILTIN_INSTRUMENT[note_node->instrument];
@@ -171,23 +171,23 @@ void send_music_sound_packet(void)
 			send_play_sound_packet(player, sound_name, player_pos, note_node->volume, note_node->pitch);
 		}
 		if (current_time)
-			set_music_bar(player, music_queue_node_curr);
+			set_music_bar(player, node);
 
 		if (note_node) {
-			music_queue_node_curr->note_queue_node = note_node;
+			node->note_queue_node = note_node;
 		} else {
-			if (music_queue_node_curr->loop > 1) {
-				--music_queue_node_curr->loop;
-				music_queue_node_curr->note_queue_node =
-					music_queue_node_curr->note_queue_node_start;
-				music_queue_node_curr->start_time = clock();
-				music_queue_node_curr->start_time += 3000; // interval
+			if (node->loop > 1) {
+				--node->loop;
+				node->note_queue_node =
+					node->note_queue_node_start;
+				node->start_time = clock();
+				node->start_time += 3000; // interval
 			} else {
-				music_queue_delete_player(music_queue_node_curr->xuid);
+				music_queue_delete_player(node->xuid);
 			}
 		}
 
-		music_queue_node_curr = music_queue_node_curr->next;
+		node = node->next;
 	}
 }
 

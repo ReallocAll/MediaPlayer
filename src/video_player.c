@@ -18,7 +18,7 @@ void CALLBACK get_video_frame(PTP_CALLBACK_INSTANCE instance, PVOID parameter, P
     while (!node->deleted) {
 		if (!get_player_by_xuid(player_xuid)) {
 		    video_queue_delete_player(node->xuid);
-            goto exit;
+            break;
         }
 
         // 1000ms / 50 = 20FPS
@@ -37,7 +37,7 @@ void CALLBACK get_video_frame(PTP_CALLBACK_INSTANCE instance, PVOID parameter, P
                 node->start_time = clock();
             } else {
                 video_queue_delete_player(node->xuid);
-                goto exit;
+                break;
             }
         }
 
@@ -45,7 +45,6 @@ void CALLBACK get_video_frame(PTP_CALLBACK_INSTANCE instance, PVOID parameter, P
         node->current_frame = frame_index;
         fclose(fp);
     }
-exit:
     free(node->image);
     CloseThreadpoolWork(work);
 }
