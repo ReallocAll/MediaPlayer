@@ -74,6 +74,8 @@ jobs:
 
       - name: Build Project
         run: |
+          $out = Get-Content -Path "CMakeLists.txt" | ForEach-Object { $_ -replace '-DPLUGIN_VERSION_UNDEFINED', '-DPLUGIN_VERSION="${{ steps.rel_info.outputs.tag_name }}"' }
+          $out | Out-File -Encoding utf8 -FilePath "CMakeLists.txt"
           New-Item -ItemType directory -Path build
           cmake -S . -B build
           cmake --build build/ --config ${{ inputs.solution }} -j

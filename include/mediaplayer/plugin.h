@@ -14,6 +14,13 @@
 #include "mc/player.h"
 #include "mc/level.h"
 
+#ifdef PLUGIN_VERSION
+    #define PLUGIN_VERSION_MSG " Version: "
+#else
+    #define PLUGIN_VERSION_MSG ""
+    #define PLUGIN_VERSION ""
+#endif
+
 bool check_ll_preloader(void);
 bool init_hooks(void);
 void create_plugin_dir(void);

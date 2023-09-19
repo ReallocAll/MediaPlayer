@@ -57,7 +57,7 @@ bool video_queue_add_player(long long xuid, char *video_path, int loop)
     struct video_queue *node = &video_queue_array[video_queue_size++];
 
     if (node == NULL) {
-        server_logger("Failed to allocate memory for new node.", ERR);
+        server_logger(ERR, "Failed to allocate memory for new node.");
         return false;
     }
     int total_frames;

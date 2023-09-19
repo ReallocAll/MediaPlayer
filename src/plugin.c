@@ -6,7 +6,7 @@ TLHOOK(on_initialize_logging, void,
 		uintptr_t this)
 {
 	on_initialize_logging.original(this);
-	server_logger("MediaPlayer Loaded!", INFO);
+	server_logger(INFO, "MediaPlayer Loaded!%s%s", PLUGIN_VERSION_MSG, PLUGIN_VERSION);
 }
 
 // Constructor for Level
@@ -27,12 +27,10 @@ TLHOOK(change_setting_command_setup, void,
 {
 	struct string *cmd_music = std_string_string("mpm");
 	struct string *cmd_video = std_string_string("mpv");
-	TLCALL("?registerCommand@CommandRegistry@@QEAAXAEBV?$basic_string@DU?$char_traits@D@"
-			"std@@V?$allocator@D@2@@std@@PEBDW4CommandPermissionLevel@@UCommandFlag@@3@Z",
+	TLCALL("?registerCommand@CommandRegistry@@QEAAXAEBV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@PEBDW4CommandPermissionLevel@@UCommandFlag@@3@Z",
 		void (*)(uintptr_t, struct string *, const char *, char, short, short),
 		this, cmd_music, "mediaplayer music", 0, 0, 0x80);
-	TLCALL("?registerCommand@CommandRegistry@@QEAAXAEBV?$basic_string@DU?$char_traits@D@"
-			"std@@V?$allocator@D@2@@std@@PEBDW4CommandPermissionLevel@@UCommandFlag@@3@Z",
+	TLCALL("?registerCommand@CommandRegistry@@QEAAXAEBV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@PEBDW4CommandPermissionLevel@@UCommandFlag@@3@Z",
 		void (*)(uintptr_t, struct string *, const char *, char, short, short),
 		this, cmd_video, "mediaplayer video", 0, 0, 0x80);
 	free(cmd_music);

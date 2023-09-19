@@ -82,7 +82,7 @@ bool music_queue_add_player(long long xuid, const char *nbs_file_name, int loop,
 	fclose(fp);
 	struct music_queue_node *node = (struct music_queue_node *) malloc(sizeof(struct music_queue_node));
 	if (node == NULL) {
-		server_logger("Failed to allocate memory for new node.", ERR);
+		server_logger(ERR, "Failed to allocate memory for new node.");
 		return false;
 	}
 	play_with_video(xuid, nbs_file_name, loop);

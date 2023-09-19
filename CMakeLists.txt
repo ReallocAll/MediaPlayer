@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.21)
+﻿cmake_minimum_required(VERSION 3.21)
 
 project(MediaPlayer)
 project(convert)
@@ -22,6 +22,7 @@ link_directories(
 
 add_definitions(
     -D"_CRT_SECURE_NO_WARNINGS"
+    -DPLUGIN_VERSION_UNDEFINED
 )
 
 add_compile_options(
