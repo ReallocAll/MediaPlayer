@@ -106,7 +106,7 @@ jobs:
         uses: softprops/action-gh-release@v0.1.15
         if: inputs.release
         with:
-          tag_name: ${{ steps.rel_info.outputs.tag_name }}
+          tag_name: v${{ steps.rel_info.outputs.tag_name }}
           name: ${{ steps.rel_info.outputs.title }}
           prerelease: ${{ inputs.pre_release }}
           body: ${{ steps.rel_info.outputs.desc_body }}
