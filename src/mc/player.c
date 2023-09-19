@@ -2,8 +2,7 @@
 
 struct player *get_server_player(struct server_network_handler *handler, uintptr_t id, uintptr_t pkt)
 {
-	return TLCALL("?_getServerPlayer@ServerNetworkHandler@@EEAAPEAVServerPlayer@@"
-					"AEBVNetworkIdentifier@@W4SubClientId@@@Z",
+	return TLCALL("?_getServerPlayer@ServerNetworkHandler@@EEAAPEAVServerPlayer@@AEBVNetworkIdentifier@@W4SubClientId@@@Z",
 					struct player *(*)(struct server_network_handler *handler, uintptr_t id, uintptr_t pkt),
 					REFERENCE(struct server_network_handler, handler, -16), id, DEREFERENCE(char, pkt, 16));
 }
@@ -19,17 +18,10 @@ const char *get_player_xuid(struct player *player)
 	return xuid;
 }
 
-bool is_player(void *ptr)
-{
-	if (ptr == NULL)
-		return false;
-	if (get_entity_type_id((struct actor *)ptr) != 1)
-		return false;
-	return true;
-}
-
 bool is_player_init(struct player *player)
 {
+	if (!player)
+		return false;
 	return TLCALL("?isPlayerInitialized@ServerPlayer@@UEBA_NXZ",
 					bool (*)(struct player *player),
 					player);

@@ -25,12 +25,7 @@ void send_play_sound_packet(struct player *player, const char *sound_name,
 	// Never dereference struct string.
 	// Please use functions like memcpy to manipulate data
 	struct string *sound_name_cpp_str = std_string_string(sound_name);
-	// TLCALL("??0PlaySoundPacket@@QEAA@V?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@AEBVVec3@@MM@Z",
-	// 	uintptr_t (*)(uintptr_t pkt, struct string *sound_name,
-	// 				 	struct vec3 *pos, float volume, float pitch),
-	// 	pkt, sound_name_cpp_str, pos, volume, pitch);
 
-	// faster method for writing data to packet
  	memcpy((void *)(pkt + 48), sound_name_cpp_str, 32);
 
 	DEREFERENCE(int, pkt, 80) = (int)(pos->x * 8.0F);
