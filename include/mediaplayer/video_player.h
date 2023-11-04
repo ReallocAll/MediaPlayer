@@ -1,6 +1,9 @@
 #pragma once
 #include <littlehooker/littlehooker.h>
 #include <time.h>
+
+#include <libuv/uv.h>
+
 #include "logger.h"
 #include "process_png.h"
 #include "file_utils.h"
