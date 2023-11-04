@@ -1,8 +1,7 @@
 #pragma once
-#pragma comment(lib, "littlehooker.lib")
 #include <littlehooker/littlehooker.h>
 #include <time.h>
-
+#include <libuv/uv.h>
 #include "LLPreloaderAPI.h"
 #include "cpp_string.h"
 #include "logger.h"

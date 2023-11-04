@@ -3,9 +3,9 @@
 struct video_queue *video_queue_array = NULL;
 int video_queue_size = 0;
 
-void CALLBACK get_video_frame(PTP_CALLBACK_INSTANCE instance, PVOID parameter, PTP_WORK work)
+void get_video_frame(void *arg)
 {
-    struct video_queue *node = (struct video_queue *)parameter;
+    struct video_queue *node = (struct video_queue *)arg;
     FILE *fp = NULL;
     char filepath[260];
 	char player_xuid[PLAYER_XUID_STR_LEN];
@@ -46,7 +46,6 @@ void CALLBACK get_video_frame(PTP_CALLBACK_INSTANCE instance, PVOID parameter, P
         fclose(fp);
     }
     free(node->image);
-    CloseThreadpoolWork(work);
 }
 
 bool video_queue_add_player(long long xuid, char *video_path, int loop)
@@ -73,13 +72,8 @@ bool video_queue_add_player(long long xuid, char *video_path, int loop)
     node->image = NULL;
     node->deleted = false;
 
-
-    PTP_WORK work = CreateThreadpoolWork(get_video_frame, (PVOID)node, NULL);
-    if (work == NULL) {
-        CloseThreadpool(thread_pool);
-        return false;
-    }
-    SubmitThreadpoolWork(work);
+    uv_thread_t tid;
+    uv_thread_create(&tid, get_video_frame, (void *)node);
 
     return true;
 }

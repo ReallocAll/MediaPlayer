@@ -1,5 +1,4 @@
 #pragma once
-#pragma comment(lib, "minhook.x64.lib")
 #include "minhook/MinHook.h"
 
 #include <windows.h>

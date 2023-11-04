@@ -23,6 +23,7 @@ link_directories(
 add_definitions(
     -D"_CRT_SECURE_NO_WARNINGS"
     -DPLUGIN_VERSION_UNDEFINED
+    -DWIN32_LEAN_AND_MEAN
 )
 
 add_compile_options(
@@ -53,4 +54,9 @@ target_link_libraries(MediaPlayer
 	"${CMAKE_SOURCE_DIR}/lib/littlehooker.lib"
 	"${CMAKE_SOURCE_DIR}/lib/minhook.x64.lib"
 	"${CMAKE_SOURCE_DIR}/lib/nbsparser.lib"
+	"${CMAKE_SOURCE_DIR}/lib/libuv.lib"
+	"ws2_32.lib"
+	"Iphlpapi.lib"
+	"dbghelp.lib"
+	"userenv.lib"
 )

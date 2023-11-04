@@ -1,18 +1,18 @@
 #pragma once
-#include <littlehooker/littlehooker.h>
-#include <time.h>
 
 #include <libuv/uv.h>
+
+#include <littlehooker/littlehooker.h>
+#include <time.h>
 
 #include "logger.h"
 #include "process_png.h"
 #include "file_utils.h"
 #include "music_player.h"
+
 #include "mc/actor.h"
 #include "mc/player.h"
 #include "mc/level.h"
-
-PTP_POOL thread_pool;
 
 static struct block_pos start_pos  = {255, -255, 255};
 static struct block_pos end_pos = {-255, 255, -255};

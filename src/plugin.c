@@ -172,22 +172,6 @@ void create_plugin_dir(void)
 	CreateDirectoryA(data_path_video, NULL);
 }
 
-bool create_threadpool(void)
-{
-	thread_pool = CreateThreadpool(NULL);
-    if (thread_pool == NULL)
-		return false;
-
-    SetThreadpoolThreadMinimum(thread_pool, 1);
-    SetThreadpoolThreadMaximum(thread_pool, 100);
-	return true;
-}
-
-void close_threadpool(void)
-{
-    CloseThreadpool(thread_pool);
-}
-
 bool load_plugin(void)
 {
 	create_plugin_dir();
@@ -196,7 +180,6 @@ bool load_plugin(void)
 		puts("LittleHooker init failed\n");
 		return false;
 	}
-	create_threadpool();
 	init_hooks();
 
 	if (!using_ll_preloader_api)
@@ -209,6 +192,5 @@ bool unload_plugin(void)
 {
 	if (!using_ll_preloader_api)
 		lh_uninit();
-	close_threadpool();
 	return true;
 }
