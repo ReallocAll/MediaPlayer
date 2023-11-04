@@ -1,7 +1,7 @@
 #include <mediaplayer/plugin.h>
 
 
-TLHOOK(on_initialize_logging, void,
+THOOK(on_initialize_logging, void,
 		"?initializeLogging@DedicatedServer@@AEAAXXZ",
 		uintptr_t this)
 {
@@ -10,7 +10,7 @@ TLHOOK(on_initialize_logging, void,
 }
 
 // Constructor for Level
-TLHOOK(level_construct, struct level *,
+THOOK(level_construct, struct level *,
 	"??0Level@@QEAA@AEBV?$not_null@V?$NonOwnerPointer@VSoundPlayerInterface@@@Bedrock@@@gsl@@V?$OwnerPtrT@U?$SharePtrRefTraits@VLevelStorage@@@@@@AEAVIMinecraftEventing@@_NW4SubClientId@@AEAVScheduler@@V?$not_null@V?$NonOwnerPointer@VStructureManager@@@Bedrock@@@2@AEAVResourcePackManager@@AEBV?$not_null@V?$NonOwnerPointer@VIEntityRegistryOwner@@@Bedrock@@@2@V?$WeakRefT@UEntityRefTraits@@@@V?$unique_ptr@VBlockComponentFactory@@U?$default_delete@VBlockComponentFactory@@@std@@@std@@V?$unique_ptr@VBlockDefinitionGroup@@U?$default_delete@VBlockDefinitionGroup@@@std@@@std@@VItemRegistryRef@@V?$weak_ptr@VBlockTypeRegistry@@@std@@33AEBUNetworkPermissions@@V?$optional@VDimensionDefinitionGroup@@@std@@@Z",
 	struct level *level, uintptr_t a1, uintptr_t a2, uintptr_t a3, uintptr_t a4, uintptr_t a5,
 	uintptr_t a6, uintptr_t a7, uintptr_t a8, uintptr_t a9, uintptr_t a10, uintptr_t a11,
@@ -21,16 +21,16 @@ TLHOOK(level_construct, struct level *,
 				a11, a12, a13, a14, a15, a16, a17, a18, a19);
 }
 
-TLHOOK(change_setting_command_setup, void,
+THOOK(change_setting_command_setup, void,
 	"?setup@ChangeSettingCommand@@SAXAEAVCommandRegistry@@@Z",
 	uintptr_t this)
 {
 	struct string *cmd_music = std_string_string("mpm");
 	struct string *cmd_video = std_string_string("mpv");
-	TLCALL("?registerCommand@CommandRegistry@@QEAAXAEBV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@PEBDW4CommandPermissionLevel@@UCommandFlag@@3@Z",
+	SYMCALL("?registerCommand@CommandRegistry@@QEAAXAEBV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@PEBDW4CommandPermissionLevel@@UCommandFlag@@3@Z",
 		void (*)(uintptr_t, struct string *, const char *, char, short, short),
 		this, cmd_music, "mediaplayer music", 0, 0, 0x80);
-	TLCALL("?registerCommand@CommandRegistry@@QEAAXAEBV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@PEBDW4CommandPermissionLevel@@UCommandFlag@@3@Z",
+	SYMCALL("?registerCommand@CommandRegistry@@QEAAXAEBV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@PEBDW4CommandPermissionLevel@@UCommandFlag@@3@Z",
 		void (*)(uintptr_t, struct string *, const char *, char, short, short),
 		this, cmd_video, "mediaplayer video", 0, 0, 0x80);
 	free(cmd_music);
@@ -38,7 +38,7 @@ TLHOOK(change_setting_command_setup, void,
 	change_setting_command_setup.original(this);
 }
 
-TLHOOK(on_player_cmd, void,
+THOOK(on_player_cmd, void,
 	"?handle@ServerNetworkHandler@@UEAAXAEBVNetworkIdentifier@@AEBVCommandRequestPacket@@@Z",
 	struct server_network_handler *this, uintptr_t id, uintptr_t pkt)
 {
@@ -50,7 +50,7 @@ TLHOOK(on_player_cmd, void,
 	on_player_cmd.original(this, id, pkt);
 }
 
-TLHOOK(map_item_update, void,
+THOOK(map_item_update, void,
 	"?update@MapItem@@QEBAXAEAVLevel@@AEAVActor@@AEAVMapItemSavedData@@@Z",
 	struct map_item *map_item, struct level *level, struct actor *actor, struct map_item_saved_data *map_data)
 {
@@ -67,7 +67,7 @@ TLHOOK(map_item_update, void,
 }
 
 // make MapItemSavedData::tickByBlock always be called
-TLHOOK(MapItem_doesDisplayPlayerMarkers, bool,
+THOOK(MapItem_doesDisplayPlayerMarkers, bool,
 	"?doesDisplayPlayerMarkers@MapItem@@SA_NAEBVItemStack@@@Z",
 	const struct ItemStack *a1)
 {
@@ -75,7 +75,7 @@ TLHOOK(MapItem_doesDisplayPlayerMarkers, bool,
 	return true;
 }
 
-TLHOOK(MapItemSavedData_tickByBlock, void,
+THOOK(MapItemSavedData_tickByBlock, void,
 	"?tickByBlock@MapItemSavedData@@QEAAXAEBVBlockPos@@AEAVBlockSource@@@Z",
 	struct map_item_saved_data *this, const struct block_pos *bl_pos, struct block_source *bs)
 {
@@ -85,11 +85,11 @@ TLHOOK(MapItemSavedData_tickByBlock, void,
 	if (bl_pos->x >= end_pos.x && bl_pos->y <= end_pos.y && bl_pos->z >= end_pos.z) 
 		end_pos = *bl_pos;
 	struct block *bl =
-		TLCALL("?getBlock@BlockSource@@UEBAAEBVBlock@@AEBVBlockPos@@@Z",
+		SYMCALL("?getBlock@BlockSource@@UEBAAEBVBlock@@AEBVBlockPos@@@Z",
 				struct block *(*)(struct block_source *, const struct block_pos *),
 				bs, bl_pos);
 	enum direction dire =
-		TLCALL("?getFacingDirection@FaceDirectionalBlock@@SAEAEBVBlock@@_N@Z",
+		SYMCALL("?getFacingDirection@FaceDirectionalBlock@@SAEAEBVBlock@@_N@Z",
 			unsigned char (*)(const struct block *, bool),
 			bl, false);
 	if (dire == DIRECTION_NEG_Z)
@@ -111,12 +111,23 @@ TLHOOK(MapItemSavedData_tickByBlock, void,
 	}
 }
 
-TLHOOK(on_tick, void,
+THOOK(on_tick, void,
 	"?tick@Level@@UEAAXXZ",
 	struct level *level)
 {
 	send_music_sound_packet();
 	on_tick.original(level);
+}
+
+// 符号：?isWorldTemplateOptionLocked@LevelSettings@@QEBA_NXZ
+// 返回类型：bool
+// hook之后直接返回false就行
+
+THOOK(isWorldTemplateOptionLocked, bool,
+	"?isWorldTemplateOptionLocked@LevelSettings@@QEBA_NXZ",
+	uintptr_t this)
+{
+	return false;
 }
 
 bool using_ll_preloader_api = false;
@@ -133,15 +144,16 @@ bool check_ll_preloader(void)
 
 bool init_hooks(void)
 {
-	level_construct.init(&level_construct);
+	level_construct.install();
 
-	on_initialize_logging.init(&on_initialize_logging);
-	on_tick.init(&on_tick);
-	change_setting_command_setup.init(&change_setting_command_setup);
-	on_player_cmd.init(&on_player_cmd);
-	map_item_update.init(&map_item_update);
-	MapItemSavedData_tickByBlock.init(&MapItemSavedData_tickByBlock);
-	MapItem_doesDisplayPlayerMarkers.init(&MapItem_doesDisplayPlayerMarkers);
+	on_initialize_logging.install();
+	on_tick.install();
+	change_setting_command_setup.install();
+	on_player_cmd.install();
+	map_item_update.install();
+	MapItemSavedData_tickByBlock.install();
+	MapItem_doesDisplayPlayerMarkers.install();
+	isWorldTemplateOptionLocked.install();
 	return true;
 }
 

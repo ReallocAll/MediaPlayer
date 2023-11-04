@@ -27,64 +27,43 @@
 #define BDS_MOD_EXE_PATH BDS_FILE_NAME "_mod" ".exe"
 #define BDS_PDB_PATH BDS_FILE_NAME ".pdb"
 
-
-#define TLHOOK(name, ret_type, sym, ...)          		    \
+#define THOOK(name, ret_type, sym, ...)          		    \
     typedef ret_type (*_##name##_t)(__VA_ARGS__);           \
-    _##name##_t _original_##name = NULL;                    \
-    typedef struct _##name _##name##_struct;                \
-    struct _##name                                          \
-    {                                                       \
-        _##name##_t hook;                                   \
-        _##name##_t original;                               \
-        _##name##_t detour;                                 \
-        bool (*init)(_##name##_struct*);                    \
-        bool (*disable)(_##name##_struct*);                 \
-        bool (*enable)(_##name##_struct*);                  \
-        bool (*remove)(_##name##_struct*);                  \
-    };                                                      \
     ret_type _detour_##name(__VA_ARGS__);                   \
-    bool _INIT_HOOK_##name(_##name##_struct *name)          \
+    bool _install_##name(void);                             \
+    bool _destroy_##name(void);                             \
+                                                            \
+    struct _##name {                                        \
+        _##name##_t hook;                                   \
+        _##name##_t detour;                                 \
+        _##name##_t original;                               \
+        bool (*install)(void);                              \
+        bool (*destroy)(void);                              \
+    } name = {NULL, _detour_##name, NULL,                   \
+                _install_##name, _destroy_##name};          \
+                                                            \
+    bool _install_##name(void)                              \
     {                                                       \
-        void *func_ptr = dlsym_auto(sym);           	    \
-        _##name##_t _hook_##name =                          \
-                        (_##name##_t)func_ptr;              \
-        bool result = hook_func_auto(_hook_##name,          \
-                                _detour_##name,             \
-                                &_original_##name);         \
-        name->hook = _hook_##name;                          \
-        name->original = _original_##name;                  \
-        name->detour = _detour_##name;                      \
+        name.hook = (_##name##_t)dlsym_auto(sym);           \
+        bool result = hook_func_auto(name.hook,             \
+                                     name.detour,           \
+                                     &name.original);       \
         return result;                                      \
     }                                                       \
-    bool _DISABLE_HOOK_##name(_##name##_struct *name)       \
+                                                            \
+    bool _destroy_##name(void)                              \
     {                                                       \
-        return MH_DisableHook(name->hook) == MH_OK          \
+        if (!using_ll_preloader_api)                        \
+            return                                          \
+                MH_RemoveHook(name.hook) == MH_OK           \
                     ? true : false;                         \
+        return true;                                        \
     }                                                       \
-    bool _ENABLE_HOOK_##name(_##name##_struct *name)        \
-    {                                                       \
-        return MH_EnableHook(name->hook) == MH_OK           \
-                    ? true : false;                         \
-    }                                                       \
-    bool _REMOVE_HOOK_##name(_##name##_struct *name)        \
-    {                                                       \
-        return MH_RemoveHook(name->hook) == MH_OK           \
-                    ? true : false;                         \
-    }                                                       \
-    _##name##_struct name =                                 \
-    {                                                       \
-        NULL,                                               \
-        NULL,                                               \
-        NULL,                                               \
-        _INIT_HOOK_##name,                                  \
-        _DISABLE_HOOK_##name,                               \
-        _ENABLE_HOOK_##name,                                \
-        _REMOVE_HOOK_##name                                 \
-    };                                                      \
+                                                            \
     ret_type _detour_##name(__VA_ARGS__)
 
 
-#define TLCALL(sym, func_proto, ...)                        \
+#define SYMCALL(sym, func_proto, ...)                       \
     ((func_proto)                                           \
     (dlsym_auto(sym)))                                      \
     (__VA_ARGS__)
