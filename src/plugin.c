@@ -119,17 +119,6 @@ THOOK(on_tick, void,
 	on_tick.original(level);
 }
 
-// 符号：?isWorldTemplateOptionLocked@LevelSettings@@QEBA_NXZ
-// 返回类型：bool
-// hook之后直接返回false就行
-
-THOOK(isWorldTemplateOptionLocked, bool,
-	"?isWorldTemplateOptionLocked@LevelSettings@@QEBA_NXZ",
-	uintptr_t this)
-{
-	return false;
-}
-
 bool using_ll_preloader_api = false;
 
 bool check_ll_preloader(void)
