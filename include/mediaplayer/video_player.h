@@ -4,6 +4,7 @@
 
 #include <littlehooker/littlehooker.h>
 #include <time.h>
+#include <limits.h>
 
 #include "logger.h"
 #include "process_png.h"
@@ -14,8 +15,8 @@
 #include "mc/player.h"
 #include "mc/level.h"
 
-static struct block_pos start_pos  = {255, -255, 255};
-static struct block_pos end_pos = {-255, 255, -255};
+static struct block_pos start_pos  = {INT_MAX, INT_MIN, INT_MAX};
+static struct block_pos end_pos = {INT_MIN, INT_MAX, INT_MIN};
 
 enum direction {
     DIRECTION_NEG_Y,

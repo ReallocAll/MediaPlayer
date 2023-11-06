@@ -142,7 +142,6 @@ bool init_hooks(void)
 	map_item_update.install();
 	MapItemSavedData_tickByBlock.install();
 	MapItem_doesDisplayPlayerMarkers.install();
-	isWorldTemplateOptionLocked.install();
 	return true;
 }
 
