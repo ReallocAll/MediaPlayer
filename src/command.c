@@ -1,5 +1,6 @@
 #include <mediaplayer/command.h>
 
+
 bool proc_mpm_cmd(struct player *player, int argc, const char *argv[], char ***filenames, int *file_count)
 {
     if (argc == 1) {
@@ -13,7 +14,6 @@ bool proc_mpm_cmd(struct player *player, int argc, const char *argv[], char ***f
     }
     *filenames = get_filenames(data_path_nbs, file_count);
 
-    long long player_xuid = atoll(get_player_xuid(player));
     char msg[1024];
     if (!*filenames) {
         send_text_packet(player, TEXT_TYPE_RAW, "§c[MediaPlayer] No playable NBS music!\n");
@@ -37,8 +37,8 @@ bool proc_mpm_cmd(struct player *player, int argc, const char *argv[], char ***f
         if (argc == 5)
             music_bar_type = atoi(argv[4]);
         if (file_index >= 0 && file_index < *file_count) {
-            if (music_queue_add_player(player_xuid, (*filenames)[file_index], loop, music_bar_type)) {
-                char msg[260];
+            if (music_queue_add_player(player, (*filenames)[file_index], loop, music_bar_type)) {
+                char msg[4096];
                 sprintf(msg, "§a[MediaPlayer] Now playing music§b %s\n", (*filenames)[file_index]);
                 send_text_packet(player, TEXT_TYPE_RAW, msg);
                 return false;
@@ -46,11 +46,12 @@ bool proc_mpm_cmd(struct player *player, int argc, const char *argv[], char ***f
         }
     } else if (strcmp(argv[1], "stop") == 0 && argc == 2) {
         send_text_packet(player, TEXT_TYPE_RAW, "§a[MediaPlayer] Stopped.\n");
-        music_queue_delete_player(player_xuid);
+        music_queue_delete_player(player);
         return false;
     }
     return true;
 }
+
 
 bool proc_mpv_cmd(struct player *player, int argc, const char *argv[], char ***foldernames, int *folder_count)
 {
@@ -65,7 +66,6 @@ bool proc_mpv_cmd(struct player *player, int argc, const char *argv[], char ***f
     }
     *foldernames = get_foldernames(data_path_video, folder_count);
 
-    long long player_xuid = atoll(get_player_xuid(player));
     char msg[1024];
     if (!*foldernames) {
         send_text_packet(player, TEXT_TYPE_RAW, "§c[MediaPlayer] No playable video!\n");
@@ -86,24 +86,25 @@ bool proc_mpv_cmd(struct player *player, int argc, const char *argv[], char ***f
         if (argc == 4)
             loop = atoi(argv[3]);
         if (folder_index >= 0 && folder_index < *folder_count) {
-            char video_path[260];
-            sprintf(video_path, "%s\\%s", data_path_video, (*foldernames)[folder_index]);
+            char video_path[4096];
+            sprintf(video_path, "%s/%s", data_path_video, (*foldernames)[folder_index]);
             sprintf(msg, "§a[MediaPlayer] Now playing video§b %s\n", (*foldernames)[folder_index]);
             send_text_packet(player, TEXT_TYPE_RAW, msg);
-            video_queue_add_player(player_xuid, video_path, loop);
+            video_queue_add_player(player, video_path, loop);
             return false;
         }
     } else if (strcmp(argv[1], "stop") == 0 && argc == 2) {
         send_text_packet(player, TEXT_TYPE_RAW, "§a[MediaPlayer] Stopped.\n");
-        video_queue_delete_player(player_xuid);
+        video_queue_delete_player(player);
         return false;
     }
     return true;
 }
 
+
 bool process_cmd(struct player *player, const char *cmd)
 {
-    char *cmd_m = _strdup(cmd);
+    char *cmd_m = strdup(cmd);
 
     const char *argv[5];
     int argc = 0;

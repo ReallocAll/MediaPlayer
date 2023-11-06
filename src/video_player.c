@@ -7,36 +7,29 @@ void get_video_frame(void *arg)
 {
     struct video_queue *node = (struct video_queue *)arg;
     FILE *fp = NULL;
-    char filepath[260];
-	char player_xuid[PLAYER_XUID_STR_LEN];
-    sprintf(filepath, "%s\\%09d.png", node->video_path, 1);
+    char filepath[276];
+    sprintf(filepath, "%s/%09d.png", node->video_path, 1);
     fp = fopen(filepath, "rb");
     get_pixels(fp, &node->ihdr, NULL, true);
     fclose(fp);
     node->image = malloc(node->ihdr.width * node->ihdr.height * 4);
-    sprintf_s(player_xuid, PLAYER_XUID_STR_LEN, "%lld", node->xuid);
-    while (!node->deleted) {
-		if (!get_player_by_xuid(player_xuid)) {
-		    video_queue_delete_player(node->xuid);
-            break;
-        }
-
+    while (is_player_init(node->player)) {
         // 1000ms / 50 = 20FPS
-        int frame_index = (int)(((time_t)clock() - node->start_time) / 50) + 1;
+        int frame_index = (int)((((uv_hrtime()) - node->start_time) / UV_HRT_PER_MS) / 50) + 1;
         if (frame_index == node->current_frame) {
-            Sleep(1);
+            uv_sleep(1);
             continue;
         }
 
-        sprintf(filepath, "%s\\%09d.png", node->video_path, frame_index);
+        sprintf(filepath, "%s/%09d.png", node->video_path, frame_index);
         fp = fopen(filepath, "rb");
         if (!fp) {
             if (node->loop > 1) {
                 --node->loop;
                 node->current_frame = 1;
-                node->start_time = clock();
+                node->start_time = uv_hrtime();
             } else {
-                video_queue_delete_player(node->xuid);
+                video_queue_delete_player(node->player);
                 break;
             }
         }
@@ -48,23 +41,23 @@ void get_video_frame(void *arg)
     free(node->image);
 }
 
-bool video_queue_add_player(long long xuid, char *video_path, int loop)
+bool video_queue_add_player(struct player *player, char *video_path, int loop)
 {
-    video_queue_delete_player(xuid);
+    video_queue_delete_player(player);
     video_queue_array = (struct video_queue *)
         realloc(video_queue_array, (video_queue_size + 1) * sizeof(struct video_queue));
     struct video_queue *node = &video_queue_array[video_queue_size++];
 
     if (node == NULL) {
-        server_logger(ERR, "Failed to allocate memory for new node.");
+        server_logger(LOG_LEVEL_ERR, "Failed to allocate memory for new node.");
         return false;
     }
     int total_frames;
     char **filenames = get_filenames(video_path, &total_frames);
     free_filenames(filenames, total_frames);
 
-    node->xuid = xuid;
-    node->start_time = clock();
+    node->player = player;
+    node->start_time = uv_hrtime();
     strncpy(node->video_path, video_path, sizeof(node->video_path));
     node->total_frames = total_frames;
     node->current_frame = 1;
@@ -80,21 +73,21 @@ bool video_queue_add_player(long long xuid, char *video_path, int loop)
 
 void reset_screen_pos(void)
 {
-    start_pos.x = 255;
-    start_pos.y = -255;
-    start_pos.z = 255;
-    end_pos.x = -255;
-    end_pos.y = 255;
-    end_pos.z = -255;
+    start_pos.x = INT_MAX;
+    start_pos.y = INT_MIN;
+    start_pos.z = INT_MAX;
+    end_pos.x = INT_MIN;
+    end_pos.y = INT_MAX;
+    end_pos.z = INT_MIN;
 }
 
-void video_queue_delete_player(long long xuid)
+void video_queue_delete_player(struct player *player)
 {
     reset_screen_pos();
     for (int i = 0; i < video_queue_size; i++) {
-        if (video_queue_array[i].xuid == xuid) {
+        if (video_queue_array[i].player == player) {
             video_queue_array[i].deleted = true;
-            Sleep(10);  // wait for thread get_video_frame to exit
+            uv_sleep(10);  // wait for thread get_video_frame to exit
             for (int j = i; j < video_queue_size - 1; j++) {
                 video_queue_array[j] = video_queue_array[j + 1];
             }
@@ -108,16 +101,13 @@ void video_queue_delete_player(long long xuid)
 
 void play_video(struct video_queue *node, struct map_item_saved_data *map_data, struct screen_pos *screen_pos)
 {
-    struct music_queue_node *music_node = music_queue_get_player(node->xuid);
+    struct music_queue_node *music_node = music_queue_get_player(node->player);
     if (music_node && music_node->note_queue_node == music_node->note_queue_node_start)
         return;
     if (node->deleted)
         return;
-    char player_xuid[PLAYER_XUID_STR_LEN];
-    sprintf_s(player_xuid, PLAYER_XUID_STR_LEN, "%lld", node->xuid);
-    struct player *player = get_player_by_xuid(player_xuid);
 
-    if (((time_t)clock() - node->start_time) <= 0)
+    if (((time_t)uv_hrtime() - node->start_time) <= 0)
         return;
     struct start_pixel start_pixel = {abs(screen_pos->x * 128), abs(screen_pos->y * 128)};
 
@@ -136,12 +126,12 @@ void free_video_queue(void)
     video_queue_size = 0;
 }
 
-struct video_queue *video_queue_get_player(long long player_xuid)
+struct video_queue *video_queue_get_player(struct player *player)
 {
+    if (!player)
+        return video_queue_array;
     for (int i = 0; i < video_queue_size; i++) {
-        if (player_xuid == -1)
-            return &video_queue_array[i];
-        if (video_queue_array[i].xuid == player_xuid)
+        if (video_queue_array[i].player == player)
             return &video_queue_array[i];
     }
     return NULL;

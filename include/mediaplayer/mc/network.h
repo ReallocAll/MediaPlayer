@@ -1,9 +1,11 @@
 #pragma once
-#include <littlehooker/littlehooker.h>
-#include <mediaplayer/cpp_string.h>
+#include <libcutils/libcutils.h>
+#include <mediaplayer/mc/symbols.h>
+#include <mediaplayer/logger.h>
 #include "position.h"
 #include "actor.h"
 #include "player.h"
+#include "structs.h"
 
 enum boss_bar_event_type {
 	BOSS_BAR_DISPLAY,
@@ -25,10 +27,8 @@ enum text_type {
     TEXT_TYPE_JSON
 };
 
-struct server_network_handler;
-
-inline uintptr_t create_packet(int type);
-inline void send_network_packet(struct player *player, uintptr_t pkt);
+uintptr_t create_packet(int type);
+void send_network_packet(struct player *player, uintptr_t pkt);
 
 void send_play_sound_packet(struct player *player, const char *sound_name,
 			 				struct vec3 *pos, float volume, float pitch);

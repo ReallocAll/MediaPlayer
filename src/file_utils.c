@@ -1,9 +1,19 @@
 #include <mediaplayer/file_utils.h>
 
-char bds_path[260];
-char data_path[260];
-char data_path_nbs[260];
-char data_path_video[260];
+
+char work_path[4096];
+char data_path[4096];
+char data_path_nbs[4096];
+char data_path_video[4096];
+
+void make_directory(const char *directory)
+{
+	#ifdef __linux__
+	mkdir(directory, S_IRWXU | S_IRWXG | S_IROTH);
+	#else
+	CreateDirectoryA(directory, NULL);
+	#endif
+}
 
 char **get_filenames(const char *directory, int *count)
 {
@@ -15,14 +25,14 @@ char **get_filenames(const char *directory, int *count)
 
 	dir = opendir(directory);
 	if (dir == NULL) {
-		CreateDirectoryA(directory, NULL);
+		make_directory(directory);
 		*count = 0;
 		return filenames;
 	}
 
 	while ((ent = readdir(dir)) != NULL) {
 		if (ent->d_type == DT_REG && ent->d_name[0] != '.') {
-			char *filename = malloc(ent->d_namlen + 1);
+			char *filename = malloc(sizeof(ent->d_name) + 1);
 			strcpy(filename, ent->d_name);
 
 			filenames = realloc(filenames, sizeof(char *) * (i + 1));
@@ -37,6 +47,7 @@ char **get_filenames(const char *directory, int *count)
 	return filenames;
 }
 
+
 char **get_foldernames(const char *directory, int *count)
 {
 	setlocale(LC_ALL, "en_US.UTF-8");
@@ -47,14 +58,14 @@ char **get_foldernames(const char *directory, int *count)
 
 	dir = opendir(directory);
 	if (dir == NULL) {
-		CreateDirectoryA(directory, NULL);
+		make_directory(directory);
 		*count = 0;
 		return foldernames;
 	}
 
 	while ((ent = readdir(dir)) != NULL) {
 		if (ent->d_type == DT_DIR && ent->d_name[0] != '.') {
-			char *foldername = malloc(ent->d_namlen + 1);
+			char *foldername = malloc(sizeof(ent->d_name) + 1);
 			strcpy(foldername, ent->d_name);
 
 			foldernames = realloc(foldernames, sizeof(char *) * (i + 1));
@@ -69,6 +80,7 @@ char **get_foldernames(const char *directory, int *count)
 	return foldernames;
 }
 
+
 void free_filenames(char **filenames, int count)
 {
 	for (int i = 0; i < count; i++) {
@@ -76,6 +88,7 @@ void free_filenames(char **filenames, int count)
 	}
 	free(filenames);
 }
+
 
 void free_foldernames(char **foldernames, int count)
 {

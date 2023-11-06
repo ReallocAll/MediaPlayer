@@ -53,7 +53,7 @@ void set_pixels(unsigned char *image, struct map_item_saved_data *map_data,
 void set_pixel_dirty(struct map_item_saved_data *this)
 {
     *(short *)((char *)this + 121) = 257;
-    __int64 item = *(__int64 *)*((uintptr_t *)this + 12);
+    __int64_t item = *(__int64_t *)*((uintptr_t *)this + 12);
     // set the pixel as dirty and set the row and line boundaries
     *(char *)(item + 32) = 1;
     *(int *)(item + 36) = 0;

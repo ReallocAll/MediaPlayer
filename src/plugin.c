@@ -1,17 +1,23 @@
 #include <mediaplayer/plugin.h>
 
 
+#ifndef __linux__
+FARPROC hook_func_address = 0;
+FARPROC dlsym_func_address = 0;
+#endif
+
+
 THOOK(on_initialize_logging, void,
-		"?initializeLogging@DedicatedServer@@AEAAXXZ",
+		S_DedicatedServer__initializeLogging,
 		uintptr_t this)
 {
 	on_initialize_logging.original(this);
-	server_logger(INFO, "MediaPlayer Loaded!%s%s", PLUGIN_VERSION_MSG, PLUGIN_VERSION);
+	server_logger(LOG_LEVEL_INFO, "MediaPlayer Loaded!%s%s", PLUGIN_VERSION_MSG, PLUGIN_VERSION);
 }
 
 // Constructor for Level
 THOOK(level_construct, struct level *,
-	"??0Level@@QEAA@AEBV?$not_null@V?$NonOwnerPointer@VSoundPlayerInterface@@@Bedrock@@@gsl@@V?$OwnerPtrT@U?$SharePtrRefTraits@VLevelStorage@@@@@@AEAVIMinecraftEventing@@_NW4SubClientId@@AEAVScheduler@@V?$not_null@V?$NonOwnerPointer@VStructureManager@@@Bedrock@@@2@AEAVResourcePackManager@@AEBV?$not_null@V?$NonOwnerPointer@VIEntityRegistryOwner@@@Bedrock@@@2@V?$WeakRefT@UEntityRefTraits@@@@V?$unique_ptr@VBlockComponentFactory@@U?$default_delete@VBlockComponentFactory@@@std@@@std@@V?$unique_ptr@VBlockDefinitionGroup@@U?$default_delete@VBlockDefinitionGroup@@@std@@@std@@VItemRegistryRef@@V?$weak_ptr@VBlockTypeRegistry@@@std@@33AEBUNetworkPermissions@@V?$optional@VDimensionDefinitionGroup@@@std@@@Z",
+	SC_Level__Level,
 	struct level *level, uintptr_t a1, uintptr_t a2, uintptr_t a3, uintptr_t a4, uintptr_t a5,
 	uintptr_t a6, uintptr_t a7, uintptr_t a8, uintptr_t a9, uintptr_t a10, uintptr_t a11,
 	uintptr_t a12, uintptr_t a13, uintptr_t a14, uintptr_t a15, uintptr_t a16, uintptr_t a17,
@@ -21,42 +27,92 @@ THOOK(level_construct, struct level *,
 				a11, a12, a13, a14, a15, a16, a17, a18, a19);
 }
 
-THOOK(change_setting_command_setup, void,
-	"?setup@ChangeSettingCommand@@SAXAEAVCommandRegistry@@@Z",
+#ifdef __linux__
+THOOK(server_player_construct, struct player *,
+	SC_ServerPlayer__ServerPlayer,
+	struct player *this, __int64_t a2, __int64_t a3, __int64_t a4, __int64_t a5, __int64_t a6,
+	__int64_t a7, char a8, __int64_t a9, __int128_t a10, __int128_t a11, __int64_t *a12, int a13,
+        void *a14, struct entity_context *a15)
+{
+	struct player *player = server_player_construct.original(this, a2, a3, a4, a5, a6, a7, a8, a9,
+								 			 					a10, a11, a12, a13, a14, a15);
+	player_list_add(player);
+	return player;
+}
+
+THOOK(server_player_destroy, void,
+	SD_ServerPlayer__ServerPlayer,
+	struct player *this)
+{
+	player_list_delete(this);
+	video_queue_delete_player(this);
+	music_queue_delete_player(this);
+	server_player_destroy.original(this);
+}
+#else
+THOOK(server_player_construct, struct player *,
+	SC_ServerPlayer__ServerPlayer,
+	struct player *this, struct Level *a2,
+	__int64_t a3, __int64_t a4, __int64_t a5, void *a6, __int64_t a7, char a8, __int64_t a9,
+	__int128_t *a10, void *a11, void *a12, __int64_t *a13, int a14, bool a15, struct entity_context *a16)
+{
+	struct player *player = server_player_construct.original(this, a2, a3, a4, a5, a6, a7, a8, a9,
+								 			 					a10, a11, a12, a13, a14, a15, a16);
+	player_list_add(player);
+	return player;
+}
+
+THOOK(server_player_destroy, void,
+	SD_ServerPlayer__ServerPlayer,
+	struct player *this, char a2)
+{
+	player_list_delete(this);
+	video_queue_delete_player(this);
+	music_queue_delete_player(this);
+	server_player_destroy.original(this, a2);
+}
+#endif
+
+
+THOOK(ChangeSettingCommand_setup, void,
+	S_ChangeSettingCommand__setup,
 	uintptr_t this)
 {
-	struct string *cmd_music = std_string_string("mpm");
-	struct string *cmd_video = std_string_string("mpv");
-	SYMCALL("?registerCommand@CommandRegistry@@QEAAXAEBV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@PEBDW4CommandPermissionLevel@@UCommandFlag@@3@Z",
-		void (*)(uintptr_t, struct string *, const char *, char, short, short),
-		this, cmd_music, "mediaplayer music", 0, 0, 0x80);
-	SYMCALL("?registerCommand@CommandRegistry@@QEAAXAEBV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@PEBDW4CommandPermissionLevel@@UCommandFlag@@3@Z",
-		void (*)(uintptr_t, struct string *, const char *, char, short, short),
-		this, cmd_video, "mediaplayer video", 0, 0, 0x80);
-	free(cmd_music);
-	free(cmd_video);
-	change_setting_command_setup.original(this);
+	void *cmd_mpm = NULL;
+	void *cmd_mpv = NULL;
+	std_string_string(&cmd_mpm, "mpm");
+	std_string_string(&cmd_mpv, "mpv");
+	SYMCALL(S_CommandRegistry__registerCommand,
+		void (*)(uintptr_t, void *, const char *, char, short, short),
+		this, cmd_mpm, "PediaPlayer music player", 0, 0, 0x80);
+	SYMCALL(S_CommandRegistry__registerCommand,
+		void (*)(uintptr_t, void *, const char *, char, short, short),
+		this, cmd_mpv, "MediaPlayer video player", 0, 0, 0x80);
+	std_string_destroy(cmd_mpm, true);
+	std_string_destroy(cmd_mpv, true);
+	ChangeSettingCommand_setup.original(this);
 }
 
 THOOK(on_player_cmd, void,
-	"?handle@ServerNetworkHandler@@UEAAXAEBVNetworkIdentifier@@AEBVCommandRequestPacket@@@Z",
+	S_ServerNetworkHandler__handle___CommandRequestPacket,
 	struct server_network_handler *this, uintptr_t id, uintptr_t pkt)
 {
 	struct player *player = get_server_player(this, id, pkt);
-	const char *cmd = std_string_c_str(REFERENCE(struct string, pkt, 48));
+	const char *cmd = std_string_c_str(REFERENCE(void, pkt, 48));
 	if (player && !process_cmd(player, cmd))
 		return;
 
 	on_player_cmd.original(this, id, pkt);
 }
 
+
 THOOK(map_item_update, void,
-	"?update@MapItem@@QEBAXAEAVLevel@@AEAVActor@@AEAVMapItemSavedData@@@Z",
+	S_MapItem__update,
 	struct map_item *map_item, struct level *level, struct actor *actor, struct map_item_saved_data *map_data)
 {
 	struct player *player = (struct player *)actor;
 	const char *player_xuid = get_player_xuid(player);
-	struct video_queue *video_queue_node = video_queue_get_player(atoll(player_xuid));
+	struct video_queue *video_queue_node = video_queue_get_player(player);
 	struct screen_pos screen_pos = {0, 0};
 
 	if (video_queue_node) {
@@ -68,15 +124,15 @@ THOOK(map_item_update, void,
 
 // make MapItemSavedData::tickByBlock always be called
 THOOK(MapItem_doesDisplayPlayerMarkers, bool,
-	"?doesDisplayPlayerMarkers@MapItem@@SA_NAEBVItemStack@@@Z",
-	const struct ItemStack *a1)
+	S_MapItem__doesDisplayPlayerMarkers,
+	const struct item_stack *a1)
 {
 	bool ret = MapItem_doesDisplayPlayerMarkers.original(a1);
 	return true;
 }
 
 THOOK(MapItemSavedData_tickByBlock, void,
-	"?tickByBlock@MapItemSavedData@@QEAAXAEBVBlockPos@@AEAVBlockSource@@@Z",
+	S_MapItemSavedData__tickByBlock,
 	struct map_item_saved_data *this, const struct block_pos *bl_pos, struct block_source *bs)
 {
 	int reverse_offset = 0;
@@ -85,11 +141,11 @@ THOOK(MapItemSavedData_tickByBlock, void,
 	if (bl_pos->x >= end_pos.x && bl_pos->y <= end_pos.y && bl_pos->z >= end_pos.z) 
 		end_pos = *bl_pos;
 	struct block *bl =
-		SYMCALL("?getBlock@BlockSource@@UEBAAEBVBlock@@AEBVBlockPos@@@Z",
+		SYMCALL(S_BlockSource__getBlock,
 				struct block *(*)(struct block_source *, const struct block_pos *),
 				bs, bl_pos);
 	enum direction dire =
-		SYMCALL("?getFacingDirection@FaceDirectionalBlock@@SAEAEBVBlock@@_N@Z",
+		SYMCALL(S_FaceDirectionalBlock__getFacingDirection,
 			unsigned char (*)(const struct block *, bool),
 			bl, false);
 	if (dire == DIRECTION_NEG_Z)
@@ -97,7 +153,7 @@ THOOK(MapItemSavedData_tickByBlock, void,
 	else if (dire == DIRECTION_POS_X)
 		reverse_offset = abs(start_pos.z - end_pos.z);
 
-	struct video_queue *video_queue_node = video_queue_get_player(-1);
+	struct video_queue *video_queue_node = video_queue_get_player(NULL);
 	if (video_queue_node) {
 		struct screen_pos screen_pos;
 		if (start_pos.x - end_pos.x != 0)
@@ -112,73 +168,65 @@ THOOK(MapItemSavedData_tickByBlock, void,
 }
 
 THOOK(on_tick, void,
-	"?tick@Level@@UEAAXXZ",
+	S_Level__tick,
 	struct level *level)
 {
 	send_music_sound_packet();
 	on_tick.original(level);
 }
 
-bool using_ll_preloader_api = false;
-
-bool check_ll_preloader(void)
+void init(void)
 {
-	if (GetModuleHandleA("LLPreloader")) {
-		puts("00:00:00 INFO [MediaPlayer] The LLPreLoader is detected and is using the HookAPI it provides.");
-		using_ll_preloader_api = true;
-		return true;
-	}
-	return false;
-}
-
-bool init_hooks(void)
-{
+	#ifndef __linux__
+	hook_func_address = GetProcAddress(GetModuleHandleA("LLPreloader"), "HookFunction");
+	dlsym_func_address = GetProcAddress(GetModuleHandleA("LLPreloader"), "dlsym_real");
+	
 	level_construct.install();
-
+	server_player_construct.install();
+	server_player_destroy.install();
 	on_initialize_logging.install();
 	on_tick.install();
-	change_setting_command_setup.install();
+	ChangeSettingCommand_setup.install();
 	on_player_cmd.install();
 	map_item_update.install();
 	MapItemSavedData_tickByBlock.install();
 	MapItem_doesDisplayPlayerMarkers.install();
-	return true;
+	#endif
+	create_plugin_dir();
 }
 
 void create_plugin_dir(void)
 {
 	// also init global path variables
-	// GetCurrentDirectoryA(260, bds_path);
-	strcpy(bds_path, ".");
+	char work_path[4096];
+	size_t path_size = 4096;
+	uv_cwd(work_path, &path_size);
 
-	sprintf(data_path, "%s\\plugins\\MediaPlayer", bds_path);
-	sprintf(data_path_nbs, "%s\\nbs", data_path);
-	sprintf(data_path_video, "%s\\video", data_path);
+	sprintf(data_path, "%s/plugins/MediaPlayer", work_path);
+	sprintf(data_path_nbs, "%s/nbs", data_path);
+	sprintf(data_path_video, "%s/video", data_path);
 
-	CreateDirectoryA(data_path, NULL);
-	CreateDirectoryA(data_path_nbs, NULL);
-	CreateDirectoryA(data_path_video, NULL);
+	make_directory(data_path);
+	make_directory(data_path_nbs);
+	make_directory(data_path_video);
 }
 
-bool load_plugin(void)
+#ifndef __linux__
+
+BOOL APIENTRY DllMain(HMODULE hModule, DWORD ul_reason_for_call, LPVOID lpReserved)
 {
-	create_plugin_dir();
-	check_ll_preloader();
-	if (!using_ll_preloader_api && !lh_init()) {
-		puts("LittleHooker init failed\n");
-		return false;
+	switch (ul_reason_for_call) {
+	case DLL_PROCESS_ATTACH:
+		init();
+		break;
+	case DLL_THREAD_ATTACH:
+		break;
+	case DLL_THREAD_DETACH:
+		break;
+	case DLL_PROCESS_DETACH:
+		break;
 	}
-	init_hooks();
-
-	if (!using_ll_preloader_api)
-		lh_enable_all_hook();
-
 	return true;
 }
 
-bool unload_plugin(void)
-{
-	if (!using_ll_preloader_api)
-		lh_uninit();
-	return true;
-}
+#endif

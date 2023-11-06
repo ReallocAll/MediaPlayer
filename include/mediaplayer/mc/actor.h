@@ -1,6 +1,6 @@
 #pragma once
-#include <littlehooker/littlehooker.h>
-#include <mediaplayer/cpp_string.h>
+#include <libcutils/libcutils.h>
+#include <mediaplayer/mc/symbols.h>
 #include "position.h"
 
 struct actor;

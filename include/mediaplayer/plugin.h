@@ -1,12 +1,15 @@
 #pragma once
-#include <littlehooker/littlehooker.h>
 #include <time.h>
-#include <libuv/uv.h>
-#include "LLPreloaderAPI.h"
-#include "cpp_string.h"
+
+#include <libcutils/libcutils.h>
+#include <mediaplayer/mc/symbols.h>
+
 #include "logger.h"
 #include "music_player.h"
 #include "command.h"
+#include "file_utils.h"
+
+#include "mc/structs.h"
 
 #include "mc/network.h"
 #include "mc/actor.h"
@@ -20,8 +23,10 @@
     #define PLUGIN_VERSION ""
 #endif
 
-bool check_ll_preloader(void);
-bool init_hooks(void);
+#ifdef __linux__
+void init() __attribute__((constructor));
+#else
+void init();
+#endif
+
 void create_plugin_dir(void);
-bool load_plugin(void);
-bool unload_plugin(void);

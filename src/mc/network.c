@@ -1,66 +1,81 @@
 #include <mediaplayer/mc/network.h>
 
-
-inline uintptr_t create_packet(int type)
+uintptr_t create_packet(int type)
 {
 	uintptr_t pkt[2];
-	SYMCALL("?createPacket@MinecraftPackets@@SA?AV?$shared_ptr@VPacket@@@std@@W4MinecraftPacketIds@@@Z",
-		void (*)(uintptr_t [2], int),
+	SYMCALL(S_MinecraftPackets__createPacket,
+		void (*)(uintptr_t [2], int type),
 		pkt, type);
 	return *pkt;
 }
 
-inline void send_network_packet(struct player *player, uintptr_t pkt)
+
+void send_network_packet(struct player *player, uintptr_t pkt)
 {
-	SYMCALL("?sendNetworkPacket@ServerPlayer@@UEBAXAEAVPacket@@@Z",
-		void (*)(struct player *player, uintptr_t pkt),
-		player, pkt);
+	SYMCALL(S_ServerPlayer__sendNetworkPacket,
+			void (*)(struct player *player, uintptr_t pkt),
+			player, pkt);
 }
 
 void send_play_sound_packet(struct player *player, const char *sound_name,
 			 				struct vec3 *pos, float volume, float pitch)
 {
 	uintptr_t pkt = create_packet(86);
+	void *sound_name_sstr = NULL;
+	std_string_string(&sound_name_sstr, sound_name);
+	
+	SYMCALL(SC_PlaySoundPacket__PlaySoundPacket,
+		uintptr_t (*)(uintptr_t pkt, void *sound_name, struct vec3 *pos, float volume, float pitch),
+		pkt, sound_name_sstr, pos, volume, pitch);
 
-	// Never dereference struct string.
-	// Please use functions like memcpy to manipulate data
-	struct string *sound_name_cpp_str = std_string_string(sound_name);
-
- 	memcpy((void *)(pkt + 48), sound_name_cpp_str, 32);
-
-	DEREFERENCE(int, pkt, 80) = (int)(pos->x * 8.0F);
-	DEREFERENCE(int, pkt, 84) = (int)(pos->y * 8.0F);
-	DEREFERENCE(int, pkt, 88) = (int)(pos->z * 8.0F);
-	DEREFERENCE(float, pkt, 92) = volume;
-	DEREFERENCE(float, pkt, 96) = pitch;
 	send_network_packet(player, pkt);
-	free(sound_name_cpp_str);
+	std_string_destroy(sound_name_sstr, true);
 }
 
-void send_text_packet(struct player *player, int mode, const char *msg)
+
+uintptr_t create_text_packet(enum text_type type, struct player *player, const char *msg)
 {
+	void *author = NULL;
+	void *message = NULL;
+	void *xuid = NULL;
+	void *platform_id = NULL;
+	std_string_string(&author, get_name_tag((struct actor *)player));
+	std_string_string(&message, msg);
+	std_string_string(&xuid, get_player_xuid(player));
+	std_string_string(&platform_id, "");
 	uintptr_t pkt = create_packet(9);
-	const char *player_name = get_name_tag((struct actor *)player);
-	struct string *player_name_cpp_str = std_string_string(player_name);
-	struct string *msg_cpp_str = std_string_string(msg);
-	DEREFERENCE(int, pkt, 48) = mode;
- 	memcpy((void *)(pkt + 56), player_name_cpp_str, 32);
- 	memcpy((void *)(pkt + 88), msg_cpp_str, 32);
-	send_network_packet(player, pkt);
-	free(player_name_cpp_str);
-	free(msg_cpp_str);
+	#ifdef __linux__
+	uintptr_t params[2];
+	SYMCALL(S_TextPacket__TextPacket,
+			uintptr_t (*)(uintptr_t pkt, enum text_type type, void *author, void *message, void *params, bool localized, void *xuid, void *platform_id),
+			pkt, type, author, message, &params, 0, xuid, platform_id);
+	#else
+	DEREFERENCE(int, pkt, 48) = type;
+ 	memcpy((void *)(pkt + 56), author, 32);
+ 	memcpy((void *)(pkt + 88), message, 32);
+	#endif
+	return pkt;
 }
+
+void send_text_packet(struct player *player, enum text_type type, const char *msg)
+{
+	uintptr_t pkt = create_text_packet(type, player, msg);
+	
+	send_network_packet(player, pkt);
+}
+
 
 void send_boss_event_packet(struct player *player, const char *name,
 							float per, enum boss_bar_event_type type)
 {
 	uintptr_t pkt = create_packet(74);
 	uintptr_t unique_id = DEREFERENCE(uintptr_t, get_or_create_unique_id((struct actor *)player), 0);
-	struct string *name_cpp_str = std_string_string(name);
+	void *name_sstr = NULL;
+	std_string_string(&name_sstr, name);
 	DEREFERENCE(uintptr_t, pkt, 56) = unique_id;
 	DEREFERENCE(int, pkt, 72) = type;
- 	memcpy((void *)(pkt + 80), name_cpp_str, 32);
-	DEREFERENCE(float, pkt, 112) = per;
+ 	memcpy((void *)(pkt + 80), name_sstr, 32);
+	DEREFERENCE(float, pkt, 112) = per * 10.0f;
 	send_network_packet(player, pkt);
-	free(name_cpp_str);
+	std_string_destroy(name_sstr, true);
 }
