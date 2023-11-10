@@ -16,6 +16,7 @@ file(GLOB_RECURSE SRC_FILES_DIR
 
 include_directories(
     ${CMAKE_SOURCE_DIR}/include
+    ${CMAKE_SOURCE_DIR}/include/libuv
 )
 
 link_directories(
