@@ -42,8 +42,8 @@ if (CMAKE_SYSTEM_NAME MATCHES "Linux")
         "${CMAKE_SOURCE_DIR}/lib/libuv.so"
         "${CMAKE_SOURCE_DIR}/lib/libcutils.a"
     )
-    install(TARGETS MediaPlayer DESTINATION "/home/ubuntu/bds/mods")
-    
+    install(TARGETS MediaPlayer DESTINATION mods)
+
 elseif (CMAKE_SYSTEM_NAME MATCHES "Windows")
     project(convert)
     add_executable(convert ${PROJECT_SOURCE_DIR}/tools/convert.c)
@@ -74,4 +74,5 @@ elseif (CMAKE_SYSTEM_NAME MATCHES "Windows")
     "dbghelp.lib"
     "userenv.lib"
     )
+    install(TARGETS MediaPlayer DESTINATION plugins)
 endif()
