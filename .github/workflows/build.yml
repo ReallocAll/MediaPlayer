@@ -52,7 +52,7 @@ jobs:
         with:
           name: artifact
           path: |
-            ./build/Debug/
+            ./build/
 
       - name: Test
         run: |
