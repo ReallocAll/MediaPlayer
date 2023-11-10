@@ -7,7 +7,7 @@ void get_video_frame(void *arg)
 {
     struct video_queue *node = (struct video_queue *)arg;
     FILE *fp = NULL;
-    char filepath[276];
+    char filepath[8192];
     sprintf(filepath, "%s/%09d.png", node->video_path, 1);
     fp = fopen(filepath, "rb");
     get_pixels(fp, &node->ihdr, NULL, true);
