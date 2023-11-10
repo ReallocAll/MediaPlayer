@@ -61,4 +61,4 @@ jobs:
           unzip -q *.zip
           python3 ../tools/patchlib.py
           chmod +x bedrock_server_symbols_patched.debug
-          timeout 10 bash -c "LD_PRELOAD=../lib/libserver_modloader.so ./bedrock_server_symbols_patched.debug"
+          ! timeout 10 bash -c "LD_PRELOAD=../lib/libserver_modloader.so ./bedrock_server_symbols_patched.debug"
