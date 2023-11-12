@@ -40,8 +40,8 @@
 
 #else
 
-extern uintptr_t hook_func_address;
-extern uintptr_t dlsym_func_address;
+extern FARPROC hook_func_address;
+extern FARPROC dlsym_func_address;
 
 inline int hook_func(void *oldFunc, void **pOutOld, void *newFunc)
 {
