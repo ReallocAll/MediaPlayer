@@ -44,8 +44,13 @@ void set_pixels(unsigned char *image, struct map_item_saved_data *map_data,
         return;
     for(unsigned y = 0; y < 128; y++) {
         unsigned char *base_pixel = 
-            image + ((y + start_pixel->y) * ihdr->width + start_pixel->x) * 4;
-        memcpy(&(*inner_pixels)[y], base_pixel, 128 * 4);
+            image + 
+                ((y + start_pixel->y)       // target line index (y ~ y + 128)
+                * ihdr->width               // locate to first pixel of target line
+                + start_pixel->x)           // locate to pixel of target row
+                * 4;                        // single pixel size is 4 byte == 4 * sizeof(char)
+        // copy 128 pixels of single line to map
+        memcpy(&(*inner_pixels)[y], base_pixel, 128 * 4);  
     }
     set_pixel_dirty(map_data);
 }
