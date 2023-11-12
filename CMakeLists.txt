@@ -32,6 +32,10 @@ add_definitions(
 add_library(MediaPlayer SHARED ${SRC_FILES_DIR})
 set_target_properties(MediaPlayer PROPERTIES OUTPUT_NAME "MediaPlayer")
 
+if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+    target_compile_definitions(MediaPlayer PRIVATE DEBUG)
+endif()
+
 if (CMAKE_SYSTEM_NAME MATCHES "Linux")
     add_definitions(
         -D_GNU_SOURCE
