@@ -35,7 +35,6 @@ void get_video_frame(void *arg)
         }
 
         get_pixels(fp, &node->ihdr, node->image, false);
-        update_playback_window(node->hwnd, &node->ihdr, node->image);
         node->current_frame = frame_index;
         fclose(fp);
     }
@@ -65,7 +64,6 @@ bool video_queue_add_player(struct player *player, char *video_path, int loop)
     node->loop = loop;
     node->image = NULL;
     node->deleted = false;
-    node->hwnd = NULL;
 
     uv_thread_t tid;
     uv_thread_create(&tid, get_video_frame, (void *)node);
@@ -88,7 +86,6 @@ void video_queue_delete_player(struct player *player)
     reset_screen_pos();
     for (int i = 0; i < video_queue_size; i++) {
         if (video_queue_array[i].player == player) {
-            destroy_playback_window(video_queue_array[i].hwnd);
             video_queue_array[i].deleted = true;
             uv_sleep(10);  // wait for thread get_video_frame to exit
             for (int j = i; j < video_queue_size - 1; j++) {
@@ -118,8 +115,6 @@ void play_video(struct video_queue *node, struct map_item_saved_data *map_data, 
     if (start_pixel.x + 128 > node->ihdr.width || start_pixel.y + 128 > node->ihdr.height)
         return;
 
-    if (node->hwnd == NULL)
-        node->hwnd = create_playback_window(&node->ihdr);
     // fill pixels to map
     set_pixels(node->image, map_data, &start_pixel, &node->ihdr);
 }

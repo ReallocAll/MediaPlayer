@@ -10,7 +10,6 @@
 #include "process_png.h"
 #include "file_utils.h"
 #include "music_player.h"
-#include "window_player.h"
 
 #include "mc/actor.h"
 #include "mc/player.h"
@@ -44,7 +43,6 @@ struct video_queue {
     unsigned char *image;
     struct spng_ihdr ihdr;
     bool deleted;
-    HWND hwnd;
 };
 
 struct screen_pos {
