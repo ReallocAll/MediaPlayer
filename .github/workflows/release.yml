@@ -104,7 +104,7 @@ jobs:
           cmake --build build/ --config ${{ inputs.solution }} -j
 
       - name: Download linux build
-      - uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v3
         with:
           name: libMediaPlayer.so
 
