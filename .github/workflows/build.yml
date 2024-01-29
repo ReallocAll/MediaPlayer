@@ -54,10 +54,10 @@ jobs:
           path: |
             ./build/
 
-      - name: Test
+      - name: Run
         run: |
           cd bds
-          curl -fsSLO https://minecraft.azureedge.net/bin-linux/bedrock-server-1.20.41.02.zip
+          curl -fsSLO https://minecraft.azureedge.net/bin-linux/bedrock-server-1.20.51.01.zip
           unzip -q *.zip
           python3 ../tools/patchlib.py
           chmod +x bedrock_server_symbols_patched.debug
