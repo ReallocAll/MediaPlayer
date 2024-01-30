@@ -41,11 +41,17 @@
 #else
 
 extern FARPROC hook_func_address;
+extern FARPROC unhook_func_address;
 extern FARPROC dlsym_func_address;
 
-inline int hook_func(void *oldFunc, void **pOutOld, void *newFunc)
+inline int hook_func(void *target, void *detour, void **original)
 {
-	return ((int (*)(void *oldFunc, void **pOutOld, void *newFunc)) ((void *)hook_func_address)) (oldFunc, pOutOld, newFunc);
+	return ((int (*)(void *target, void *detour, void **original, int priority)) ((void *)hook_func_address)) (target, detour, original, 200);
+}
+
+inline bool unhook_func(void *target, void *detour)
+{
+	return ((bool (*)(void *target, void *detour)) ((void *)unhook_func_address)) (target, detour);
 }
 
 inline void *dlsym(const char *x)
@@ -72,13 +78,13 @@ inline void *dlsym(const char *x)
     {                                                        \
         name.hook = (_##name##_t)dlsym(sym);                 \
         return hook_func(name.hook,                          \
-                         (void **)&name.original,            \
-                         name.detour);                       \
+                         name.detour,                        \
+                         (void **)&name.original);           \
     }                                                        \
                                                              \
     bool _destroy_##name(void)                               \
     {                                                        \
-        return false;                                        \
+        return unhook_func(name.hook, name.detour);          \
     }                                                        \
                                                              \
     ret_type _detour_##name(__VA_ARGS__)

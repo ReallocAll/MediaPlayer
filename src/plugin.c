@@ -3,6 +3,7 @@
 
 #ifndef __linux__
 FARPROC hook_func_address = 0;
+FARPROC unhook_func_address = 0;
 FARPROC dlsym_func_address = 0;
 #endif
 
@@ -178,9 +179,10 @@ THOOK(on_tick, void,
 void init(void)
 {
 	#ifndef __linux__
-	hook_func_address = GetProcAddress(GetModuleHandleA("LLPreloader"), "HookFunction");
-	dlsym_func_address = GetProcAddress(GetModuleHandleA("LLPreloader"), "dlsym_real");
-	
+	hook_func_address = GetProcAddress(GetModuleHandleA("PreLoader"), "pl_hook");
+	unhook_func_address = GetProcAddress(GetModuleHandleA("PreLoader"), "pl_unhook");
+	dlsym_func_address = GetProcAddress(GetModuleHandleA("PreLoader"), "pl_resolve_symbol");
+
 	level_construct.install();
 	server_player_construct.install();
 	server_player_destroy.install();
