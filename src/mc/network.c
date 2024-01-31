@@ -75,7 +75,7 @@ void send_boss_event_packet(struct player *player, const char *name,
 	DEREFERENCE(uintptr_t, pkt, 56) = unique_id;
 	DEREFERENCE(int, pkt, 72) = type;
  	memcpy((void *)(pkt + 80), name_sstr, 32);
-	DEREFERENCE(float, pkt, 112) = per * 10.0f;
+	DEREFERENCE(float, pkt, 112) = per;
 	send_network_packet(player, pkt);
 	std_string_destroy(name_sstr, true);
 }
