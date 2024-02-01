@@ -11,5 +11,5 @@ typedef struct {
     void* start_addr;
 } xr_dynamic_array_info;
 
-void *xr_new_dynamic_array(size_t in_size, xr_dynamic_array_info *out_handle);
-char xr_operator_dynamic_array(xr_dynamic_array_info *in_handle, void **in_value, unsigned long long in_pos, char in_operation);
+void *xr_new_dynamic_array(size_t in_size, xr_dynamic_array_info *out_info);
+char xr_operator_dynamic_array(xr_dynamic_array_info *in_info, void **in_value, unsigned long long in_pos, char in_operation);

@@ -8,6 +8,7 @@ set(CMAKE_PREFIX_PATH .)
 
 file(GLOB_RECURSE SRC_FILES_DIR
     ${PROJECT_SOURCE_DIR}/include/libspng/*.c
+    ${PROJECT_SOURCE_DIR}/include/xiziya_r/misc/*.c
     ${PROJECT_SOURCE_DIR}/src/*.c
     ${PROJECT_SOURCE_DIR}/src/mc/*.c
     ${PROJECT_SOURCE_DIR}/include/nbsparser/*.c
