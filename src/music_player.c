@@ -1,6 +1,13 @@
 #include <mediaplayer/music_player.h>
+#include <xiziya_r/misc/xr_dynamic_array.h>
 
-struct music_queue_node *music_queue_head = NULL;
+xr_dynamic_array_info g_player_array_0_info = { 0 };
+xr_dynamic_array_info g_offline_player_array_0_info = { 0 };
+
+struct player_music_info *g_player_array_0 = 0;
+struct player_music_info *g_offline_player_array_0 = 0;
+
+struct music_queue_node *music_queue_head = NULL; //will be remove in few days...
 
 struct note_queue_node *generate_note_queue(FILE *fp, time_t *total_time)
 {
@@ -66,10 +73,43 @@ struct note_queue_node *generate_note_queue(FILE *fp, time_t *total_time)
 	return note_node_head;
 }
 
-
-bool music_queue_add_player(struct player *player, const char *nbs_file_name, int loop, enum music_bar_type music_bar_type)
+long long find_player_in_array(struct player_music_info *in_array, unsigned long long in_array_size, struct player *in_player)
 {
-	music_queue_delete_player(player);
+	for (unsigned int player_count = 0; player_count < in_array_size; player_count++) {
+		if (in_array[player_count].player == in_player) return player_count;
+	}
+	return -1;
+}
+
+long long find_player_in_array_by_xuid(struct player_music_info *in_array, unsigned long long in_array_size, char *in_xuid)
+{
+	
+	unsigned long long cac_result = 0;
+	char *xuid_in_array = 0;
+	char *xuid_in_va = 0;
+	for (unsigned int player_count = 0; player_count < in_array_size; player_count++) {
+		xuid_in_va = in_xuid;
+		xuid_in_array = in_array[player_count].player_xuid;
+		while (xuid_in_va) cac_result += xuid_in_array++ - xuid_in_va++;
+		if (!cac_result) return player_count;
+	}
+	return -1;
+}
+
+struct music_queue_node *get_player_last_music(struct player *in_player)
+{
+	long long player_pos_in_array = find_player_in_array(g_player_array_0, g_player_array_0_info.cur_arr_size, in_player);
+	if (player_pos_in_array != -1) {
+		struct music_queue_node *current_node = g_player_array_0[player_pos_in_array].music_queue_node;
+		while(current_node->next) current_node = current_node->next;
+		return current_node;
+	} else return NULL;
+}
+
+
+
+bool music_queue_add(struct player *player, const char *nbs_file_name, int loop, enum music_bar_type music_bar_type)
+{
 	char *nbs_file_name_new = strdup(nbs_file_name);
 	char nbs_path[4096];
 	sprintf(nbs_path, "%s/%s", data_path_nbs, nbs_file_name);
@@ -80,6 +120,7 @@ bool music_queue_add_player(struct player *player, const char *nbs_file_name, in
 	struct note_queue_node *node_head = generate_note_queue(fp, &total_time);
 	fclose(fp);
 	struct music_queue_node *node = (struct music_queue_node *) malloc(sizeof(struct music_queue_node));
+	
 	if (node == NULL) {
 		server_logger(LOG_LEVEL_ERR, "Failed to allocate memory for new node.");
 		return false;
@@ -94,62 +135,130 @@ bool music_queue_add_player(struct player *player, const char *nbs_file_name, in
 	node->loop = loop;
 	node->music_bar_type = music_bar_type;
 	strncpy(node->song_name, strtok(nbs_file_name_new, "."), sizeof(node->song_name));
+	node->prev = NULL;
 	node->next = NULL;
+	long long player_pos_in_array = find_player_in_array(g_player_array_0, g_player_array_0_info.cur_arr_size, player);
 
-	if (music_queue_head == NULL) {
-		music_queue_head = node;
-		return true;
+	if(player_pos_in_array == -1) {
+		xr_operator_dynamic_array(&g_player_array_0_info, &g_player_array_0, g_player_array_0_info.cur_arr_size, XR_ARRAY_ADD);
+		g_player_array_0[g_player_array_0_info.cur_arr_size - 1].player = player;
+		g_player_array_0[g_player_array_0_info.cur_arr_size - 1].player_xuid = (char *)get_player_xuid(player);
+		g_player_array_0[g_player_array_0_info.cur_arr_size - 1].music_queue_node = node;
+		g_player_array_0[g_player_array_0_info.cur_arr_size - 1].music_num = 1;
+	} else {
+		struct music_queue_node *music_queue_last = get_player_last_music(player);
+		node->prev = music_queue_last;
+		music_queue_last->next = node;
+		g_player_array_0[player_pos_in_array].music_num++;
 	}
-
-	struct music_queue_node *curr_node = music_queue_head;
-	while (curr_node->next != NULL) {
-		curr_node = curr_node->next;
-	}
-	curr_node->next = node;
 	free(nbs_file_name_new);
+
 	return true;
 }
 
-
-void music_queue_delete_player(struct player *player)
+bool music_queue_del(struct player *player, unsigned long long in_pos)
 {
-	struct music_queue_node *node = music_queue_head;
-	struct music_queue_node *node_prev = NULL;
+	unsigned long long player_pos_in_array = 0;
+	struct music_queue_node *current_node = 0;
 
-	while (node != NULL) {
-		if (node->player == player) {
-			free_note_queue(node->note_queue_node_start);
-			if (node_prev != NULL)
-				node_prev->next = node->next;
-			else
-				music_queue_head = node->next;
+	player_pos_in_array = find_player_in_array(g_player_array_0, g_player_array_0_info.cur_arr_size, player);
+	current_node = g_player_array_0[player_pos_in_array].music_queue_node;
 
-			if (is_player_init(player)) {
-				send_boss_event_packet(player, "", 0, BOSS_BAR_HIDE);
-			}
-			free(node);
-			video_queue_delete_player(player);
-			return;
+	if (!in_pos) {
+		if (current_node->next) {
+			struct music_queue_node *temp_current_node = current_node;
+			current_node = current_node->next;
+			free(temp_current_node);
+			g_player_array_0[player_pos_in_array].music_queue_node = current_node;
+		} else {
+			xr_operator_dynamic_array(&g_player_array_0_info, &g_player_array_0, player_pos_in_array, XR_ARRAY_DEL);
 		}
-		node_prev = node;
-		node = node->next;
+	} else {
+		while(in_pos && current_node->next) {
+			current_node = current_node->next;
+			in_pos--;
+		}
+		if (!in_pos) {
+			if (current_node->next) {
+				current_node->prev->next = current_node->next;
+			} else {
+				current_node->prev->next = NULL;
+			}
+			free(current_node);
+		} else {
+			return false;
+		}
+	}
+	g_player_array_0[player_pos_in_array].music_num--;
+	return true;
+}
+
+void music_queue_del_all(struct player *player)
+{
+	long long player_pos_in_array = find_player_in_array(g_player_array_0, g_player_array_0_info.cur_arr_size, player);
+	
+	while(g_player_array_0[player_pos_in_array].music_num) {
+		music_queue_del(player, g_player_array_0[player_pos_in_array].music_num - 1);
+	}
+	send_boss_event_packet(player, "", 0, BOSS_BAR_HIDE);
+}
+
+
+
+void music_player_player_offline(struct player *in_player)
+{
+	long long player_pos_in_online_array = find_player_in_array(g_player_array_0, g_player_array_0_info.cur_arr_size, in_player);
+	long long player_pos_in_offline_array = find_player_in_array(g_offline_player_array_0, g_offline_player_array_0_info.cur_arr_size, in_player);
+	if(player_pos_in_offline_array == -1) {
+		xr_operator_dynamic_array(&g_offline_player_array_0_info, &g_offline_player_array_0, g_offline_player_array_0_info.cur_arr_size, XR_ARRAY_ADD);
+		char *online_pos = (char *)&g_player_array_0[player_pos_in_online_array];
+		char *offline_pos = (char *)&g_offline_player_array_0[g_offline_player_array_0_info.cur_arr_size - 1];
+		for(int mem_pos = 0; mem_pos < sizeof(struct player_music_info); mem_pos++)
+			*offline_pos++ = *online_pos++;
+		xr_operator_dynamic_array(&g_player_array_0_info, &g_player_array_0, player_pos_in_online_array, XR_ARRAY_DEL);
 	}
 }
+
+
+
+void music_player_query_music_queue(struct player *player)
+{
+	long long player_pos_in_array = find_player_in_array(g_player_array_0, g_player_array_0_info.cur_arr_size, player);
+	if (player_pos_in_array != -1) {
+		int music_num = 1;
+		char msg_to_player[512];
+		struct music_queue_node *temp_music_node = g_player_array_0[player_pos_in_array].music_queue_node;
+		send_text_packet(player, TEXT_TYPE_RAW, "§6[MediaPlayer] [Index] [Music Name] ---Playlist---\n");
+		sprintf(msg_to_player, "§6[MediaPlayer] [%d] §a%s§6 (Current)\n", 0, temp_music_node->song_name);
+		send_text_packet(player, TEXT_TYPE_RAW, msg_to_player);
+		for (; temp_music_node->next; music_num++) {
+			sprintf(msg_to_player, "§6[MediaPlayer] [%d] §a%s§6\n", music_num, temp_music_node->song_name);
+			send_text_packet(player, TEXT_TYPE_RAW, msg_to_player);
+			temp_music_node = temp_music_node->next;
+		}
+	} else {
+		send_text_packet(player, TEXT_TYPE_RAW, "§6[MediaPlayer] Playlist Empty!\n");
+	}
+}
+
 
 
 void send_music_sound_packet(void)
 {
-	struct vec3 *player_pos;
-	const char *sound_name;
+	struct vec3 *player_pos = 0;
+	struct player *cur_player = 0;
+	const char *sound_name = 0;
 	time_t current_time = 0;
 
-	struct music_queue_node *node = music_queue_head;
-	while (node != NULL) {
-		player_pos = actor_get_pos((struct actor *)node->player);
+	struct music_queue_node *node = 0;
 
+	for (unsigned long long player_pos_in_array = 0; player_pos_in_array < g_player_array_0_info.cur_arr_size; player_pos_in_array++) {
+		node = g_player_array_0[player_pos_in_array].music_queue_node;
+		cur_player = node->player;
+		player_pos = actor_get_pos((struct actor *)node->player);
 		struct note_queue_node *note_node;
 		for (note_node = node->note_queue_node;
-			note_node && note_node->time < (time_t)((uv_hrtime() - node->start_time) / (UV_HRT_PER_MS));
+			note_node && note_node->time < ((long long)(uv_hrtime() - node->start_time)) / 1000000;
 			note_node = note_node->next) {
 			sound_name = BUILTIN_INSTRUMENT[note_node->instrument];
 			current_time = note_node->time;
@@ -166,17 +275,16 @@ void send_music_sound_packet(void)
 				--node->loop;
 				node->note_queue_node =
 					node->note_queue_node_start;
-				node->start_time = uv_hrtime();
-				node->start_time += 3000; // interval
+				node->start_time = uv_hrtime() + 3000;
 			} else {
-				music_queue_delete_player(node->player);
+				music_queue_del(node->player, 0);
+				if (find_player_in_array(g_player_array_0, g_player_array_0_info.cur_arr_size, cur_player) != -1)
+					g_player_array_0[player_pos_in_array].music_queue_node->start_time = uv_hrtime() + 1000000000;
+				send_boss_event_packet(cur_player, "", 0, BOSS_BAR_HIDE);
 			}
 		}
-
-		node = node->next;
 	}
 }
-
 
 void set_music_bar(struct player *player, struct music_queue_node *node)
 {
@@ -226,18 +334,17 @@ void free_note_queue(struct note_queue_node *head)
 	head = NULL;
 }
 
-void free_music_queue(void)
-{
-	struct music_queue_node *current = music_queue_head;
-	struct music_queue_node *next;
-	while (current != NULL) {
-		next = current->next;
-		free(current);
-		current = next;
-	}
-	music_queue_head = NULL;
-}
-
+// void free_music_queue(void)
+// {
+// 	struct music_queue_node *current = music_queue_head;
+// 	struct music_queue_node *next;
+// 	while (current != NULL) {
+// 		next = current->next;
+// 		free(current);
+// 		current = next;
+// 	}
+// 	music_queue_head = NULL;
+// }
 
 struct music_queue_node *music_queue_get_player(struct player *player)
 {

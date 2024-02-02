@@ -42,7 +42,8 @@ enum music_bar_type {
 };
 
 struct note_queue_node {
-    time_t time;
+    // time_t time; //what the fuck!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    long long time;
     int instrument;
     float volume;
     float pitch;
@@ -58,13 +59,30 @@ struct music_queue_node {
     int loop;
     enum music_bar_type music_bar_type;
     char song_name[256];
+    struct music_queue_node *prev;
     struct music_queue_node *next;
+};
+
+struct player_music_info {
+    struct player *player;
+    char *player_xuid;
+    __int64_t music_num;
+    struct music_queue_node *music_queue_node;
 };
 
 struct note_queue_node *generate_note_queue(FILE *fp, time_t *total_time);
 void send_music_sound_packet(void);
-bool music_queue_add_player(struct player *player, const char *nbs_file_name, int loop, enum music_bar_type music_bar_type);
-void music_queue_delete_player(struct player *player);
+
+long long find_player_in_array(struct player_music_info *in_array, unsigned long long in_array_size, struct player *in_player);
+
+bool music_queue_add(struct player *player, const char *nbs_file_name, int loop, enum music_bar_type music_bar_type);
+bool music_queue_del(struct player *player, unsigned long long in_pos);
+void music_queue_del_all(struct player *player);
+
+void music_player_query_music_queue(struct player *player);
+
+void music_player_player_offline(struct player *in_player);
+
 void free_note_queue(struct note_queue_node *head);
 void free_music_queue(void);
 struct music_queue_node *music_queue_get_player(struct player *player);
