@@ -38,7 +38,7 @@ THOOK(server_player_construct, struct player *,
 {
 	struct player *player = server_player_construct.original(this, a2, a3, a4, a5, a6, a7, a8, a9,
 								 			 					a10, a11, a12, a13, a14, a15);
-	player_list_add(player);
+	event_on_server_player_construct(this);
 	return player;
 }
 
@@ -46,9 +46,7 @@ THOOK(server_player_destroy, void,
 	SD_ServerPlayer__ServerPlayer,
 	struct player *this)
 {
-	player_list_delete(this);
-	video_queue_delete_player(this);
-	music_queue_delete_player(this);
+	event_on_server_player_destory(this);
 	server_player_destroy.original(this);
 }
 #else
