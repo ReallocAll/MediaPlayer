@@ -141,10 +141,10 @@ bool music_queue_add(struct player *player, const char *nbs_file_name, int loop,
 
 	if(player_pos_in_array == -1) {
 		xr_operator_dynamic_array(&g_player_array_0_info, &g_player_array_0, g_player_array_0_info.cur_arr_size, XR_ARRAY_ADD);
-		g_player_array_0[g_player_array_0_info.cur_arr_size - 1].player = player;
-		g_player_array_0[g_player_array_0_info.cur_arr_size - 1].player_xuid = (char *)get_player_xuid(player);
-		g_player_array_0[g_player_array_0_info.cur_arr_size - 1].music_queue_node = node;
-		g_player_array_0[g_player_array_0_info.cur_arr_size - 1].music_num = 1;
+		g_player_array_0[--g_player_array_0_info.cur_arr_size].player = player;
+		g_player_array_0[g_player_array_0_info.cur_arr_size].player_xuid = (char *)get_player_xuid(player);
+		g_player_array_0[g_player_array_0_info.cur_arr_size].music_queue_node = node;
+		g_player_array_0[g_player_array_0_info.cur_arr_size++].music_num = 1;
 	} else {
 		struct music_queue_node *music_queue_last = get_player_last_music(player);
 		node->prev = music_queue_last;
@@ -165,10 +165,12 @@ bool music_queue_del(struct player *player, unsigned long long in_pos)
 		if (current_node->next) {
 			struct music_queue_node *temp_current_node = current_node;
 			current_node = current_node->next;
+			current_node->start_time = uv_hrtime();
 			g_player_array_0[player_pos_in_array].music_queue_node = current_node;
 			free(temp_current_node);
 		} else {
 			xr_operator_dynamic_array(&g_player_array_0_info, &g_player_array_0, player_pos_in_array, XR_ARRAY_DEL);
+			send_boss_event_packet(player, "", 0, BOSS_BAR_HIDE);
 		}
 	} else {
 		while(in_pos && current_node->next) {
@@ -190,7 +192,8 @@ bool music_queue_del(struct player *player, unsigned long long in_pos)
 	// player_pos_in_array = find_player_in_array(g_player_array_0, g_player_array_0_info.cur_arr_size, player);
 	// if (player_pos_in_array != -1) g_player_array_0[player_pos_in_array].music_num--;
 
-	if (g_player_array_0[player_pos_in_array].player == player) g_player_array_0[player_pos_in_array].music_num--;
+	if (g_player_array_0[player_pos_in_array].player == player)
+		g_player_array_0[player_pos_in_array].music_num--; // I think it will cause error.
 
 	return true;
 }
@@ -248,9 +251,9 @@ void music_player_query_music_queue(struct player *player)
 		sprintf(msg_to_player, "§6[MediaPlayer] [%d] §a%s§6 (Current)\n", 0, temp_music_node->song_name);
 		send_text_packet(player, TEXT_TYPE_RAW, msg_to_player);
 		for (; temp_music_node->next; music_num++) {
+			temp_music_node = temp_music_node->next;
 			sprintf(msg_to_player, "§6[MediaPlayer] [%d] §a%s§6\n", music_num, temp_music_node->song_name);
 			send_text_packet(player, TEXT_TYPE_RAW, msg_to_player);
-			temp_music_node = temp_music_node->next;
 		}
 	} else {
 		send_text_packet(player, TEXT_TYPE_RAW, "§6[MediaPlayer] Playlist Empty!\n");
