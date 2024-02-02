@@ -1,4 +1,5 @@
 #include <mediaplayer/plugin.h>
+#include <xiziya_r/misc/xr_dynamic_array.h>
 
 
 #ifndef __linux__
@@ -7,6 +8,11 @@ FARPROC unhook_func_address = 0;
 FARPROC dlsym_func_address = 0;
 #endif
 
+extern xr_dynamic_array_info g_player_array_0_info;
+extern xr_dynamic_array_info g_offline_player_array_0_info;
+extern struct player_music_info *g_player_array_0;
+extern struct player_music_info *g_offline_player_array_0;
+
 
 THOOK(on_initialize_logging, void,
 		S_DedicatedServer__initializeLogging,
@@ -14,6 +20,10 @@ THOOK(on_initialize_logging, void,
 {
 	on_initialize_logging.original(this);
 	server_logger(LOG_LEVEL_INFO, "MediaPlayer Loaded!%s%s", PLUGIN_VERSION_MSG, PLUGIN_VERSION);
+	g_player_array_0 = xr_new_dynamic_array(sizeof(struct player_music_info), &g_player_array_0_info);
+	g_offline_player_array_0 = xr_new_dynamic_array(sizeof(struct player_music_info), &g_offline_player_array_0_info);
+	// g_player_array_0[0] = 0;
+	// g_offline_player_array_0[0] = 0;
 }
 
 // Constructor for Level
@@ -51,6 +61,13 @@ THOOK(server_player_destroy, void,
 	server_player_destroy.original(this);
 }
 #else
+
+THOOK(on_player_left, void, S_ServerNetworkHandler__onPlayerLeft, struct server_network_handler *this, struct player *a2, char a3)
+{
+	event_on_player_left(a2);
+	on_player_left.original(this, a2, a3);
+}
+
 THOOK(server_player_construct, struct player *,
 	SC_ServerPlayer__ServerPlayer,
 	struct player *this, struct Level *a2,
@@ -69,7 +86,6 @@ THOOK(server_player_destroy, void,
 {
 	player_list_delete(this);
 	video_queue_delete_player(this);
-	music_queue_delete_player(this);
 	server_player_destroy.original(this, a2);
 }
 #endif
@@ -86,6 +102,7 @@ THOOK(ChangeSettingCommand_setup, void,
 	SYMCALL(S_CommandRegistry__registerCommand,
 		void (*)(uintptr_t, void *, const char *, char, short, short),
 		this, cmd_mpm, "PediaPlayer music player", 0, 0, 0x80);
+
 	SYMCALL(S_CommandRegistry__registerCommand,
 		void (*)(uintptr_t, void *, const char *, char, short, short),
 		this, cmd_mpv, "MediaPlayer video player", 0, 0, 0x80);
@@ -193,6 +210,7 @@ void init(void)
 	map_item_update.install();
 	MapItemSavedData_tickByBlock.install();
 	MapItem_doesDisplayPlayerMarkers.install();
+	on_player_left.install();
 	#endif
 	create_plugin_dir();
 }

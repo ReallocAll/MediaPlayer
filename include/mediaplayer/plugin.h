@@ -7,6 +7,7 @@
 #include "logger.h"
 #include "music_player.h"
 #include "command.h"
+#include "event_handler.h"
 #include "file_utils.h"
 
 #include "mc/structs.h"
