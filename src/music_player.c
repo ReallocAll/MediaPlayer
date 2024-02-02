@@ -1,8 +1,8 @@
 #include <mediaplayer/music_player.h>
 #include <xiziya_r/misc/xr_dynamic_array.h>
 
-xr_dynamic_array_info g_player_array_0_info = { 0 };
-xr_dynamic_array_info g_offline_player_array_0_info = { 0 };
+xr_dynamic_array_info g_player_array_0_info;
+xr_dynamic_array_info g_offline_player_array_0_info;
 
 struct player_music_info *g_player_array_0 = 0;
 struct player_music_info *g_offline_player_array_0 = 0;
@@ -158,18 +158,15 @@ bool music_queue_add(struct player *player, const char *nbs_file_name, int loop,
 
 bool music_queue_del(struct player *player, unsigned long long in_pos)
 {
-	unsigned long long player_pos_in_array = 0;
-	struct music_queue_node *current_node = 0;
-
-	player_pos_in_array = find_player_in_array(g_player_array_0, g_player_array_0_info.cur_arr_size, player);
-	current_node = g_player_array_0[player_pos_in_array].music_queue_node;
+	unsigned long long player_pos_in_array = find_player_in_array(g_player_array_0, g_player_array_0_info.cur_arr_size, player);
+	struct music_queue_node *current_node = current_node = g_player_array_0[player_pos_in_array].music_queue_node;
 
 	if (!in_pos) {
 		if (current_node->next) {
 			struct music_queue_node *temp_current_node = current_node;
 			current_node = current_node->next;
-			free(temp_current_node);
 			g_player_array_0[player_pos_in_array].music_queue_node = current_node;
+			free(temp_current_node);
 		} else {
 			xr_operator_dynamic_array(&g_player_array_0_info, &g_player_array_0, player_pos_in_array, XR_ARRAY_DEL);
 		}
@@ -189,20 +186,23 @@ bool music_queue_del(struct player *player, unsigned long long in_pos)
 			return false;
 		}
 	}
-	g_player_array_0[player_pos_in_array].music_num--;
+
+	// player_pos_in_array = find_player_in_array(g_player_array_0, g_player_array_0_info.cur_arr_size, player);
+	// if (player_pos_in_array != -1) g_player_array_0[player_pos_in_array].music_num--;
+
+	if (g_player_array_0[player_pos_in_array].player == player) g_player_array_0[player_pos_in_array].music_num--;
+
 	return true;
 }
 
 void music_queue_del_all(struct player *player)
 {
 	long long player_pos_in_array = find_player_in_array(g_player_array_0, g_player_array_0_info.cur_arr_size, player);
-	
-	if (player_pos_in_array != -1) {
-		while(g_player_array_0[player_pos_in_array].music_num) {
-			music_queue_del(player, g_player_array_0[player_pos_in_array].music_num - 1);
-		}
-		send_boss_event_packet(player, "", 0, BOSS_BAR_HIDE);
+
+	while(find_player_in_array(g_player_array_0, g_player_array_0_info.cur_arr_size, player) != -1) {
+		music_queue_del(player, g_player_array_0[player_pos_in_array].music_num - 1);
 	}
+	send_boss_event_packet(player, "", 0, BOSS_BAR_HIDE);
 }
 
 
@@ -274,7 +274,7 @@ void send_music_sound_packet(void)
 		player_pos = actor_get_pos((struct actor *)node->player);
 		struct note_queue_node *note_node;
 		for (note_node = node->note_queue_node;
-			note_node && note_node->time < ((long long)(uv_hrtime() - node->start_time)) / 1000000;
+			note_node && note_node->time < ((long long)(uv_hrtime() - node->start_time)) / UV_HRT_PER_MS;
 			note_node = note_node->next) {
 			sound_name = BUILTIN_INSTRUMENT[note_node->instrument];
 			current_time = note_node->time;
