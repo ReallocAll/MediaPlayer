@@ -53,12 +53,6 @@ THOOK(server_player_destroy, void,
 }
 #else
 
-THOOK(on_player_left, void, S_ServerNetworkHandler__onPlayerLeft, struct server_network_handler *this, struct player *a2, char a3)
-{
-	event_on_player_left(a2);
-	on_player_left.original(this, a2, a3);
-}
-
 THOOK(server_player_construct, struct player *,
 	SC_ServerPlayer__ServerPlayer,
 	struct player *this, struct Level *a2,
@@ -67,7 +61,7 @@ THOOK(server_player_construct, struct player *,
 {
 	struct player *player = server_player_construct.original(this, a2, a3, a4, a5, a6, a7, a8, a9,
 								 			 					a10, a11, a12, a13, a14, a15, a16);
-	player_list_add(player);
+	event_on_server_player_construct(this);
 	return player;
 }
 
@@ -75,8 +69,7 @@ THOOK(server_player_destroy, void,
 	SD_ServerPlayer__ServerPlayer,
 	struct player *this, char a2)
 {
-	player_list_delete(this);
-	video_queue_delete_player(this);
+	event_on_server_player_destory(this);
 	server_player_destroy.original(this, a2);
 }
 #endif
@@ -201,7 +194,6 @@ void init(void)
 	map_item_update.install();
 	MapItemSavedData_tickByBlock.install();
 	MapItem_doesDisplayPlayerMarkers.install();
-	on_player_left.install();
 	#endif
 	create_plugin_dir();
 }
