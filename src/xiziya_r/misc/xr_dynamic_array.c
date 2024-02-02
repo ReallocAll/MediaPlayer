@@ -52,7 +52,7 @@ char xr_operator_dynamic_array(xr_dynamic_array_info *in_info, void **in_value, 
         return 0;
     break;
     default:
-        return 0;
+        return -1;
     break;
     }
 }
