@@ -87,6 +87,7 @@ long long find_player_in_array_by_xuid(struct player_music_info *in_array, unsig
 	unsigned long long cac_result = 0;
 	char *xuid_in_array = 0;
 	char *xuid_in_va = 0;
+
 	for (unsigned int player_count = 0; player_count < in_array_size; player_count++) {
 		xuid_in_va = in_xuid;
 		xuid_in_array = in_array[player_count].player_xuid;
@@ -99,6 +100,7 @@ long long find_player_in_array_by_xuid(struct player_music_info *in_array, unsig
 struct music_queue_node *get_player_last_music(struct player *in_player)
 {
 	long long player_pos_in_array = find_player_in_array(g_player_array_0, g_player_array_0_info.cur_arr_size, in_player);
+
 	if (player_pos_in_array != -1) {
 		struct music_queue_node *current_node = g_player_array_0[player_pos_in_array].music_queue_node;
 		while(current_node->next) current_node = current_node->next;
@@ -137,6 +139,7 @@ bool music_queue_add(struct player *player, const char *nbs_file_name, int loop,
 	strncpy(node->song_name, strtok(nbs_file_name_new, "."), sizeof(node->song_name));
 	node->prev = NULL;
 	node->next = NULL;
+
 	long long player_pos_in_array = find_player_in_array(g_player_array_0, g_player_array_0_info.cur_arr_size, player);
 
 	if(player_pos_in_array == -1) {
@@ -214,7 +217,8 @@ void music_player_player_offline(struct player *in_player)
 {
 	long long player_pos_in_online_array = find_player_in_array(g_player_array_0, g_player_array_0_info.cur_arr_size, in_player);
 	long long player_pos_in_offline_array = find_player_in_array(g_offline_player_array_0, g_offline_player_array_0_info.cur_arr_size, in_player);
-	if(player_pos_in_offline_array == -1) {
+
+	if(player_pos_in_offline_array == -1 && player_pos_in_online_array != -1) {
 		xr_operator_dynamic_array(&g_offline_player_array_0_info, &g_offline_player_array_0, g_offline_player_array_0_info.cur_arr_size, XR_ARRAY_ADD);
 		char *online_pos = (char *)&g_player_array_0[player_pos_in_online_array];
 		char *offline_pos = (char *)&g_offline_player_array_0[g_offline_player_array_0_info.cur_arr_size - 1];
@@ -228,12 +232,14 @@ void music_player_player_online(struct player *in_player)
 {
 	long long player_pos_in_online_array = find_player_in_array(g_player_array_0, g_player_array_0_info.cur_arr_size, in_player);
 	long long player_pos_in_offline_array = find_player_in_array(g_offline_player_array_0, g_offline_player_array_0_info.cur_arr_size, in_player);
-	if(player_pos_in_online_array == -1) {
+
+	if(player_pos_in_online_array == -1 && player_pos_in_offline_array != -1) {
 		xr_operator_dynamic_array(&g_player_array_0_info, &g_player_array_0, g_player_array_0_info.cur_arr_size, XR_ARRAY_ADD);
 		char *online_pos = (char *)&g_player_array_0[g_player_array_0_info.cur_arr_size - 1];
-		char *offline_pos = (char *)&g_offline_player_array_0[player_pos_in_online_array];
+		char *offline_pos = (char *)&g_offline_player_array_0[player_pos_in_offline_array];
 		for(int mem_pos = 0; mem_pos < sizeof(struct player_music_info); mem_pos++)
 			*online_pos++ = *offline_pos++;
+		g_player_array_0[g_player_array_0_info.cur_arr_size - 1].player = in_player;
 		xr_operator_dynamic_array(&g_offline_player_array_0_info, &g_offline_player_array_0, player_pos_in_offline_array, XR_ARRAY_DEL);
 	}
 }
@@ -247,6 +253,7 @@ void music_player_query_music_queue(struct player *player)
 		int music_num = 1;
 		char msg_to_player[512];
 		struct music_queue_node *temp_music_node = g_player_array_0[player_pos_in_array].music_queue_node;
+
 		send_text_packet(player, TEXT_TYPE_RAW, "§6[MediaPlayer] [Index] [Music Name] ---Playlist---\n");
 		sprintf(msg_to_player, "§6[MediaPlayer] [%d] §a%s§6 (Current)\n", 0, temp_music_node->song_name);
 		send_text_packet(player, TEXT_TYPE_RAW, msg_to_player);
@@ -299,7 +306,6 @@ void send_music_sound_packet(void)
 				music_queue_del(node->player, 0);
 				if (find_player_in_array(g_player_array_0, g_player_array_0_info.cur_arr_size, cur_player) != -1)
 					g_player_array_0[player_pos_in_array].music_queue_node->start_time = uv_hrtime() + 1000000000;
-				send_boss_event_packet(cur_player, "", 0, BOSS_BAR_HIDE);
 			}
 		}
 	}

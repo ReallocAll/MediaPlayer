@@ -82,6 +82,7 @@ void music_queue_del_all(struct player *player);
 void music_player_query_music_queue(struct player *player);
 
 void music_player_player_offline(struct player *in_player);
+void music_player_player_online(struct player *in_player);
 
 void free_note_queue(struct note_queue_node *head);
 void free_music_queue(void);
