@@ -1,5 +1,7 @@
 #include <mediaplayer/command.h>
 
+extern xr_dynamic_array_info g_player_array_0_info;
+extern struct player_music_info *g_player_array_0;
 
 bool proc_mpm_cmd(struct player *player, int argc, const char *argv[], char ***filenames, int *file_count)
 {
@@ -45,12 +47,6 @@ bool proc_mpm_cmd(struct player *player, int argc, const char *argv[], char ***f
         if (argc == 5)
             music_bar_type = atoi(argv[4]);
         if (file_index >= 0 && file_index < *file_count) {
-            // if (music_queue_add_player(player, (*filenames)[file_index], loop, music_bar_type)) {
-            //     char msg[4096];
-            //     sprintf(msg, "§a[MediaPlayer] Now playing music§b %s\n", (*filenames)[file_index]);
-            //     send_text_packet(player, TEXT_TYPE_RAW, msg);
-            //     return false;
-            // }
             if (music_queue_add(player, (*filenames)[file_index], loop, music_bar_type)) {
                 char msg[4096];
                 sprintf(msg, "§a[MediaPlayer] Added music§b %s §ato playlist.\n", (*filenames)[file_index]);
@@ -60,9 +56,18 @@ bool proc_mpm_cmd(struct player *player, int argc, const char *argv[], char ***f
         }
     } else if (strcmp(argv[1], "play") == 0 && argc >= 3 && argc <= 5) {
         
+    } else if (strcmp(argv[1], "del") == 0 && argc == 3) {
+        if (find_player_in_array(g_player_array_0, g_player_array_0_info.cur_arr_size, player) != -1) {
+            if (music_queue_del(player, atoi(argv[2])))
+                send_text_packet(player, TEXT_TYPE_RAW, "§6[MediaPlayer] Delete success!\n");
+            else
+                send_text_packet(player, TEXT_TYPE_RAW, "§6[MediaPlayer] Delete failed!\n");
+        } else {
+            send_text_packet(player, TEXT_TYPE_RAW, "§6[MediaPlayer] Playlist empty!\n");
+        }
+        return false;
     } else if (strcmp(argv[1], "stop") == 0 && argc == 2) {
         send_text_packet(player, TEXT_TYPE_RAW, "§a[MediaPlayer] Stopped.\n");
-        // music_queue_delete_player(player);
         music_queue_del_all(player);
         return false;
     }

@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include "xiziya_r/misc/xr_dynamic_array.h"
 #include "music_player.h"
 #include "video_player.h"
 #include "file_utils.h"
