@@ -1,5 +1,4 @@
 #include <mediaplayer/plugin.h>
-#include <xiziya_r/misc/xr_dynamic_array.h>
 
 
 #ifndef __linux__
@@ -8,10 +7,6 @@ FARPROC unhook_func_address = 0;
 FARPROC dlsym_func_address = 0;
 #endif
 
-extern xr_dynamic_array_info g_player_array_0_info;
-extern xr_dynamic_array_info g_offline_player_array_0_info;
-extern struct player_music_info *g_player_array_0;
-extern struct player_music_info *g_offline_player_array_0;
 
 
 THOOK(on_initialize_logging, void,
@@ -19,11 +14,7 @@ THOOK(on_initialize_logging, void,
 		uintptr_t this)
 {
 	on_initialize_logging.original(this);
-	server_logger(LOG_LEVEL_INFO, "MediaPlayer Loaded!%s%s", PLUGIN_VERSION_MSG, PLUGIN_VERSION);
-	g_player_array_0 = xr_new_dynamic_array(sizeof(struct player_music_info), &g_player_array_0_info);
-	g_offline_player_array_0 = xr_new_dynamic_array(sizeof(struct player_music_info), &g_offline_player_array_0_info);
-	// g_player_array_0[0] = 0;
-	// g_offline_player_array_0[0] = 0;
+	event_on_server_init_logger();
 }
 
 // Constructor for Level
