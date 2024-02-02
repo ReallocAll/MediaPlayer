@@ -6,10 +6,15 @@ bool proc_mpm_cmd(struct player *player, int argc, const char *argv[], char ***f
     if (argc == 1) {
         send_text_packet(player, TEXT_TYPE_RAW, "§6[MediaPlayer] Usage:\n");
         send_text_packet(player, TEXT_TYPE_RAW, "§6[MediaPlayer] Before playing music,\n");
-        send_text_packet(player, TEXT_TYPE_RAW, "§6[MediaPlayer] please use `/mpm list` to get the music list first.\n");
-        send_text_packet(player, TEXT_TYPE_RAW, "§6[MediaPlayer] /mpm list [name: string]\n");
+        send_text_packet(player, TEXT_TYPE_RAW, "§6[MediaPlayer] please use `/mpm musiclist` to get the music list first.\n");
+        send_text_packet(player, TEXT_TYPE_RAW, "§6[MediaPlayer] /mpm musiclist [name: string]\n");
         send_text_packet(player, TEXT_TYPE_RAW, "§6[MediaPlayer] /mpm play <index: number> [loop: number] [music bar type: number]\n");
+        send_text_packet(player, TEXT_TYPE_RAW, "§6[MediaPlayer] /mpm add <index: number> [loop: number] [music bar type: number] [queue pos: number]\n");
+        send_text_packet(player, TEXT_TYPE_RAW, "§6[MediaPlayer] /mpm del <index: number>\n");
+        send_text_packet(player, TEXT_TYPE_RAW, "§6[MediaPlayer] /mpm pause\n");
+        send_text_packet(player, TEXT_TYPE_RAW, "§6[MediaPlayer] /mpm continue\n");
         send_text_packet(player, TEXT_TYPE_RAW, "§6[MediaPlayer] /mpm stop\n");
+        send_text_packet(player, TEXT_TYPE_RAW, "§6[MediaPlayer] /mpm playlist\n");
         return false;
     }
     *filenames = get_filenames(data_path_nbs, file_count);
@@ -19,7 +24,7 @@ bool proc_mpm_cmd(struct player *player, int argc, const char *argv[], char ***f
         send_text_packet(player, TEXT_TYPE_RAW, "§c[MediaPlayer] No playable NBS music!\n");
         return false;
     }
-    if (strcmp(argv[1], "list") == 0 && argc >= 2 && argc <= 3) {
+    if (strcmp(argv[1], "musiclist") == 0 && argc >= 2 && argc <= 3) {
         send_text_packet(player, TEXT_TYPE_RAW, "§a[MediaPlayer]§6[Index]§b Music List\n");
         for (int index = 0; index < *file_count; index++) {
             if (argc == 3 && !strstr((*filenames)[index], argv[2]))
@@ -28,7 +33,10 @@ bool proc_mpm_cmd(struct player *player, int argc, const char *argv[], char ***f
             send_text_packet(player, TEXT_TYPE_RAW, msg);
         }
         return false;
-    } else if (strcmp(argv[1], "play") == 0 && argc >= 3 && argc <= 5) {
+    } else if (!strcmp(argv[1], "list")) {
+        music_player_query_music_queue(player);
+        return false;
+    } else if (!strcmp(argv[1], "add")) {
         int file_index = atoi(argv[2]);
         int loop = 1;
         int music_bar_type = MUSIC_BAR_TYPE_BOSS_BAR;
@@ -37,16 +45,25 @@ bool proc_mpm_cmd(struct player *player, int argc, const char *argv[], char ***f
         if (argc == 5)
             music_bar_type = atoi(argv[4]);
         if (file_index >= 0 && file_index < *file_count) {
-            if (music_queue_add_player(player, (*filenames)[file_index], loop, music_bar_type)) {
+            // if (music_queue_add_player(player, (*filenames)[file_index], loop, music_bar_type)) {
+            //     char msg[4096];
+            //     sprintf(msg, "§a[MediaPlayer] Now playing music§b %s\n", (*filenames)[file_index]);
+            //     send_text_packet(player, TEXT_TYPE_RAW, msg);
+            //     return false;
+            // }
+            if (music_queue_add(player, (*filenames)[file_index], loop, music_bar_type)) {
                 char msg[4096];
-                sprintf(msg, "§a[MediaPlayer] Now playing music§b %s\n", (*filenames)[file_index]);
+                sprintf(msg, "§a[MediaPlayer] Added music§b %s §ato playlist.\n", (*filenames)[file_index]);
                 send_text_packet(player, TEXT_TYPE_RAW, msg);
                 return false;
             }
         }
+    } else if (strcmp(argv[1], "play") == 0 && argc >= 3 && argc <= 5) {
+        
     } else if (strcmp(argv[1], "stop") == 0 && argc == 2) {
         send_text_packet(player, TEXT_TYPE_RAW, "§a[MediaPlayer] Stopped.\n");
-        music_queue_delete_player(player);
+        // music_queue_delete_player(player);
+        music_queue_del_all(player);
         return false;
     }
     return true;
@@ -59,7 +76,7 @@ bool proc_mpv_cmd(struct player *player, int argc, const char *argv[], char ***f
         send_text_packet(player, TEXT_TYPE_RAW, "§6[MediaPlayer] Usage:\n");
         send_text_packet(player, TEXT_TYPE_RAW, "§6[MediaPlayer] Before playing video,\n");
         send_text_packet(player, TEXT_TYPE_RAW, "§6[MediaPlayer] please use `/mpv list` to get the video list first.\n");
-        send_text_packet(player, TEXT_TYPE_RAW, "§6[MediaPlayer] /mpv list [name: list]\n");
+        send_text_packet(player, TEXT_TYPE_RAW, "§6[MediaPlayer] /mpv musiclist [name: list]\n");
         send_text_packet(player, TEXT_TYPE_RAW, "§6[MediaPlayer] /mpv play <index: number> [loop: number]\n");
         send_text_packet(player, TEXT_TYPE_RAW, "§6[MediaPlayer] /mpv stop\n");
         return false;
