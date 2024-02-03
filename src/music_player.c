@@ -241,7 +241,7 @@ void music_player_player_online(struct player *in_player)
 		for(int mem_pos = 0; mem_pos < sizeof(struct player_music_info); mem_pos++)
 			*online_pos++ = *offline_pos++;
 		g_player_array_0[g_player_array_0_info.cur_arr_size - 1].player = in_player;
-		g_player_array_0[g_player_array_0_info.cur_arr_size - 1].music_queue_node->start_time = uv_hrtime() - g_player_array_0[player_pos_in_array].music_queue_node->note_queue_node->time * UV_HRT_PER_MS;
+		g_player_array_0[g_player_array_0_info.cur_arr_size - 1].music_queue_node->start_time = uv_hrtime() - g_player_array_0[g_player_array_0_info.cur_arr_size - 1].music_queue_node->note_queue_node->time * UV_HRT_PER_MS;
 		xr_operator_dynamic_array(&g_offline_player_array_0_info, &g_offline_player_array_0, player_pos_in_offline_array, XR_ARRAY_DEL);
 	}
 }
