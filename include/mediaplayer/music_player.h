@@ -71,6 +71,13 @@ struct player_music_info {
     struct music_queue_node *music_queue_node;
 };
 
+struct music_note_info {
+    long long notes;
+    struct note_queue_node *note_queue_ptr;
+};
+
+char music_player_save_to_file();
+
 struct note_queue_node *generate_note_queue(FILE *fp, time_t *total_time);
 void send_music_sound_packet(void);
 

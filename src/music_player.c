@@ -1,6 +1,8 @@
 #include <mediaplayer/music_player.h>
 #include <xiziya_r/misc/xr_dynamic_array.h>
 
+extern char data_path[4096];
+
 xr_dynamic_array_info g_player_array_0_info;
 xr_dynamic_array_info g_offline_player_array_0_info;
 
@@ -71,6 +73,23 @@ struct note_queue_node *generate_note_queue(FILE *fp, time_t *total_time)
 
 	*total_time = note_node_tail->time;
 	return note_node_head;
+}
+
+char music_player_save_to_file()
+{
+	xr_dynamic_array_info playlist_info;
+	playlist_info.cur_arr_size = g_player_array_0_info.cur_arr_size + g_offline_player_array_0_info.cur_arr_size;
+	playlist_info.singel_value_size = sizeof(struct player_music_info);
+	playlist_info.start_addr = NULL;
+	
+	char path[4096];
+	sprintf(path, "%s/playlist_save.bin", data_path);
+	FILE *playlist_file =  fopen(path, "wb");
+	fwrite(&playlist_info, sizeof(xr_dynamic_array_info), 1, playlist_file);
+	fwrite(&g_player_array_0, sizeof(struct player_music_info), g_player_array_0_info.cur_arr_size, playlist_file);
+	fwrite(&g_offline_player_array_0, sizeof(struct player_music_info), g_offline_player_array_0_info.cur_arr_size, playlist_file);
+	fclose(playlist_file);
+	return true;
 }
 
 long long find_player_in_array(struct player_music_info *in_array, unsigned long long in_array_size, struct player *in_player)
@@ -280,7 +299,8 @@ void send_music_sound_packet(void)
 
 	struct music_queue_node *node = 0;
 
-	for (unsigned long long player_pos_in_array = 0; player_pos_in_array < g_player_array_0_info.cur_arr_size && !g_player_array_0[player_pos_in_array].paused; player_pos_in_array++) {
+	for (unsigned long long player_pos_in_array = 0; player_pos_in_array < g_player_array_0_info.cur_arr_size; player_pos_in_array++) {
+		if (g_player_array_0[player_pos_in_array].paused) continue;
 		node = g_player_array_0[player_pos_in_array].music_queue_node;
 		cur_player = node->player;
 		player_pos = actor_get_pos((struct actor *)node->player);
