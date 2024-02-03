@@ -147,6 +147,7 @@ bool music_queue_add(struct player *player, const char *nbs_file_name, int loop,
 		g_player_array_0[--g_player_array_0_info.cur_arr_size].player = player;
 		g_player_array_0[g_player_array_0_info.cur_arr_size].player_xuid = (char *)get_player_xuid(player);
 		g_player_array_0[g_player_array_0_info.cur_arr_size].music_queue_node = node;
+		g_player_array_0[g_player_array_0_info.cur_arr_size].paused = 0;
 		g_player_array_0[g_player_array_0_info.cur_arr_size++].music_num = 1;
 	} else {
 		struct music_queue_node *music_queue_last = get_player_last_music(player);
@@ -240,6 +241,7 @@ void music_player_player_online(struct player *in_player)
 		for(int mem_pos = 0; mem_pos < sizeof(struct player_music_info); mem_pos++)
 			*online_pos++ = *offline_pos++;
 		g_player_array_0[g_player_array_0_info.cur_arr_size - 1].player = in_player;
+		g_player_array_0[g_player_array_0_info.cur_arr_size - 1].music_queue_node->start_time = uv_hrtime() - g_player_array_0[player_pos_in_array].music_queue_node->note_queue_node->time * UV_HRT_PER_MS;
 		xr_operator_dynamic_array(&g_offline_player_array_0_info, &g_offline_player_array_0, player_pos_in_offline_array, XR_ARRAY_DEL);
 	}
 }
@@ -278,7 +280,7 @@ void send_music_sound_packet(void)
 
 	struct music_queue_node *node = 0;
 
-	for (unsigned long long player_pos_in_array = 0; player_pos_in_array < g_player_array_0_info.cur_arr_size; player_pos_in_array++) {
+	for (unsigned long long player_pos_in_array = 0; player_pos_in_array < g_player_array_0_info.cur_arr_size && !g_player_array_0[player_pos_in_array].paused; player_pos_in_array++) {
 		node = g_player_array_0[player_pos_in_array].music_queue_node;
 		cur_player = node->player;
 		player_pos = actor_get_pos((struct actor *)node->player);
