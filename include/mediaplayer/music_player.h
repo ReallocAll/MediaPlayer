@@ -67,6 +67,7 @@ struct player_music_info {
     struct player *player;
     char *player_xuid;
     __int64_t music_num;
+    char paused;
     struct music_queue_node *music_queue_node;
 };
 
