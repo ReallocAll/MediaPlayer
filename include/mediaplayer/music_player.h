@@ -65,7 +65,7 @@ struct music_queue_node {
 
 struct player_music_info {
     struct player *player;
-    char *player_xuid;
+    const char *player_xuid;
     __int64_t music_num;
     char paused;
     struct music_queue_node *music_queue_node;
@@ -82,6 +82,7 @@ struct note_queue_node *generate_note_queue(FILE *fp, time_t *total_time);
 void send_music_sound_packet(void);
 
 long long find_player_in_array(struct player_music_info *in_array, unsigned long long in_array_size, struct player *in_player);
+long long find_player_in_array_by_xuid(struct player_music_info *in_array, unsigned long long in_array_size, const char *in_xuid);
 
 bool music_queue_add(struct player *player, const char *nbs_file_name, int loop, enum music_bar_type music_bar_type);
 bool music_queue_del(struct player *player, unsigned long long in_pos);
