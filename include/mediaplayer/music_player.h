@@ -41,6 +41,22 @@ enum music_bar_type {
     MUSIC_BAR_TYPE_ACTION_BAR_TIP
 };
 
+struct music_note_info {
+    // long long notes;
+    // unsigned long long song_id;
+    const char* song_name;
+    unsigned char is_using;
+    struct note_queue_node *note_queue_ptr;
+};
+
+struct player_music_info {
+    struct player *player;
+    const char *player_xuid;
+    __int64_t music_num;
+    char paused;
+    struct music_queue_node *music_queue_node;
+};
+
 struct note_queue_node {
     // time_t time; //what the fuck!!!!!!!!!!!!!!!!!!!!!!!!!!!
     long long time;
@@ -61,19 +77,7 @@ struct music_queue_node {
     char song_name[256];
     struct music_queue_node *prev;
     struct music_queue_node *next;
-};
-
-struct player_music_info {
-    struct player *player;
-    const char *player_xuid;
-    __int64_t music_num;
-    char paused;
-    struct music_queue_node *music_queue_node;
-};
-
-struct music_note_info {
-    long long notes;
-    struct note_queue_node *note_queue_ptr;
+    struct music_note_info *note;
 };
 
 char music_player_save_to_file();
