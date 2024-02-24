@@ -6,7 +6,7 @@
 #define XR_ARRAY_DEL 1
 
 typedef struct {
-    unsigned long long cur_arr_size;
+    unsigned long long curr_arr_size;
     size_t singel_value_size;
     void* start_addr;
 } xr_dynamic_array_info;

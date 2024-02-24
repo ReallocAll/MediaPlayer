@@ -55,7 +55,7 @@ bool proc_mpm_cmd(struct player *player, int argc, const char *argv[], char ***f
             }
         }
     } else if (strcmp(argv[1], "pause") == 0 && argc == 2) {
-        long long player_pos_in_array = find_player_in_array(g_player_array_0, g_player_array_0_info.cur_arr_size, player);
+        long long player_pos_in_array = find_player_in_array(g_player_array_0, g_player_array_0_info.curr_arr_size, player);
         
         if (player_pos_in_array != -1) {
             if (!g_player_array_0[player_pos_in_array].paused) {
@@ -65,7 +65,7 @@ bool proc_mpm_cmd(struct player *player, int argc, const char *argv[], char ***f
         } else send_text_packet(player, TEXT_TYPE_RAW, "§6[MediaPlayer] Playlist empty!\n");
         return false;
     } else if (strcmp(argv[1], "continue") == 0 && argc == 2) {
-        long long player_pos_in_array = find_player_in_array(g_player_array_0, g_player_array_0_info.cur_arr_size, player);
+        long long player_pos_in_array = find_player_in_array(g_player_array_0, g_player_array_0_info.curr_arr_size, player);
 
         if (player_pos_in_array != -1) {
             if (g_player_array_0[player_pos_in_array].paused) {
@@ -76,7 +76,7 @@ bool proc_mpm_cmd(struct player *player, int argc, const char *argv[], char ***f
         } else send_text_packet(player, TEXT_TYPE_RAW, "§6[MediaPlayer] Playlist empty!\n");
         return false;
     } else if (strcmp(argv[1], "del") == 0 && argc == 3) {
-        if (find_player_in_array(g_player_array_0, g_player_array_0_info.cur_arr_size, player) != -1) {
+        if (find_player_in_array(g_player_array_0, g_player_array_0_info.curr_arr_size, player) != -1) {
             if (music_queue_del(player, atoi(argv[2])))
                 send_text_packet(player, TEXT_TYPE_RAW, "§6[MediaPlayer] Delete success!\n");
             else
