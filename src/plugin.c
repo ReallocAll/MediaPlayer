@@ -16,7 +16,7 @@ THOOK(on_initialize_logging, void,
 
 // Constructor for Level
 THOOK(level_construct, struct level *,
-      SC_Level__Level, struct Level *a1, unsigned long long a2, unsigned long long a3,
+      SC_Level__Level, struct level *a1, unsigned long long a2, unsigned long long a3,
       struct LevelVtbl *a4, unsigned char a5, unsigned char a6, void *a7, void **a8,
       void *a9, unsigned long long a10, unsigned long long a11, void **a12, void **a13,
       void *a14, unsigned long long a15, char a16, char a17, unsigned char *a18,

@@ -7,3 +7,4 @@ struct block_source;
 struct player;
 struct server_network_handler;
 struct entity_context;
+struct LevelVtbl;
