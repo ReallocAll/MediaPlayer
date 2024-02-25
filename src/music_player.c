@@ -130,7 +130,6 @@ long long find_note_in_array(struct music_note_info *in_array, unsigned long lon
 		music_name_in_va = in_music_name;
 		music_name_in_array = in_array[music_count].song_name;
 		while (*music_name_in_array && *music_name_in_va) cac_result += *music_name_in_array++ - *music_name_in_va++;
-		
 		if (!cac_result) return music_count;
 	}
 	return -1;
@@ -154,22 +153,9 @@ bool music_queue_add(struct player *player, const char *nbs_file_name, int loop,
 	char *nbs_file_name_new = strdup(nbs_file_name);
 	char nbs_path[4096];
 	char v_song_name[256];
-	strncpy(v_song_name, strtok(nbs_file_name_new, "."), sizeof(v_song_name));
-
-	sprintf(nbs_path, "%s/%s", data_path_nbs, nbs_file_name);
-	FILE *fp = fopen(nbs_path, "rb");
-	if (!fp)
-		return false;
-	time_t total_time = 0;
-	struct note_queue_node *node_head = generate_note_queue(fp, &total_time);
-	fclose(fp);
-
-	//find the same name note node in note node list
+	strncpy(v_song_name, strtok(nbs_file_name_new, "."), 256);
+	
 	long long music_in_arr_pos = find_note_in_array(g_note_array_0, g_note_array_0_info.curr_arr_size, v_song_name);
-	// if (music_in_arr_pos == -1) {
-	// 	xr_operator_dynamic_array(&g_note_array_0_info, &g_note_array_0, g_note_array_0_info.curr_arr_size, XR_ARRAY_ADD);
-	// 	g_note_array_0[g_note_array_0_info.curr_arr_size - 1].note_queue_ptr = node_head;
-	// }
 
 	struct music_queue_node *node = (struct music_queue_node *) malloc(sizeof(struct music_queue_node));
 	
@@ -179,42 +165,59 @@ bool music_queue_add(struct player *player, const char *nbs_file_name, int loop,
 	}
 	play_with_video(player, nbs_file_name, loop);
 
-	node->player = player;
+
 	if (music_in_arr_pos == -1) {
 		xr_operator_dynamic_array(&g_note_array_0_info, &g_note_array_0, g_note_array_0_info.curr_arr_size, XR_ARRAY_ADD);
-		g_note_array_0[g_note_array_0_info.curr_arr_size - 1].note_queue_ptr = node_head;
-		g_note_array_0[g_note_array_0_info.curr_arr_size - 1].song_name = v_song_name;
-		node->note_queue_node = g_note_array_0[g_note_array_0_info.curr_arr_size - 1].note_queue_ptr;
-	}
-	else
+		long long curr_music_in_arr_pos = g_note_array_0_info.curr_arr_size - 1;
+
+		sprintf(nbs_path, "%s/%s", data_path_nbs, nbs_file_name);
+		FILE *fp = fopen(nbs_path, "rb");
+		if (!fp)
+			return false;
+		struct note_queue_node *node_head = generate_note_queue(fp, &g_note_array_0[curr_music_in_arr_pos].time);
+		fclose(fp);
+
+
+		g_note_array_0[curr_music_in_arr_pos].note_queue_ptr = node_head;
+		strcpy(g_note_array_0[curr_music_in_arr_pos].song_name, v_song_name);
+
+		node->note_queue_node = g_note_array_0[curr_music_in_arr_pos].note_queue_ptr;
+		node->total_time = g_note_array_0[curr_music_in_arr_pos].time;
+		node->note = &g_note_array_0[curr_music_in_arr_pos];
+	} else {
 		node->note_queue_node = g_note_array_0[music_in_arr_pos].note_queue_ptr;
-	// node->note_queue_node = node_head;
+		node->total_time = g_note_array_0[music_in_arr_pos].time;
+		node->note = &g_note_array_0[music_in_arr_pos];
+	}
+	
+	node->player = player;
 	node->note_queue_node_start = node->note_queue_node;
 	node->start_time = uv_hrtime();
-	node->total_time = total_time;
 	node->loop = loop;
 	node->music_bar_type = music_bar_type;
 	// strncpy(node->song_name, strtok(nbs_file_name_new, "."), sizeof(node->song_name));
-	strcpy(node->song_name, nbs_file_name_new);
-	node->note = &g_note_array_0[music_in_arr_pos];
+	strcpy(node->song_name, v_song_name);
 	node->prev = NULL;
 	node->next = NULL;
 
 	long long player_pos_in_array = find_player_in_array(g_player_array_0, g_player_array_0_info.curr_arr_size, player);
 
-	if(player_pos_in_array == -1) {
+	if (player_pos_in_array == -1) {
 		xr_operator_dynamic_array(&g_player_array_0_info, &g_player_array_0, g_player_array_0_info.curr_arr_size, XR_ARRAY_ADD);
-		g_player_array_0[--g_player_array_0_info.curr_arr_size].player = player;
-		g_player_array_0[g_player_array_0_info.curr_arr_size].player_xuid = get_player_xuid(player);
-		g_player_array_0[g_player_array_0_info.curr_arr_size].music_queue_node = node;
-		g_player_array_0[g_player_array_0_info.curr_arr_size].paused = 0;
-		g_player_array_0[g_player_array_0_info.curr_arr_size++].music_num = 1;
+		long long curr_player_pos_in_array = player_pos_in_array - 1;
+		g_player_array_0[curr_player_pos_in_array].player = player;
+		g_player_array_0[curr_player_pos_in_array].player_xuid = get_player_xuid(player);
+		g_player_array_0[curr_player_pos_in_array].music_queue_node = node;
+		g_player_array_0[curr_player_pos_in_array].paused = 0;
+		g_player_array_0[curr_player_pos_in_array].music_num = 1;
 	} else {
 		struct music_queue_node *music_queue_last = get_player_last_music(player);
 		node->prev = music_queue_last;
 		music_queue_last->next = node;
 		g_player_array_0[player_pos_in_array].music_num++;
 	}
+
+	//free useless ptr
 	free(nbs_file_name_new);
 
 	return true;

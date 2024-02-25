@@ -44,9 +44,10 @@ enum music_bar_type {
 struct music_note_info {
     // long long notes;
     // unsigned long long song_id;
-    const char* song_name;
+    char song_name[256];
     unsigned char is_using;
     struct note_queue_node *note_queue_ptr;
+    long long time;
 };
 
 struct player_music_info {
