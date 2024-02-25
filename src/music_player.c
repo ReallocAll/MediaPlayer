@@ -129,7 +129,8 @@ long long find_note_in_array(struct music_note_info *in_array, unsigned long lon
 		cac_result = 0;
 		music_name_in_va = in_music_name;
 		music_name_in_array = in_array[music_count].song_name;
-		while (*music_name_in_va) cac_result += *music_name_in_array++ - *music_name_in_va++;
+		while (*music_name_in_array && *music_name_in_va) cac_result += *music_name_in_array++ - *music_name_in_va++;
+		
 		if (!cac_result) return music_count;
 	}
 	return -1;
@@ -165,10 +166,10 @@ bool music_queue_add(struct player *player, const char *nbs_file_name, int loop,
 
 	//find the same name note node in note node list
 	long long music_in_arr_pos = find_note_in_array(g_note_array_0, g_note_array_0_info.curr_arr_size, v_song_name);
-	if (music_in_arr_pos == -1) {
-		xr_operator_dynamic_array(&g_note_array_0_info, &g_note_array_0, g_note_array_0_info.curr_arr_size, XR_ARRAY_ADD);
-		g_note_array_0[g_note_array_0_info.curr_arr_size].note_queue_ptr = node_head;
-	}
+	// if (music_in_arr_pos == -1) {
+	// 	xr_operator_dynamic_array(&g_note_array_0_info, &g_note_array_0, g_note_array_0_info.curr_arr_size, XR_ARRAY_ADD);
+	// 	g_note_array_0[g_note_array_0_info.curr_arr_size - 1].note_queue_ptr = node_head;
+	// }
 
 	struct music_queue_node *node = (struct music_queue_node *) malloc(sizeof(struct music_queue_node));
 	
@@ -179,8 +180,12 @@ bool music_queue_add(struct player *player, const char *nbs_file_name, int loop,
 	play_with_video(player, nbs_file_name, loop);
 
 	node->player = player;
-	if (music_in_arr_pos == -1) 
+	if (music_in_arr_pos == -1) {
+		xr_operator_dynamic_array(&g_note_array_0_info, &g_note_array_0, g_note_array_0_info.curr_arr_size, XR_ARRAY_ADD);
+		g_note_array_0[g_note_array_0_info.curr_arr_size - 1].note_queue_ptr = node_head;
+		g_note_array_0[g_note_array_0_info.curr_arr_size - 1].song_name = v_song_name;
 		node->note_queue_node = g_note_array_0[g_note_array_0_info.curr_arr_size - 1].note_queue_ptr;
+	}
 	else
 		node->note_queue_node = g_note_array_0[music_in_arr_pos].note_queue_ptr;
 	// node->note_queue_node = node_head;
