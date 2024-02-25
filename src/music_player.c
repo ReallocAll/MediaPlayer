@@ -167,8 +167,8 @@ bool music_queue_add(struct player *player, const char *nbs_file_name, int loop,
 
 
 	if (music_in_arr_pos == -1) {
+		long long curr_music_in_arr_pos = g_note_array_0_info.curr_arr_size;
 		xr_operator_dynamic_array(&g_note_array_0_info, &g_note_array_0, g_note_array_0_info.curr_arr_size, XR_ARRAY_ADD);
-		long long curr_music_in_arr_pos = g_note_array_0_info.curr_arr_size - 1;
 
 		sprintf(nbs_path, "%s/%s", data_path_nbs, nbs_file_name);
 		FILE *fp = fopen(nbs_path, "rb");
@@ -203,8 +203,8 @@ bool music_queue_add(struct player *player, const char *nbs_file_name, int loop,
 	long long player_pos_in_array = find_player_in_array(g_player_array_0, g_player_array_0_info.curr_arr_size, player);
 
 	if (player_pos_in_array == -1) {
+		long long curr_player_pos_in_array = g_player_array_0_info.curr_arr_size;
 		xr_operator_dynamic_array(&g_player_array_0_info, &g_player_array_0, g_player_array_0_info.curr_arr_size, XR_ARRAY_ADD);
-		long long curr_player_pos_in_array = player_pos_in_array - 1;
 		g_player_array_0[curr_player_pos_in_array].player = player;
 		g_player_array_0[curr_player_pos_in_array].player_xuid = get_player_xuid(player);
 		g_player_array_0[curr_player_pos_in_array].music_queue_node = node;
