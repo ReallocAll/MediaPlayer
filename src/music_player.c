@@ -113,7 +113,7 @@ long long find_player_in_array_by_xuid(struct player_music_info *in_array, unsig
 		cac_result = 0;
 		xuid_in_va = in_xuid;
 		xuid_in_array = in_array[player_count].player_xuid;
-		while (*xuid_in_array && *xuid_in_va && !cac_result) cac_result += *xuid_in_array++ - *xuid_in_va++;
+		while (!cac_result) cac_result = *xuid_in_array++ != *xuid_in_va++;
 		if (!cac_result) return player_count;
 	}
 	return -1;
@@ -129,7 +129,7 @@ long long find_note_in_array(struct music_note_info *in_array, unsigned long lon
 		cac_result = 0;
 		music_name_in_va = in_music_name;
 		music_name_in_array = in_array[music_count].song_name;
-		while (*music_name_in_array && *music_name_in_va && !cac_result) cac_result += *music_name_in_array++ - *music_name_in_va++;
+		while (!cac_result) cac_result = *music_name_in_array++ != *music_name_in_va++;
 		if (!cac_result) return music_count;
 	}
 	return -1;
