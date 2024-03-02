@@ -11,7 +11,7 @@ struct player_music_info *g_player_array_0 = 0;
 struct player_music_info *g_offline_player_array_0 = 0;
 struct music_note_info * g_note_array_0 = 0;
 
-struct music_queue_node *music_queue_head = NULL; //will be remove in few days...
+// struct music_queue_node *music_queue_head = NULL; //will be remove in few days...
 
 struct note_queue_node *generate_note_queue(FILE *fp, time_t *total_time)
 {
@@ -163,7 +163,7 @@ bool music_queue_add(struct player *player, const char *nbs_file_name, int loop,
 		server_logger(LOG_LEVEL_ERR, "Failed to allocate memory for new node.");
 		return false;
 	}
-	play_with_video(player, nbs_file_name, loop);
+	// play_with_video(player, nbs_file_name, loop);
 
 
 	if (music_in_arr_pos == -1) {
@@ -440,16 +440,16 @@ void free_note_queue(struct note_queue_node *head)
 // 	music_queue_head = NULL;
 // }
 
-struct music_queue_node *music_queue_get_player(struct player *player)
-{
-	struct music_queue_node *current = music_queue_head;
-	while (current != NULL) {
-		if (current->player == player)
-			return current;
-		current = current->next;
-	}
-	return NULL;
-}
+// struct music_queue_node *music_queue_get_player(struct player *player)
+// {
+// 	struct music_queue_node *current = music_queue_head;
+// 	while (current != NULL) {
+// 		if (current->player == player)
+// 			return current;
+// 		current = current->next;
+// 	}
+// 	return NULL;
+// }
 
 bool play_with_video(struct player *player, const char *filename, int loop)
 {

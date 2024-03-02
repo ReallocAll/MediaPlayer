@@ -101,7 +101,8 @@ void video_queue_delete_player(struct player *player)
 
 void play_video(struct video_queue *node, struct map_item_saved_data *map_data, struct screen_pos *screen_pos)
 {
-    struct music_queue_node *music_node = music_queue_get_player(node->player);
+    // struct music_queue_node *music_node = music_queue_get_player(node->player);
+    struct music_queue_node *music_node = NULL;
     if (music_node && music_node->note_queue_node == music_node->note_queue_node_start)
         return;
     if (node->deleted)
