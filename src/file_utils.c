@@ -97,3 +97,16 @@ void free_foldernames(char **foldernames, int count)
 	}
 	free(foldernames);
 }
+
+
+bool is_file_exist(const char *path)
+{
+	FILE *fp;
+	fopen_s(&fp, path, "rb");
+	if (fp) {
+		fclose(fp);
+		return true;
+	} else {
+		return false;
+	}
+}
