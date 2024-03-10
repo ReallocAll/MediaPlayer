@@ -40,18 +40,35 @@
 
 #else
 
+enum loader_type {
+    LOADER_TYPE_LIGHTBASE,
+    LOADER_TYPE_MODLOADER,
+    LOADER_TYPE_PRELOADER
+};
+
 extern FARPROC hook_func_address;
 extern FARPROC unhook_func_address;
 extern FARPROC dlsym_func_address;
+extern int loader_type;
 
 inline int hook_func(void *target, void *detour, void **original)
 {
-	return ((int (*)(void *target, void *detour, void **original, int priority)) ((void *)hook_func_address)) (target, detour, original, 200);
+    if (loader_type == LOADER_TYPE_LIGHTBASE) {
+        return ((int (*)(void *target, void *detour, void **original)) ((void *)hook_func_address)) (target, detour, original);
+    } else if (loader_type == LOADER_TYPE_PRELOADER) {
+        return ((int (*)(void *target, void *detour, void **original, int priority)) ((void *)hook_func_address)) (target, detour, original, 200);
+    }
+    return 0;
 }
 
 inline bool unhook_func(void *target, void *detour)
 {
-	return ((bool (*)(void *target, void *detour)) ((void *)unhook_func_address)) (target, detour);
+    if (loader_type == LOADER_TYPE_LIGHTBASE) {
+	    return ((bool (*)(void *target)) ((void *)unhook_func_address)) (target);
+    } else if (loader_type == LOADER_TYPE_PRELOADER) {
+	    return ((bool (*)(void *target, void *detour)) ((void *)unhook_func_address)) (target, detour);
+    }
+    return false;
 }
 
 inline void *dlsym(const char *x)

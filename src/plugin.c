@@ -4,6 +4,7 @@
 FARPROC hook_func_address = 0;
 FARPROC unhook_func_address = 0;
 FARPROC dlsym_func_address = 0;
+int loader_type = 0;
 #endif
 
 THOOK(on_initialize_logging, void,
@@ -174,10 +175,19 @@ THOOK(on_tick, void,
 void init(void)
 {
 #ifndef __linux__
-	hook_func_address = GetProcAddress(GetModuleHandleA("PreLoader"), "pl_hook");
-	unhook_func_address = GetProcAddress(GetModuleHandleA("PreLoader"), "pl_unhook");
-	dlsym_func_address = GetProcAddress(GetModuleHandleA("PreLoader"), "pl_resolve_symbol");
-
+	if (is_file_exist("lightbase.dll")) {
+		loader_type = LOADER_TYPE_LIGHTBASE;
+		hook_func_address = GetProcAddress(GetModuleHandleA("lightbase"), "hook_func");
+		unhook_func_address = GetProcAddress(GetModuleHandleA("lightbase"), "unhook_func");
+		dlsym_func_address = GetProcAddress(GetModuleHandleA("lightbase"), "dlsym");
+	} else if (is_file_exist("libserver_modloader.so")) {
+		loader_type = LOADER_TYPE_MODLOADER;
+	} else if (is_file_exist("Preloader.dll")) {
+		loader_type = LOADER_TYPE_PRELOADER;
+		hook_func_address = GetProcAddress(GetModuleHandleA("PreLoader"), "pl_hook");
+		unhook_func_address = GetProcAddress(GetModuleHandleA("PreLoader"), "pl_unhook");
+		dlsym_func_address = GetProcAddress(GetModuleHandleA("PreLoader"), "pl_resolve_symbol");
+	}
 	level_construct.install();
 	server_player_construct.install();
 	server_player_destroy.install();

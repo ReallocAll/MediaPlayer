@@ -5,6 +5,7 @@
 #include <locale.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdbool.h>
 
 #ifdef __linux__
 #include <dirent.h>
@@ -22,3 +23,4 @@ char **get_filenames(const char *directory, int *count);
 char **get_foldernames(const char *directory, int *count);
 void free_filenames(char **filenames, int count);
 void free_foldernames(char **filenames, int count);
+bool is_file_exist(const char *path);
