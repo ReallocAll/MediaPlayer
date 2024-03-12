@@ -101,8 +101,8 @@ void free_foldernames(char **foldernames, int count)
 
 bool is_file_exist(const char *path)
 {
-	FILE *fp;
-	fopen_s(&fp, path, "rb");
+	FILE *fp = NULL;
+	fp = fopen(path, "rb");
 	if (fp) {
 		fclose(fp);
 		return true;
