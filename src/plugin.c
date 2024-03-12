@@ -1,10 +1,8 @@
 #include <mediaplayer/plugin.h>
 
 #ifndef __linux__
-FARPROC hook_func_address = 0;
-FARPROC unhook_func_address = 0;
-FARPROC dlsym_func_address = 0;
-int loader_type = 0;
+extern struct func_address func_address = {0, 0, 0};
+int loader_type = LOADER_TYPE_NONE;
 #endif
 
 THOOK(on_initialize_logging, void,
@@ -175,18 +173,11 @@ THOOK(on_tick, void,
 void init(void)
 {
 #ifndef __linux__
-	if (is_file_exist("lightbase.dll")) {
-		loader_type = LOADER_TYPE_LIGHTBASE;
-		hook_func_address = GetProcAddress(GetModuleHandleA("lightbase"), "hook_func");
-		unhook_func_address = GetProcAddress(GetModuleHandleA("lightbase"), "unhook_func");
-		dlsym_func_address = GetProcAddress(GetModuleHandleA("lightbase"), "dlsym");
-	} else if (is_file_exist("libserver_modloader.so")) {
-		loader_type = LOADER_TYPE_MODLOADER;
-	} else if (is_file_exist("Preloader.dll")) {
-		loader_type = LOADER_TYPE_PRELOADER;
-		hook_func_address = GetProcAddress(GetModuleHandleA("PreLoader"), "pl_hook");
-		unhook_func_address = GetProcAddress(GetModuleHandleA("PreLoader"), "pl_unhook");
-		dlsym_func_address = GetProcAddress(GetModuleHandleA("PreLoader"), "pl_resolve_symbol");
+	create_plugin_dir();
+	init_func_address();
+	if (loader_type == LOADER_TYPE_NONE) {
+		puts("No loader detected. MediaPlayer will not be loaded.");
+		return;
 	}
 	level_construct.install();
 	server_player_construct.install();
@@ -199,8 +190,28 @@ void init(void)
 	MapItemSavedData_tickByBlock.install();
 	MapItem_doesDisplayPlayerMarkers.install();
 #endif
-	create_plugin_dir();
 }
+
+#ifndef __linux__
+void init_func_address(void)
+{
+	if (is_file_exist("lightbase.dll") || GetModuleHandle("lightbase.dll")) {
+		loader_type = LOADER_TYPE_LIGHTBASE;
+		func_address.hook = GetProcAddress(GetModuleHandleA("lightbase"), "hook_func");
+		func_address.unhook = GetProcAddress(GetModuleHandleA("lightbase"), "unhook_func");
+		func_address.dlsym = GetProcAddress(GetModuleHandleA("lightbase"), "dlsym");
+	} else if (is_file_exist("libserver_modloader.so")) {
+		loader_type = LOADER_TYPE_MODLOADER;
+	} else if (is_file_exist("Preloader.dll") || GetModuleHandle("Preloader.dll")) {
+		loader_type = LOADER_TYPE_PRELOADER;
+		func_address.hook = GetProcAddress(GetModuleHandleA("PreLoader"), "pl_hook");
+		func_address.unhook = GetProcAddress(GetModuleHandleA("PreLoader"), "pl_unhook");
+		func_address.dlsym = GetProcAddress(GetModuleHandleA("PreLoader"), "pl_resolve_symbol");
+	} else {
+		loader_type = LOADER_TYPE_NONE;
+	}
+}
+#endif
 
 void create_plugin_dir(void)
 {

@@ -22,7 +22,7 @@
     (__VA_ARGS__)
 
 
-#define VIRTUAL_CALL(ptr, func_proto, ...)                   \
+#define PTRCALL(ptr, func_proto, ...)                        \
     ((func_proto)                                            \
     ((void *)ptr))                                           \
     (__VA_ARGS__)

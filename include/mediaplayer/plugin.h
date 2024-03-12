@@ -29,5 +29,8 @@ void init() __attribute__((constructor));
 #else
 void init();
 #endif
+#ifndef __linux__
+void init_func_address();
+#endif
 
 void create_plugin_dir(void);

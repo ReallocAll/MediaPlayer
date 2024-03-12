@@ -41,22 +41,31 @@
 #else
 
 enum loader_type {
+    LOADER_TYPE_NONE,
     LOADER_TYPE_LIGHTBASE,
     LOADER_TYPE_MODLOADER,
     LOADER_TYPE_PRELOADER
 };
 
-extern FARPROC hook_func_address;
-extern FARPROC unhook_func_address;
-extern FARPROC dlsym_func_address;
+struct func_address {
+    FARPROC hook;
+    FARPROC unhook;
+    FARPROC dlsym;
+};
+
+extern struct func_address func_address;
 extern int loader_type;
 
 inline int hook_func(void *target, void *detour, void **original)
 {
     if (loader_type == LOADER_TYPE_LIGHTBASE) {
-        return ((int (*)(void *target, void *detour, void **original)) ((void *)hook_func_address)) (target, detour, original);
+        return PTRCALL(func_address.hook,
+                        int (*)(void *target, void *detour, void **original),
+                        target, detour, original);
     } else if (loader_type == LOADER_TYPE_PRELOADER) {
-        return ((int (*)(void *target, void *detour, void **original, int priority)) ((void *)hook_func_address)) (target, detour, original, 200);
+        return PTRCALL(func_address.hook,
+                        int (*)(void *target, void *detour, void **original, int priority),
+                        target, detour, original, 200);
     }
     return 0;
 }
@@ -64,16 +73,22 @@ inline int hook_func(void *target, void *detour, void **original)
 inline bool unhook_func(void *target, void *detour)
 {
     if (loader_type == LOADER_TYPE_LIGHTBASE) {
-	    return ((bool (*)(void *target)) ((void *)unhook_func_address)) (target);
+	    return PTRCALL(func_address.unhook,
+                        bool (*)(void *target),
+                        target);
     } else if (loader_type == LOADER_TYPE_PRELOADER) {
-	    return ((bool (*)(void *target, void *detour)) ((void *)unhook_func_address)) (target, detour);
+	    return PTRCALL(func_address.unhook,
+                        bool (*)(void *target, void *detour),
+                        target, detour);
     }
     return false;
 }
 
-inline void *dlsym(const char *x)
+inline void *dlsym(const char *sym)
 {
-	return ((void *(*)(const char *x)) ((void *)dlsym_func_address)) (x);
+    return PTRCALL(func_address.dlsym,
+                    void *(*)(const char *sym),
+                    sym);
 }
 
 #define THOOK(name, ret_type, sym, ...)          		     \
