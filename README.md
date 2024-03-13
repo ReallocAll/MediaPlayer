@@ -8,7 +8,7 @@ English | [简体中文](README_ZH.md)
 
 ## Introduction
 This plugin is used to play NBS music and map videos in BDS server.
-This project uses the [LittleHooker](https://github.com/ExtcanaRy/LittleHooker) framework for HOOK.
+This project uses the [LightBase](https://github.com/ExtcanaRy/LightBase) framework for HOOK.
 
 ## Use
 ### NBS music playback
@@ -101,7 +101,7 @@ Without their support, this project would not have been possible
 
 | Project                                                     | License                                                                   |
 | ----------------------------------------------------------- | ------------------------------------------------------------------------- |
-| [LittleHooker](https://github.com/ExtcanaRy/LittleHooker)   | GPL-3.0                                                                   |
+| [LightBase](https://github.com/ExtcanaRy/LightBase)   | GPL-3.0                                                                   |
 | [nbsparser](https://github.com/ExtcanaRy/nbsparser)         | GPL-3.0                                                                   |
 | [dirent](https://github.com/tronkko/dirent)                 | MIT                                                                       |
 | [minhook](https://github.com/TsudaKageyu/minhook)           | [license](https://github.com/TsudaKageyu/minhook/blob/master/LICENSE.txt) |

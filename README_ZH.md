@@ -9,7 +9,7 @@
 
 ## 简介
 本插件用于在BDS服务器播放NBS音乐和地图视频。
-本项目使用了[LittleHooker](https://github.com/ExtcanaRy/LittleHooker)框架进行HOOK。
+本项目使用了[LightBase](https://github.com/ExtcanaRy/LightBase)框架进行HOOK。
 
 ## 使用
 ### NBS 音乐播放
@@ -104,7 +104,7 @@ NBS音乐文件请放置到``plugins\MediaPlayer\nbs``文件夹中
 
 | 项目                                                        | 许可证                                                                   |
 | ----------------------------------------------------------- | ------------------------------------------------------------------------ |
-| [LittleHooker](https://github.com/ExtcanaRy/LittleHooker)   | GPL-3.0                                                                  |
+| [LightBase](https://github.com/ExtcanaRy/LightBase)   | GPL-3.0                                                                  |
 | [nbsparser](https://github.com/ExtcanaRy/nbsparser)         | GPL-3.0                                                                  |
 | [dirent](https://github.com/tronkko/dirent)                 | MIT                                                                      |
 | [minhook](https://github.com/TsudaKageyu/minhook)           | [许可证](https://github.com/TsudaKageyu/minhook/blob/master/LICENSE.txt) |
