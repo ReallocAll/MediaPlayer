@@ -16,8 +16,9 @@ file(GLOB_RECURSE SRC_FILES_DIR
 )
 
 include_directories(
-    ${CMAKE_SOURCE_DIR}/include
+    ${CMAKE_SOURCE_DIR}/include/
     ${CMAKE_SOURCE_DIR}/include/libuv
+    ${CMAKE_SOURCE_DIR}/include/ffmpeg-5.1.2
 )
 
 link_directories(

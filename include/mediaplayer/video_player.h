@@ -15,6 +15,8 @@
 #include "mc/player.h"
 #include "mc/level.h"
 
+#include <libavcodec/avcodec.h>
+
 #ifndef __linux__
 typedef uint64_t __uint64_t;
 #endif
