@@ -1,8 +1,43 @@
 #include <mediaplayer/plugin.h>
 
 #ifndef __linux__
-extern struct func_address func_address = {0, 0, 0};
+extern struct func_address func_address = { 0, 0, 0 };
 int loader_type = LOADER_TYPE_NONE;
+#endif
+
+#ifdef __linux__
+const char **reg_sym(int *out_num)
+{
+	static const char *lst[] = {
+		S_BedrockLog__log_va,
+		S_DedicatedServer__initializeLogging,
+		SC_Level__Level,
+		S_ChangeSettingCommand__setup,
+		S_CommandRegistry__registerCommand,
+		S_ServerNetworkHandler__handle___CommandRequestPacket,
+		S_MapItem__update,
+		S_MapItem__doesDisplayPlayerMarkers,
+		S_MapItemSavedData__tickByBlock,
+		S_BlockSource__getBlock,
+		S_FaceDirectionalBlock__getFacingDirection,
+		S_Level__tick,
+		S_ServerNetworkHandler___getServerPlayer,
+		S_Player__getXuid,
+		S_TextPacket__TextPacket,
+		SC_PlaySoundPacket__PlaySoundPacket,
+		S_ServerPlayer__sendNetworkPacket,
+		S_MinecraftPackets__createPacket,
+		S_Actor__getOrCreateUniqueID,
+		S_Actor__getNameTag,
+		S_Actor__getPosition,
+		SC_ServerPlayer__ServerPlayer,
+		SD_ServerPlayer__ServerPlayer
+	};
+
+	*out_num = sizeof(lst) / sizeof(void *);
+
+	return lst;
+}
 #endif
 
 THOOK(on_initialize_logging, void,

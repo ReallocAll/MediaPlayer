@@ -54,11 +54,21 @@ jobs:
           path: |
             ./build/
 
+      - name: Build bds_patcher
+        run: |
+          git clone https://github.com/Syncyn-R/bds_patcher.git
+          cd bds_patcher
+          mkdir build
+          cd build
+          cmake ..
+          make -j8
+
       - name: Run
         run: |
           cd bds
           curl -fsSLO https://minecraft.azureedge.net/bin-linux/bedrock-server-1.20.81.01.zip
           unzip -q *.zip
-          python3 ../tools/patchlib.py
+          # python3 ../tools/patchlib.py
+          ../bds_patcher/build/bds_patcher
           chmod +x bedrock_server_symbols_patched.debug
           ! timeout 10 bash -c "LD_PRELOAD=../lib/libserver_modloader.so ./bedrock_server_symbols_patched.debug"
