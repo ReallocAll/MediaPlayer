@@ -75,6 +75,7 @@ elseif (CMAKE_SYSTEM_NAME MATCHES "Windows")
     "Iphlpapi.lib"
     "dbghelp.lib"
     "userenv.lib"
+    "lightbase.lib"
     )
     install(TARGETS MediaPlayer DESTINATION plugins)
 endif()

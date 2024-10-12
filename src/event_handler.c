@@ -19,11 +19,11 @@ void event_on_server_init_logger()
 	g_offline_player_array_0 = xr_new_dynamic_array(sizeof(struct player_music_info), &g_offline_player_array_0_info);
 	g_note_array_0 = xr_new_dynamic_array(sizeof(struct music_note_info), &g_note_array_0_info);
 
-	char *tmp_conf_data = 0;
+	// char *tmp_conf_data = 0;
 
-	config_open_file(&g_conf_data, "testconfdir/conf.mpconf");
-	config_read(&g_conf_data, "video_convert_mode", &tmp_conf_data);
-	g_conf_video_convert_mode = atoi(tmp_conf_data);
+	// config_open_file(&g_conf_data, "testconfdir/conf.mpconf");
+	// config_read(&g_conf_data, "video_convert_mode", &tmp_conf_data);
+	// g_conf_video_convert_mode = atoi(tmp_conf_data);
 }
 
 void event_on_server_player_construct(struct player *in_player)

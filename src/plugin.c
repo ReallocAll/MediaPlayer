@@ -1,110 +1,73 @@
 #include <mediaplayer/plugin.h>
+#include <lightbase/plugin.h>
 
 #ifndef __linux__
 extern struct func_address func_address = { 0, 0, 0 };
 int loader_type = LOADER_TYPE_NONE;
 #endif
 
-#ifdef __linux__
-const char **reg_sym(int *out_num)
-{
-	static const char *lst[] = {
-		S_BedrockLog__log_va,
-		S_DedicatedServer__initializeLogging,
-		SC_Level__Level,
-		S_ChangeSettingCommand__setup,
-		S_CommandRegistry__registerCommand,
-		S_ServerNetworkHandler__handle___CommandRequestPacket,
-		S_MapItem__update,
-		S_MapItem__doesDisplayPlayerMarkers,
-		S_MapItemSavedData__tickByBlock,
-		S_BlockSource__getBlock,
-		S_FaceDirectionalBlock__getFacingDirection,
-		S_Level__tick,
-		S_ServerNetworkHandler___getServerPlayer,
-		S_Player__getXuid,
-		S_TextPacket__TextPacket,
-		SC_PlaySoundPacket__PlaySoundPacket,
-		S_ServerPlayer__sendNetworkPacket,
-		S_MinecraftPackets__createPacket,
-		S_Actor__getOrCreateUniqueID,
-		S_Actor__getNameTag,
-		S_Actor__getPosition,
-		SC_ServerPlayer__ServerPlayer,
-		SD_ServerPlayer__ServerPlayer
-	};
-
-	*out_num = sizeof(lst) / sizeof(void *);
-
-	return lst;
-}
-#endif
-
-THOOK(on_initialize_logging, void,
+SHOOK(on_initialize_logging, void,
       S_DedicatedServer__initializeLogging,
       uintptr_t this)
 {
-	on_initialize_logging.original(this);
+	on_initialize_logging.call(this);
 	event_on_server_init_logger();
 }
 
 // Constructor for Level
-THOOK(level_construct, struct level *,
-      SC_Level__Level, struct level *a1, unsigned long long a2, unsigned long long a3,
-      struct LevelVtbl *a4, unsigned char a5, unsigned char a6, void *a7, void **a8,
-      void *a9, unsigned long long a10, unsigned long long a11, void **a12, void **a13,
-      void *a14, unsigned long long a15, char a16, char a17, unsigned char *a18,
-      unsigned char *a19)
+SHOOK(level_construct, struct level *,
+      SC_Level__Level, uintptr_t *level, uintptr_t a1, uintptr_t a2, uintptr_t a3, uintptr_t a4, uintptr_t a5, uintptr_t a6, uintptr_t a7, uintptr_t a8, uintptr_t a9, uintptr_t a10, uintptr_t a11, uintptr_t a12, uintptr_t a13, uintptr_t a14, uintptr_t a15, uintptr_t a16, uintptr_t a17, uintptr_t a18, uintptr_t a19)
 
 {
-	return g_level = level_construct.original(a1, a2, a3, a4, a5, a6, a7, a8, a9, a10,
+	
+	return g_level = level_construct.call(level, a1, a2, a3, a4, a5, a6, a7, a8, a9, a10,
 						  a11, a12, a13, a14, a15, a16, a17, a18, a19);
 }
 
 #ifdef __linux__
-THOOK(server_player_construct, struct player *,
+SHOOK(server_player_construct, struct player *,
       SC_ServerPlayer__ServerPlayer,
       struct player *this, __int64_t a2, __int64_t a3, __int64_t a4, __int64_t a5, __int64_t a6,
       __int64_t a7, char a8, __int64_t a9, __int128_t a10, __int128_t a11, __int64_t *a12, int a13,
       void *a14, struct entity_context *a15)
 {
-	struct player *player = server_player_construct.original(this, a2, a3, a4, a5, a6, a7, a8, a9,
+	struct player *player = server_player_construct.call(this, a2, a3, a4, a5, a6, a7, a8, a9,
 								 a10, a11, a12, a13, a14, a15);
 	event_on_server_player_construct(this);
 	return player;
 }
 
-THOOK(server_player_destroy, void,
+SHOOK(server_player_destroy, void,
       SD_ServerPlayer__ServerPlayer,
       struct player *this)
 {
 	event_on_server_player_destory(this);
-	server_player_destroy.original(this);
+	server_player_destroy.call(this);
 }
 #else
 
-THOOK(server_player_construct, struct player *,
+SHOOK(server_player_construct, struct player *,
       SC_ServerPlayer__ServerPlayer,
       struct player *this, struct Level *a2, unsigned long long a3, void *a4, void *a5, int a6, char a7,
       long long a8, long long a9, long long a10, unsigned long long *a11, void *a12, void *a13,
       void **a14, int a15, bool a16, void *a17)
 {
-	struct player *player = server_player_construct.original(this, a2, a3, a4, a5, a6, a7, a8, a9,
+	struct player *player = server_player_construct.call(this, a2, a3, a4, a5, a6, a7, a8, a9,
 								 a10, a11, a12, a13, a14, a15, a16, a17);
 	event_on_server_player_construct(this);
 	return player;
 }
 
-THOOK(server_player_destroy, void,
+SHOOK(server_player_destroy, void,
       SD_ServerPlayer__ServerPlayer,
       struct player *this, char a2)
 {
 	event_on_server_player_destory(this);
-	server_player_destroy.original(this, a2);
+	server_player_destroy.call(this, a2);
 }
 #endif
 
-THOOK(ChangeSettingCommand_setup, void,
+SHOOK(ChangeSettingCommand_setup, void,
       S_ChangeSettingCommand__setup,
       uintptr_t this)
 {
@@ -121,10 +84,10 @@ THOOK(ChangeSettingCommand_setup, void,
 		this, cmd_mpv, "MediaPlayer video player", 0, 0, 0x80);
 	std_string_destroy(cmd_mpm, true);
 	std_string_destroy(cmd_mpv, true);
-	ChangeSettingCommand_setup.original(this);
+	ChangeSettingCommand_setup.call(this);
 }
 
-THOOK(on_player_cmd, void,
+SHOOK(on_player_cmd, void,
       S_ServerNetworkHandler__handle___CommandRequestPacket,
       struct server_network_handler *this, uintptr_t id, uintptr_t pkt)
 {
@@ -133,10 +96,10 @@ THOOK(on_player_cmd, void,
 	if (player && !process_cmd(player, cmd))
 		return;
 
-	on_player_cmd.original(this, id, pkt);
+	on_player_cmd.call(this, id, pkt);
 }
 
-THOOK(map_item_update, void,
+SHOOK(map_item_update, void,
       S_MapItem__update,
       struct map_item *map_item, struct level *level, struct actor *actor, struct map_item_saved_data *map_data)
 {
@@ -148,20 +111,20 @@ THOOK(map_item_update, void,
 	if (video_queue_node) {
 		play_video(video_queue_node, map_data, &screen_pos);
 	} else {
-		map_item_update.original(map_item, level, actor, map_data);
+		map_item_update.call(map_item, level, actor, map_data);
 	}
 }
 
 // make MapItemSavedData::tickByBlock always be called
-THOOK(MapItem_doesDisplayPlayerMarkers, bool,
+SHOOK(MapItem_doesDisplayPlayerMarkers, bool,
       S_MapItem__doesDisplayPlayerMarkers,
       const struct item_stack *a1)
 {
-	bool ret = MapItem_doesDisplayPlayerMarkers.original(a1);
+	bool ret = MapItem_doesDisplayPlayerMarkers.call(a1);
 	return true;
 }
 
-THOOK(MapItemSavedData_tickByBlock, void,
+SHOOK(MapItemSavedData_tickByBlock, void,
       S_MapItemSavedData__tickByBlock,
       struct map_item_saved_data *this, const struct block_pos *bl_pos, struct block_source *bs)
 {
@@ -193,16 +156,16 @@ THOOK(MapItemSavedData_tickByBlock, void,
 		screen_pos.y = start_pos.y - bl_pos->y;
 		play_video(video_queue_node, this, &screen_pos);
 	} else {
-		MapItemSavedData_tickByBlock.original(this, bl_pos, bs);
+		MapItemSavedData_tickByBlock.call(this, bl_pos, bs);
 	}
 }
 
-THOOK(on_tick, void,
+SHOOK(on_tick, void,
       S_Level__tick,
       struct level *level)
 {
 	send_music_sound_packet();
-	on_tick.original(level);
+	on_tick.call(level);
 }
 
 void init(void)
@@ -232,9 +195,9 @@ void init_func_address(void)
 {
 	if (is_file_exist("lightbase.dll") || GetModuleHandle("lightbase.dll")) {
 		loader_type = LOADER_TYPE_LIGHTBASE;
-		func_address.hook = GetProcAddress(GetModuleHandleA("lightbase"), "hook_func");
-		func_address.unhook = GetProcAddress(GetModuleHandleA("lightbase"), "unhook_func");
-		func_address.dlsym = GetProcAddress(GetModuleHandleA("lightbase"), "dlsym");
+		func_address.hook = GetProcAddress(GetModuleHandleA("lightbase"), "lb_shook_install");
+		func_address.unhook = GetProcAddress(GetModuleHandleA("lightbase"), "lb_shook_uninstall");
+		func_address.dlsym = GetProcAddress(GetModuleHandleA("lightbase"), "lb_sym_find");
 	} else if (is_file_exist("libserver_modloader.so")) {
 		loader_type = LOADER_TYPE_MODLOADER;
 	} else if (is_file_exist("Preloader.dll") || GetModuleHandle("Preloader.dll")) {
