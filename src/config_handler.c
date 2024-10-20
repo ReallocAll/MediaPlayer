@@ -42,7 +42,7 @@ int config_open_file(struct config_file *in_config_file, char *in_filename)
     }
 
     fseek(config_file, 0, SEEK_SET);
-    func_ret = fread(in_config_file->data, in_config_file->size, 1, config_file);
+    func_ret = (int) fread(in_config_file->data, in_config_file->size, 1, config_file);
     if (!func_ret) {
         return -6;
     }
@@ -71,7 +71,7 @@ int config_read(struct config_file *in_config_file, char *in_valname, char **out
                 size_t var_start_pos = 0;
                 size_t var_size = 0;
 
-                for (int l = jf + 1; l < in_config_file->size; l++) {
+                for (int l = (int)jf + 1; l < in_config_file->size; l++) {
                     if (in_config_file->data[l] == ' ') { // skip blank
                         continue;
                     }
