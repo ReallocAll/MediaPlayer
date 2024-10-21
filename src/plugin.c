@@ -67,7 +67,7 @@ SHOOK(server_player_destroy, void,
 }
 #endif
 
-SHOOK(ChangeSettingCommand_setup, void,
+SHOOK(change_setting_command_setup, void,
       S_ChangeSettingCommand__setup,
       uintptr_t this)
 {
@@ -84,7 +84,7 @@ SHOOK(ChangeSettingCommand_setup, void,
 		this, cmd_mpv, "MediaPlayer video player", 0, 0, 0x80);
 	std_string_destroy(cmd_mpm, true);
 	std_string_destroy(cmd_mpv, true);
-	ChangeSettingCommand_setup.call(this);
+	change_setting_command_setup.call(this);
 }
 
 SHOOK(on_player_cmd, void,
@@ -182,7 +182,7 @@ void init(void)
 	server_player_destroy.install();
 	on_initialize_logging.install();
 	on_tick.install();
-	ChangeSettingCommand_setup.install();
+	change_setting_command_setup.install();
 	on_player_cmd.install();
 	map_item_update.install();
 	MapItemSavedData_tickByBlock.install();
