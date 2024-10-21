@@ -55,6 +55,7 @@ jobs:
             ./build/
 
       - name: Build bds_patcher
+        if: false
         run: |
           git clone https://github.com/Syncyn-R/bds_patcher.git
           cd bds_patcher
@@ -64,6 +65,7 @@ jobs:
           make -j8
 
       - name: Run
+        if: false
         run: |
           cd bds
           curl -fsSLO https://minecraft.azureedge.net/bin-linux/bedrock-server-1.20.81.01.zip
