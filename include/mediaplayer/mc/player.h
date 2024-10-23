@@ -8,6 +8,8 @@
 
 #define PLAYER_XUID_STR_LEN 17
 
+struct player;
+
 extern struct player *(*g_player_list);
 extern int g_player_list_size;
 

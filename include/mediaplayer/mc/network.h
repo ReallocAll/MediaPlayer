@@ -7,6 +7,8 @@
 #include "player.h"
 #include "structs.h"
 
+struct server_network_handler;
+
 enum boss_bar_event_type {
 	BOSS_BAR_DISPLAY,
 	BOSS_BAR_UPDATE,

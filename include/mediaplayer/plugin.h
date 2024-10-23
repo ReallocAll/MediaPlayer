@@ -16,6 +16,7 @@
 #include "mc/actor.h"
 #include "mc/player.h"
 #include "mc/level.h"
+#include "mc/block.h"
 
 #ifdef PLUGIN_VERSION
     #define PLUGIN_VERSION_MSG " Version: "

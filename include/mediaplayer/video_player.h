@@ -26,14 +26,6 @@ typedef uint64_t __uint64_t;
 static struct block_pos start_pos  = {INT_MAX, INT_MIN, INT_MAX};
 static struct block_pos end_pos = {INT_MIN, INT_MAX, INT_MIN};
 
-enum direction {
-    DIRECTION_NEG_Y,
-    DIRECTION_POS_Y,
-    DIRECTION_NEG_Z,
-    DIRECTION_POS_Z,
-    DIRECTION_NEG_X,
-    DIRECTION_POS_X,
-};
 
 struct video_queue {
     struct player *player;
