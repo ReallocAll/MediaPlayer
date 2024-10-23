@@ -38,7 +38,7 @@
 #define S_MapItem__doesDisplayPlayerMarkers "?doesDisplayPlayerMarkers@MapItem@@SA_NAEBVItemStack@@@Z"
 #define S_MapItemSavedData__tickByBlock "?tickByBlock@MapItemSavedData@@QEAAXAEBVBlockPos@@AEAVBlockSource@@@Z"
 #define S_BlockSource__getBlock "?getBlock@BlockSource@@UEBAAEBVBlock@@AEBVBlockPos@@@Z"
-#define S_FaceDirectionalBlock__getFacingDirection "?getFacingDirection@FaceDirectionalBlock@@SAEAEBVBlock@@_N@Z"
+#define S_Block__getState__AnvilDamage "??$getState@W4AnvilDamage@@@Block@@QEBA?AW4AnvilDamage@@AEBVBlockState@@@Z"
 #define S_Level__tick "?tick@Level@@UEAAXXZ"
 #define S_ServerNetworkHandler___getServerPlayer "?_getServerPlayer@ServerNetworkHandler@@EEAAPEAVServerPlayer@@AEBVNetworkIdentifier@@W4SubClientId@@@Z"
 #define S_Player__getXuid "?getXuid@Player@@UEBA?AV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@XZ"

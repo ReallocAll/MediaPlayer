@@ -137,10 +137,12 @@ SHOOK(MapItemSavedData_tickByBlock, void,
 		SYMCALL(S_BlockSource__getBlock,
 			struct block * (*)(struct block_source *, const struct block_pos *),
 			bs, bl_pos);
+	char buf[24];
+	*(uintptr_t*)&buf[8] = 18;
 	enum direction dire =
-		SYMCALL(S_FaceDirectionalBlock__getFacingDirection,
-			unsigned char (*)(const struct block *, bool),
-			bl, false);
+		SYMCALL(S_Block__getState__AnvilDamage,
+			unsigned char (*)(struct block *this, uintptr_t a2),
+			bl, (uintptr_t)&buf);
 	if (dire == DIRECTION_NEG_Z)
 		reverse_offset = abs(start_pos.x - end_pos.x);
 	else if (dire == DIRECTION_POS_X)
