@@ -1,5 +1,9 @@
 #include <mediaplayer/event_handler.h>
 #include <mediaplayer/config_handler.h>
+#include <mediaplayer/plugin.h>
+#include <mediaplayer/mc/player.h>
+#include <mediaplayer/music_player.h>
+#include <mediaplayer/video_player.h>
 
 extern xr_dynamic_array_info g_player_array_0_info;
 extern xr_dynamic_array_info g_offline_player_array_0_info;

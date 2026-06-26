@@ -1,4 +1,9 @@
 #include <mediaplayer/command.h>
+#include <mediaplayer/music_player.h>
+#include <mediaplayer/video_player.h>
+#include <mediaplayer/file_utils.h>
+#include <mediaplayer/mc/network.h>
+#include <xiziya_r/misc/xr_dynamic_array.h>
 
 extern xr_dynamic_array_info g_player_array_0_info;
 extern struct player_music_info *g_player_array_0;
