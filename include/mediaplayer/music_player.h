@@ -41,10 +41,7 @@ enum music_bar_type {
 };
 
 struct music_note_info {
-    // long long notes;
-    // unsigned long long song_id;
     char song_name[256];
-    unsigned char is_using;
     struct note_queue_node *note_queue_ptr;
     long long time;
 };
@@ -76,10 +73,9 @@ struct music_queue_node {
     char song_name[256];
     struct music_queue_node *prev;
     struct music_queue_node *next;
-    struct music_note_info *note;
 };
 
-char music_player_save_to_file();
+char music_player_save_to_file(void);
 
 struct note_queue_node *generate_note_queue(FILE *fp, time_t *total_time);
 void send_music_sound_packet(void);

@@ -194,11 +194,9 @@ bool music_queue_add(struct player *player, const char *nbs_file_name, int loop,
 
 		node->note_queue_node = g_note_array_0[curr_music_in_arr_pos].note_queue_ptr;
 		node->total_time = g_note_array_0[curr_music_in_arr_pos].time;
-		node->note = &g_note_array_0[curr_music_in_arr_pos];
 	} else {
 		node->note_queue_node = g_note_array_0[music_in_arr_pos].note_queue_ptr;
 		node->total_time = g_note_array_0[music_in_arr_pos].time;
-		node->note = &g_note_array_0[music_in_arr_pos];
 	}
 	
 	node->player = player;

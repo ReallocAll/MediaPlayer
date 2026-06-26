@@ -14,10 +14,6 @@ typedef void* __int128_t;
 #endif
 #endif
 
-struct rgb {
-    unsigned char r, g, b;
-};
-
 struct start_pixel {
     uint32_t x, y;
 };
