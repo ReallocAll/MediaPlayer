@@ -33,9 +33,7 @@ const char *get_player_xuid(struct player *player)
 
 bool is_player_init(struct player *player)
 {
-	if (!player || player_list_get(player) == -1)
-		return false;
-	return true;
+	return player && player_list_get(player) != -1;
 }
 
 
