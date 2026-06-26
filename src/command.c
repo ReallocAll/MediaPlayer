@@ -153,8 +153,13 @@ bool process_cmd(struct player *player, const char *cmd)
     char *cmd_m = strdup(cmd);
     const char *argv[5];
     int argc = 0;
-    char *token = strtok(cmd_m, " ");
+    char *token;
     bool ret = true;
+
+    if (!cmd_m)
+        return true;
+
+    token = strtok(cmd_m, " ");
 
     while (token != NULL && argc < 5) {
         argv[argc++] = token;

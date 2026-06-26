@@ -21,11 +21,13 @@ struct player *get_server_player(struct server_network_handler *handler, uintptr
 const char *get_player_xuid(struct player *player)
 {
 	void *xuid_sstr = NULL;
+	const char *xuid;
+
 	std_string_string(&xuid_sstr, "00000000000000000");
 	SYMCALL(S_Player__getXuid,
 		void *(*)(struct player *, void *),
 		player, xuid_sstr);
-	const char *xuid = strdup(std_string_c_str(xuid_sstr));
+	xuid = strdup(std_string_c_str(xuid_sstr));
 	std_string_destroy(xuid_sstr, true);
 	return xuid;
 }
@@ -52,12 +54,20 @@ int player_list_get(struct player *player)
 void player_list_add(struct player *player)
 {
 	if (g_player_list_size == 0) {
-		g_player_list_size = 1;
 		g_player_list = malloc(sizeof(struct player *));
+		if (!g_player_list)
+			return;
+		g_player_list_size = 1;
 		g_player_list[0] = player;
 	} else {
+		struct player **tmp;
+
+		tmp = realloc(g_player_list,
+			      (g_player_list_size + 1) * sizeof(struct player *));
+		if (!tmp)
+			return;
+		g_player_list = tmp;
 		g_player_list_size++;
-		g_player_list = realloc(g_player_list, g_player_list_size * sizeof(struct player *));
 		g_player_list[g_player_list_size - 1] = player;
 	}
 }
@@ -65,13 +75,27 @@ void player_list_add(struct player *player)
 
 void player_list_delete(struct player *player)
 {
-	if (g_player_list_size == 0) 
+	int i;
+
+	if (g_player_list_size == 0)
 		return;
-	int i = player_list_get(player);
+
+	i = player_list_get(player);
 	if (i != -1) {
+		struct player **tmp;
+
 		g_player_list_size--;
 		g_player_list[i] = g_player_list[g_player_list_size];
 		g_player_list[g_player_list_size] = NULL;
-		g_player_list = realloc(g_player_list, g_player_list_size * sizeof(struct player *));
+
+		if (g_player_list_size > 0) {
+			tmp = realloc(g_player_list,
+				      g_player_list_size * sizeof(struct player *));
+			if (tmp)
+				g_player_list = tmp;
+		} else {
+			free(g_player_list);
+			g_player_list = NULL;
+		}
 	}
 }

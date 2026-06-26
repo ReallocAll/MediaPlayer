@@ -33,9 +33,18 @@ char **get_filenames(const char *directory, int *count)
 	while ((ent = readdir(dir)) != NULL) {
 		if (ent->d_type == DT_REG && ent->d_name[0] != '.') {
 			char *filename = malloc(strlen(ent->d_name) + 1);
+			char **tmp;
+
+			if (!filename)
+				break;
 			strcpy(filename, ent->d_name);
 
-			filenames = realloc(filenames, sizeof(char *) * (i + 1));
+			tmp = realloc(filenames, sizeof(char *) * (i + 1));
+			if (!tmp) {
+				free(filename);
+				break;
+			}
+			filenames = tmp;
 			filenames[i] = filename;
 			i++;
 		}
@@ -66,9 +75,18 @@ char **get_foldernames(const char *directory, int *count)
 	while ((ent = readdir(dir)) != NULL) {
 		if (ent->d_type == DT_DIR && ent->d_name[0] != '.') {
 			char *foldername = malloc(strlen(ent->d_name) + 1);
+			char **tmp;
+
+			if (!foldername)
+				break;
 			strcpy(foldername, ent->d_name);
 
-			foldernames = realloc(foldernames, sizeof(char *) * (i + 1));
+			tmp = realloc(foldernames, sizeof(char *) * (i + 1));
+			if (!tmp) {
+				free(foldername);
+				break;
+			}
+			foldernames = tmp;
 			foldernames[i] = foldername;
 			i++;
 		}
