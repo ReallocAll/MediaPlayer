@@ -84,7 +84,7 @@ char music_player_save_to_file()
 {
 	xr_dynamic_array_info playlist_info;
 	playlist_info.curr_arr_size = g_player_array_0_info.curr_arr_size + g_offline_player_array_0_info.curr_arr_size;
-	playlist_info.singel_value_size = sizeof(struct player_music_info);
+	playlist_info.single_value_size = sizeof(struct player_music_info);
 	playlist_info.start_addr = NULL;
 	
 	char path[4096];
