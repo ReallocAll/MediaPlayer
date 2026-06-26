@@ -32,6 +32,9 @@ struct note_queue_node *generate_note_queue(FILE *fp, time_t *total_time)
 
 		struct nbs_layers *layers_node = layers_head;
 		for (int layer_count = 0; layer_count < notes->layer; layer_count++) {
+			if (layers_node->next == NULL) {
+				break;
+			}
 			layers_node = layers_node->next;
 		}
 
