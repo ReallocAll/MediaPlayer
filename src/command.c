@@ -7,7 +7,7 @@
 
 #define MAX_CMD_ARGC 5
 
-extern music_player_ctx g_music_ctx;
+extern struct music_player_ctx g_music_ctx;
 
 bool proc_mpm_cmd(struct player *player, int argc, const char *argv[], char ***filenames, int *file_count)
 {
@@ -76,7 +76,7 @@ bool proc_mpm_cmd(struct player *player, int argc, const char *argv[], char ***f
             if (g_music_ctx.online_players[player_pos].paused) {
                 g_music_ctx.online_players[player_pos].paused = false;
                 if (arrlen(g_music_ctx.online_players[player_pos].playlist) > 0) {
-                    music_queue_entry_t *entry = &g_music_ctx.online_players[player_pos].playlist[g_music_ctx.online_players[player_pos].current_track];
+                    struct music_queue_entry *entry = &g_music_ctx.online_players[player_pos].playlist[g_music_ctx.online_players[player_pos].current_track];
                     entry->start_time = uv_hrtime() - entry->song->notes[entry->cursor].time * UV_HRT_PER_MS;
                 }
                 send_text_packet(player, TEXT_TYPE_RAW, "§6[MediaPlayer] Success!\n");

@@ -4,7 +4,7 @@
 #include <mediaplayer/music_player.h>
 #include <mediaplayer/video_player.h>
 
-extern music_player_ctx g_music_ctx;
+extern struct music_player_ctx g_music_ctx;
 
 void event_on_server_init_logger(void)
 {
