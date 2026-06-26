@@ -1,7 +1,5 @@
 #include <mediaplayer/file_utils.h>
 
-
-char work_path[4096];
 char data_path[4096];
 char data_path_nbs[4096];
 char data_path_video[4096];

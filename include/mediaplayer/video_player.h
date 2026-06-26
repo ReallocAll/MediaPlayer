@@ -45,5 +45,4 @@ struct screen_pos {
 bool video_queue_add_player(struct player *player, char *video_path, int loop);
 void video_queue_delete_player(struct player *player);
 void play_video(struct video_queue *video_queue_node, struct map_item_saved_data *map_data, struct screen_pos *screen_pos);
-void free_video_queue(void);
 struct video_queue *video_queue_get_player(struct player *player);

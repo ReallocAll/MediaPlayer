@@ -92,6 +92,4 @@ void music_player_query_music_queue(struct player *player);
 void music_player_player_offline(struct player *in_player);
 void music_player_player_online(struct player *in_player);
 
-void free_note_queue(struct note_queue_node *head);
-bool play_with_video(struct player *player, const char *filename, int loop);
 void set_music_bar(struct player *player, struct music_queue_node *node);

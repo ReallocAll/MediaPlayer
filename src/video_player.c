@@ -142,13 +142,6 @@ void play_video(struct video_queue *node, struct map_item_saved_data *map_data, 
     set_pixels(node->image, map_data, &start_pixel, &node->ihdr);
 }
 
-void free_video_queue(void)
-{
-    free(video_queue_array);
-    video_queue_array = NULL;
-    video_queue_size = 0;
-}
-
 struct video_queue *video_queue_get_player(struct player *player)
 {
     if (!player)

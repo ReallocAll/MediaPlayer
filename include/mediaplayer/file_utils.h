@@ -15,7 +15,6 @@
 #include <dirent/dirent.h>
 #endif
 
-extern char work_path[];
 extern char data_path[];
 extern char data_path_nbs[];
 extern char data_path_video[];
