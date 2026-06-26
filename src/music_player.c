@@ -170,6 +170,7 @@ bool music_queue_add(struct player *player, const char *nbs_file_name, int loop,
 	
 	if (node == NULL) {
 		server_logger(LOG_LEVEL_ERR, "Failed to allocate memory for new node.");
+		free(nbs_file_name_new);
 		return false;
 	}
 
@@ -181,6 +182,7 @@ bool music_queue_add(struct player *player, const char *nbs_file_name, int loop,
 		FILE *fp = fopen(nbs_path, "rb");
 		if (!fp) {
 			free(node);
+			free(nbs_file_name_new);
 			return false;
 		}
 		struct note_queue_node *node_head = generate_note_queue(fp, &g_note_array_0[curr_music_in_arr_pos].time);
