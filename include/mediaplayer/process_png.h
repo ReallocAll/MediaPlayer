@@ -24,7 +24,7 @@ struct start_pixel {
 
 // get the pixels from a png file
 // please use free() to free the returned pointer after use
-void get_pixels(FILE *png, struct spng_ihdr *ihdr,
+bool get_pixels(FILE *png, struct spng_ihdr *ihdr,
                 unsigned char *image, bool get_ihdr);
 
 // copy 128 pixels from image to map line by line
