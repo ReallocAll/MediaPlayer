@@ -253,6 +253,7 @@ bool music_queue_del(struct player *player, unsigned long long in_pos)
 			g_player_array_0[pos].music_queue_node = current_node;
 			free(temp_current_node);
 		} else {
+			free((char *)g_player_array_0[pos].player_xuid);
 			dynarray_op(&g_player_array_0_info, (void **)&g_player_array_0, pos, DYNARRAY_DEL);
 			send_boss_event_packet(player, "", 0, BOSS_BAR_HIDE);
 		}
@@ -387,8 +388,8 @@ void send_music_sound_packet(void)
 				node->start_time = uv_hrtime() + 3000;
 			} else {
 				music_queue_del(node->player, 0);
-				if (find_player_in_array(g_player_array_0, g_player_array_0_info.curr_arr_size, cur_player) != -1)
-					g_player_array_0[player_pos_in_array].music_queue_node->start_time = uv_hrtime() + 1000000000;
+				player_pos_in_array--;
+				continue;
 			}
 		}
 	}
