@@ -59,7 +59,6 @@ struct player_music_info {
 };
 
 struct note_queue_node {
-    // time_t time; //what the fuck!!!!!!!!!!!!!!!!!!!!!!!!!!!
     long long time;
     int instrument;
     float volume;

@@ -25,8 +25,8 @@ typedef uint64_t __uint64_t;
 
 #define UV_HRT_PER_MS ((__int64_t) 1000000)
 
-static struct block_pos start_pos  = {INT_MAX, INT_MIN, INT_MAX};
-static struct block_pos end_pos = {INT_MIN, INT_MAX, INT_MIN};
+extern struct block_pos start_pos;
+extern struct block_pos end_pos;
 
 
 struct video_queue {

@@ -1,5 +1,8 @@
 #include <mediaplayer/video_player.h>
 
+struct block_pos start_pos = {INT_MAX, INT_MIN, INT_MAX};
+struct block_pos end_pos = {INT_MIN, INT_MAX, INT_MIN};
+
 struct video_queue *video_queue_array = NULL;
 int video_queue_size = 0;
 
