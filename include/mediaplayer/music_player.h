@@ -47,14 +47,6 @@ struct music_note_info {
     long long time;
 };
 
-struct player_music_info {
-    struct player *player;
-    const char *player_xuid;
-    int64_t music_num;
-    char paused;
-    struct music_queue_node *music_queue_node;
-};
-
 struct note_queue_node {
     long long time;
     int instrument;
@@ -76,21 +68,56 @@ struct music_queue_node {
     struct music_queue_node *next;
 };
 
+/* ---- Phase 4: new data structures ---- */
+
+/* A single note, stored in a flat array (no linked list overhead). */
+typedef struct {
+    long long time;
+    int     instrument;
+    float   volume;
+    float   pitch;
+} note_t;
+
+/* A parsed song cache entry, shared by all players playing the same song. */
+typedef struct {
+    char     song_name[256];
+    note_t  *notes;       /* stb_ds array of note_t */
+    time_t   duration_ms; /* total duration in milliseconds */
+} song_cache_entry_t;
+
+/* One track in a player's playlist. */
+typedef struct {
+    song_cache_entry_t *song;    /* pointer into g_song_cache */
+    size_t              cursor;  /* index into song->notes */
+    time_t              start_time;
+    int                 loop;
+    enum music_bar_type bar_type;
+} music_queue_entry_t;
+
+/* Per-player music state. */
+typedef struct {
+    struct player           *player;
+    char                    *player_xuid;  /* strdup'd XUID */
+    music_queue_entry_t     *playlist;     /* stb_ds array */
+    size_t                   current_track;
+    bool                     paused;
+} player_music_t;
+
 char music_player_save_to_file(void);
 
-struct note_queue_node *generate_note_queue(FILE *fp, time_t *total_time);
+song_cache_entry_t *song_cache_parse(FILE *fp, const char *song_name);
 void send_music_sound_packet(void);
 
-long long find_player_in_array(struct player_music_info *arr, struct player *in_player);
-long long find_player_in_array_by_xuid(struct player_music_info *arr, const char *in_xuid);
+long long player_music_find(player_music_t *arr, struct player *in_player);
+long long player_music_find_by_xuid(player_music_t *arr, const char *in_xuid);
 
-bool music_queue_add(struct player *player, const char *nbs_file_name, int loop, enum music_bar_type music_bar_type);
-bool music_queue_del(struct player *player, unsigned long long in_pos);
-void music_queue_del_all(struct player *player);
+bool player_music_enqueue(struct player *player, const char *nbs_file_name, int loop, enum music_bar_type music_bar_type);
+bool player_music_dequeue(struct player *player, size_t index);
+void player_music_stop(struct player *player);
 
 void music_player_query_music_queue(struct player *player);
 
 void music_player_player_offline(struct player *in_player);
 void music_player_player_online(struct player *in_player);
 
-void set_music_bar(struct player *player, struct music_queue_node *node);
+void set_music_bar_entry(struct player *player, music_queue_entry_t *entry);

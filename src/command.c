@@ -7,7 +7,7 @@
 
 #define MAX_CMD_ARGC 5
 
-extern struct player_music_info *g_player_arr;
+extern player_music_t *g_player_arr;
 
 bool proc_mpm_cmd(struct player *player, int argc, const char *argv[], char ***filenames, int *file_count)
 {
@@ -52,7 +52,7 @@ bool proc_mpm_cmd(struct player *player, int argc, const char *argv[], char ***f
         if (argc == 5)
             music_bar_type = atoi(argv[4]);
         if (file_index >= 0 && file_index < *file_count) {
-            if (music_queue_add(player, (*filenames)[file_index], loop, music_bar_type)) {
+            if (player_music_enqueue(player, (*filenames)[file_index], loop, music_bar_type)) {
                 char msg[4096];
                 sprintf(msg, "§a[MediaPlayer] Added music§b %s §ato playlist.\n", (*filenames)[file_index]);
                 send_text_packet(player, TEXT_TYPE_RAW, msg);
@@ -60,29 +60,32 @@ bool proc_mpm_cmd(struct player *player, int argc, const char *argv[], char ***f
             }
         }
     } else if (strcmp(argv[1], "pause") == 0 && argc == 2) {
-        long long player_pos = find_player_in_array(g_player_arr, player);
+        long long player_pos = player_music_find(g_player_arr, player);
         
         if (player_pos != -1) {
             if (!g_player_arr[player_pos].paused) {
-                g_player_arr[player_pos].paused = 1;
+                g_player_arr[player_pos].paused = true;
                 send_text_packet(player, TEXT_TYPE_RAW, "§6[MediaPlayer] Success!\n");
             } else send_text_packet(player, TEXT_TYPE_RAW, "§6[MediaPlayer] Unsuccess!\n");
         } else send_text_packet(player, TEXT_TYPE_RAW, "§6[MediaPlayer] Playlist empty!\n");
         return false;
     } else if (strcmp(argv[1], "continue") == 0 && argc == 2) {
-        long long player_pos = find_player_in_array(g_player_arr, player);
+        long long player_pos = player_music_find(g_player_arr, player);
 
         if (player_pos != -1) {
             if (g_player_arr[player_pos].paused) {
-                g_player_arr[player_pos].paused = 0;
-                g_player_arr[player_pos].music_queue_node->start_time = uv_hrtime() - g_player_arr[player_pos].music_queue_node->note_queue_node->time * UV_HRT_PER_MS;
+                g_player_arr[player_pos].paused = false;
+                if (arrlen(g_player_arr[player_pos].playlist) > 0) {
+                    music_queue_entry_t *entry = &g_player_arr[player_pos].playlist[g_player_arr[player_pos].current_track];
+                    entry->start_time = uv_hrtime() - entry->song->notes[entry->cursor].time * UV_HRT_PER_MS;
+                }
                 send_text_packet(player, TEXT_TYPE_RAW, "§6[MediaPlayer] Success!\n");
             } else send_text_packet(player, TEXT_TYPE_RAW, "§6[MediaPlayer] Unsuccess!\n");
         } else send_text_packet(player, TEXT_TYPE_RAW, "§6[MediaPlayer] Playlist empty!\n");
         return false;
     } else if (strcmp(argv[1], "del") == 0 && argc == 3) {
-        if (find_player_in_array(g_player_arr, player) != -1) {
-            if (music_queue_del(player, atoi(argv[2])))
+        if (player_music_find(g_player_arr, player) != -1) {
+            if (player_music_dequeue(player, (size_t)atoi(argv[2])))
                 send_text_packet(player, TEXT_TYPE_RAW, "§6[MediaPlayer] Delete success!\n");
             else
                 send_text_packet(player, TEXT_TYPE_RAW, "§6[MediaPlayer] Delete failed!\n");
@@ -90,7 +93,7 @@ bool proc_mpm_cmd(struct player *player, int argc, const char *argv[], char ***f
         return false;
     } else if (strcmp(argv[1], "stop") == 0 && argc == 2) {
         send_text_packet(player, TEXT_TYPE_RAW, "§a[MediaPlayer] Stopped.\n");
-        music_queue_del_all(player);
+        player_music_stop(player);
         return false;
     } else if (!strcmp(argv[1], "savetofile") && argc == 2) {
         return !music_player_save_to_file();

@@ -4,9 +4,8 @@
 #include <mediaplayer/music_player.h>
 #include <mediaplayer/video_player.h>
 
-extern struct player_music_info *g_player_arr;
-extern struct player_music_info *g_offline_player_arr;
-extern struct music_note_info *g_note_arr;
+extern player_music_t *g_player_arr;
+extern player_music_t *g_offline_player_arr;
 
 void event_on_server_init_logger(void)
 {
