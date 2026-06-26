@@ -1,9 +1,10 @@
 ﻿cmake_minimum_required(VERSION 3.29)
 
-project(MediaPlayer)
+project(MediaPlayer LANGUAGES C)
 
 set(CMAKE_C_STANDARD 11)
-set(CMAKE_PREFIX_PATH .)
+set(CMAKE_C_STANDARD_REQUIRED ON)
+set(CMAKE_C_EXTENSIONS ON)
 
 file(GLOB_RECURSE SRC_FILES_DIR
     ${PROJECT_SOURCE_DIR}/include/libspng/*.c
@@ -14,31 +15,31 @@ file(GLOB_RECURSE SRC_FILES_DIR
     ${PROJECT_SOURCE_DIR}/include/miniz/*.c
 )
 
-include_directories(
+add_library(MediaPlayer SHARED ${SRC_FILES_DIR})
+set_target_properties(MediaPlayer PROPERTIES OUTPUT_NAME "MediaPlayer")
+
+target_include_directories(MediaPlayer PRIVATE
     ${CMAKE_SOURCE_DIR}/include/
     ${CMAKE_SOURCE_DIR}/include/libuv
     ${CMAKE_SOURCE_DIR}/include/ffmpeg-5.1.2
 )
 
-link_directories(
+target_link_directories(MediaPlayer PRIVATE
     ${CMAKE_SOURCE_DIR}/lib
 )
 
-add_definitions(
-    -DPLUGIN_VERSION_UNDEFINED
-    -DPLUGIN_ENVIRONMENT
-    -DSPNG_STATIC
+target_compile_definitions(MediaPlayer PRIVATE
+    PLUGIN_VERSION_UNDEFINED
+    PLUGIN_ENVIRONMENT
+    SPNG_STATIC
 )
 
-add_library(MediaPlayer SHARED ${SRC_FILES_DIR})
-set_target_properties(MediaPlayer PROPERTIES OUTPUT_NAME "MediaPlayer")
-
 if (CMAKE_SYSTEM_NAME MATCHES "Linux")
-    add_definitions(
-        -D_GNU_SOURCE
+    target_compile_definitions(MediaPlayer PRIVATE
+        _GNU_SOURCE
     )
     find_package(ModLoader REQUIRED)
-    target_link_libraries(MediaPlayer 
+    target_link_libraries(MediaPlayer
         "${CMAKE_SOURCE_DIR}/lib/libserver_modloader.so"
         "${CMAKE_SOURCE_DIR}/lib/libuv.so"
         "${CMAKE_SOURCE_DIR}/lib/libcutils.a"
@@ -46,35 +47,21 @@ if (CMAKE_SYSTEM_NAME MATCHES "Linux")
     install(TARGETS MediaPlayer DESTINATION mods)
 
 elseif (CMAKE_SYSTEM_NAME MATCHES "Windows")
-    project(convert)
-    add_executable(convert ${PROJECT_SOURCE_DIR}/tools/convert.c)
-    add_definitions(
-        -D"_CRT_SECURE_NO_WARNINGS"
-        -DWIN32_LEAN_AND_MEAN
+    target_compile_definitions(MediaPlayer PRIVATE
+        _CRT_SECURE_NO_WARNINGS
+        WIN32_LEAN_AND_MEAN
     )
-    add_compile_options(
-        /diagnostics:column
-        /FC
-        /GL
-        /nologo
-        /permissive-
-        /sdl
-        /utf-8
-        /Zi
+    set_target_properties(MediaPlayer PROPERTIES
+        LINK_FLAGS "-Xlinker /NODEFAULTLIB:MSVCRTD"
     )
-    add_link_options(
-        /LTCG
-        /INCREMENTAL:NO
-    )
-    set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -Xlinker /NODEFAULTLIB:MSVCRTD")
-    target_link_libraries(MediaPlayer 
-    "${CMAKE_SOURCE_DIR}/lib/libuv.lib"
-    "${CMAKE_SOURCE_DIR}/lib/cutils.lib"
-    "ws2_32.lib"
-    "Iphlpapi.lib"
-    "dbghelp.lib"
-    "userenv.lib"
-    "lightbase.lib"
+    target_link_libraries(MediaPlayer
+        "${CMAKE_SOURCE_DIR}/lib/libuv.lib"
+        "${CMAKE_SOURCE_DIR}/lib/cutils.lib"
+        ws2_32
+        Iphlpapi
+        dbghelp
+        userenv
+        lightbase
     )
     install(TARGETS MediaPlayer DESTINATION plugins)
 endif()
