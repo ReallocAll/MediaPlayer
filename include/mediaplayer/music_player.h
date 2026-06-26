@@ -41,34 +41,7 @@ enum music_bar_type {
     MUSIC_BAR_TYPE_ACTION_BAR_TIP
 };
 
-struct music_note_info {
-    char song_name[256];
-    struct note_queue_node *note_queue_ptr;
-    long long time;
-};
-
-struct note_queue_node {
-    long long time;
-    int instrument;
-    float volume;
-    float pitch;
-    struct note_queue_node *next;
-};
-
-struct music_queue_node {
-    struct player *player;
-    struct note_queue_node *note_queue_node;
-    struct note_queue_node *note_queue_node_start;
-    time_t start_time;
-    time_t total_time;
-    int loop;
-    enum music_bar_type music_bar_type;
-    char song_name[256];
-    struct music_queue_node *prev;
-    struct music_queue_node *next;
-};
-
-/* ---- Phase 4: new data structures ---- */
+/* ---- Data structures ---- */
 
 /* A single note, stored in a flat array (no linked list overhead). */
 typedef struct {
