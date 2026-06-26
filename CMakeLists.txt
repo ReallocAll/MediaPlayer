@@ -21,7 +21,6 @@ set_target_properties(MediaPlayer PROPERTIES OUTPUT_NAME "MediaPlayer")
 target_include_directories(MediaPlayer PRIVATE
     ${CMAKE_SOURCE_DIR}/include/
     ${CMAKE_SOURCE_DIR}/include/libuv
-    ${CMAKE_SOURCE_DIR}/include/ffmpeg-5.1.2
 )
 
 target_link_directories(MediaPlayer PRIVATE
