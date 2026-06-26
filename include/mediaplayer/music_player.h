@@ -3,6 +3,7 @@
 #include <nbsparser/nbsparser.h>
 #include <math.h>
 #include <time.h>
+#include <stdint.h>
 #include "logger.h"
 #include "file_utils.h"
 #include "video_player.h"
@@ -49,7 +50,7 @@ struct music_note_info {
 struct player_music_info {
     struct player *player;
     const char *player_xuid;
-    __int64_t music_num;
+    int64_t music_num;
     char paused;
     struct music_queue_node *music_queue_node;
 };

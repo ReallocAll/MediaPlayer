@@ -14,13 +14,7 @@
 #include "mc/player.h"
 #include "mc/level.h"
 
-#ifndef __linux__
-#if !defined(__UINT64_TYPE__) && !defined(__SIZEOF_INT128__)
-typedef uint64_t __uint64_t;
-#endif
-#endif
-
-#define UV_HRT_PER_MS ((__int64_t) 1000000)
+#define UV_HRT_PER_MS ((int64_t) 1000000)
 
 extern struct block_pos start_pos;
 extern struct block_pos end_pos;

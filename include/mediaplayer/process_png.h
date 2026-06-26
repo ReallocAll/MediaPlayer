@@ -3,11 +3,13 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
+#include <stdint.h>
 #include <libcutils/libcutils.h>
 #include <libspng/spng.h>
 #include "mc/structs.h"
 
 #ifndef __linux__
+/* MSVC ABI compatibility types for reverse-engineered struct layouts */
 typedef int64_t __int64_t;
 #if !defined(__SIZEOF_INT128__)
 typedef void* __int128_t;
