@@ -1,10 +1,10 @@
 #include <mediaplayer/video_player.h>
+#include <stb/stb_ds.h>
 
 struct block_pos start_pos = {INT_MAX, INT_MIN, INT_MAX};
 struct block_pos end_pos = {INT_MIN, INT_MAX, INT_MIN};
 
-struct video_queue *video_queue_array = NULL;
-int video_queue_size = 0;
+static struct video_queue *g_video_queues = NULL;
 
 void get_video_frame(void *arg)
 {
@@ -59,36 +59,29 @@ void get_video_frame(void *arg)
 
 bool video_queue_add_player(struct player *player, char *video_path, int loop)
 {
-    struct video_queue *new_array;
+    struct video_queue node;
     int total_frames;
     char **filenames;
 
     video_queue_delete_player(player);
 
-    new_array = realloc(video_queue_array,
-                        (video_queue_size + 1) * sizeof(struct video_queue));
-    if (!new_array) {
-        server_logger(LOG_LEVEL_ERR, "Failed to allocate memory for new node.");
-        return false;
-    }
-    video_queue_array = new_array;
-
-    struct video_queue *node = &video_queue_array[video_queue_size++];
-
     filenames = get_filenames(video_path, &total_frames);
     free_filenames(filenames, total_frames);
 
-    node->player = player;
-    node->start_time = uv_hrtime();
-    strncpy(node->video_path, video_path, sizeof(node->video_path));
-    node->total_frames = total_frames;
-    node->current_frame = 1;
-    node->loop = loop;
-    node->image = NULL;
-    node->deleted = false;
+    memset(&node, 0, sizeof(node));
+    node.player = player;
+    node.start_time = uv_hrtime();
+    strncpy(node.video_path, video_path, sizeof(node.video_path));
+    node.total_frames = total_frames;
+    node.current_frame = 1;
+    node.loop = loop;
+    node.image = NULL;
+    node.deleted = false;
+    arrput(g_video_queues, node);
 
+    struct video_queue *new_node = &g_video_queues[arrlen(g_video_queues) - 1];
     uv_thread_t tid;
-    uv_thread_create(&tid, get_video_frame, (void *)node);
+    uv_thread_create(&tid, get_video_frame, (void *)new_node);
 
     return true;
 }
@@ -106,20 +99,12 @@ void reset_screen_pos(void)
 void video_queue_delete_player(struct player *player)
 {
     reset_screen_pos();
-    for (int i = 0; i < video_queue_size; i++) {
-        if (video_queue_array[i].player == player) {
-            struct video_queue *new_array;
-
-            video_queue_array[i].deleted = true;
+    int len = (int)arrlen(g_video_queues);
+    for (int i = 0; i < len; i++) {
+        if (g_video_queues[i].player == player) {
+            g_video_queues[i].deleted = true;
             uv_sleep(10);
-            for (int j = i; j < video_queue_size - 1; j++)
-                video_queue_array[j] = video_queue_array[j + 1];
-
-            new_array = realloc(video_queue_array,
-                                (video_queue_size - 1) * sizeof(struct video_queue));
-            if (new_array || video_queue_size - 1 == 0)
-                video_queue_array = new_array;
-            video_queue_size--;
+            arrdel(g_video_queues, i);
             return;
         }
     }
@@ -144,11 +129,15 @@ void play_video(struct video_queue *node, struct map_item_saved_data *map_data, 
 
 struct video_queue *video_queue_get_player(struct player *player)
 {
-    if (!player)
-        return video_queue_array;
-    for (int i = 0; i < video_queue_size; i++) {
-        if (video_queue_array[i].player == player)
-            return &video_queue_array[i];
+    if (!player) {
+        if (arrlen(g_video_queues) > 0)
+            return &g_video_queues[0];
+        return NULL;
+    }
+    int len = (int)arrlen(g_video_queues);
+    for (int i = 0; i < len; i++) {
+        if (g_video_queues[i].player == player)
+            return &g_video_queues[i];
     }
     return NULL;
 }

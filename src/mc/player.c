@@ -1,8 +1,8 @@
 #include <mediaplayer/mc/player.h>
+#include <stb/stb_ds.h>
 
 
-struct player *(*g_player_list) = NULL;
-int g_player_list_size = 0;
+struct player **g_player_list = NULL;
 
 
 struct player *get_server_player(struct server_network_handler *handler, uintptr_t id, uintptr_t pkt)
@@ -41,9 +41,8 @@ bool is_player_init(struct player *player)
 
 int player_list_get(struct player *player)
 {
-	if (g_player_list_size == 0)
-		return -1;
-	for (int i = 0; i < g_player_list_size; i++) {
+	int len = (int)arrlen(g_player_list);
+	for (int i = 0; i < len; i++) {
 		if (g_player_list[i] == player)
 			return i;
 	}
@@ -53,49 +52,13 @@ int player_list_get(struct player *player)
 
 void player_list_add(struct player *player)
 {
-	if (g_player_list_size == 0) {
-		g_player_list = malloc(sizeof(struct player *));
-		if (!g_player_list)
-			return;
-		g_player_list_size = 1;
-		g_player_list[0] = player;
-	} else {
-		struct player **tmp;
-
-		tmp = realloc(g_player_list,
-			      (g_player_list_size + 1) * sizeof(struct player *));
-		if (!tmp)
-			return;
-		g_player_list = tmp;
-		g_player_list_size++;
-		g_player_list[g_player_list_size - 1] = player;
-	}
+	arrput(g_player_list, player);
 }
 
 
 void player_list_delete(struct player *player)
 {
-	int i;
-
-	if (g_player_list_size == 0)
-		return;
-
-	i = player_list_get(player);
-	if (i != -1) {
-		struct player **tmp;
-
-		g_player_list_size--;
-		g_player_list[i] = g_player_list[g_player_list_size];
-		g_player_list[g_player_list_size] = NULL;
-
-		if (g_player_list_size > 0) {
-			tmp = realloc(g_player_list,
-				      g_player_list_size * sizeof(struct player *));
-			if (tmp)
-				g_player_list = tmp;
-		} else {
-			free(g_player_list);
-			g_player_list = NULL;
-		}
-	}
+	int i = player_list_get(player);
+	if (i != -1)
+		arrdelswap(g_player_list, i);
 }

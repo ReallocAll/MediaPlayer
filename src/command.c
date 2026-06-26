@@ -3,12 +3,11 @@
 #include <mediaplayer/video_player.h>
 #include <mediaplayer/file_utils.h>
 #include <mediaplayer/mc/network.h>
-#include <dynarray/dynarray.h>
+#include <stb/stb_ds.h>
 
 #define MAX_CMD_ARGC 5
 
-extern dynarray_t g_player_array_0_info;
-extern struct player_music_info *g_player_array_0;
+extern struct player_music_info *g_player_arr;
 
 bool proc_mpm_cmd(struct player *player, int argc, const char *argv[], char ***filenames, int *file_count)
 {
@@ -61,28 +60,28 @@ bool proc_mpm_cmd(struct player *player, int argc, const char *argv[], char ***f
             }
         }
     } else if (strcmp(argv[1], "pause") == 0 && argc == 2) {
-        long long player_pos_in_array = find_player_in_array(g_player_array_0, g_player_array_0_info.curr_arr_size, player);
+        long long player_pos = find_player_in_array(g_player_arr, player);
         
-        if (player_pos_in_array != -1) {
-            if (!g_player_array_0[player_pos_in_array].paused) {
-                g_player_array_0[player_pos_in_array].paused = 1;
+        if (player_pos != -1) {
+            if (!g_player_arr[player_pos].paused) {
+                g_player_arr[player_pos].paused = 1;
                 send_text_packet(player, TEXT_TYPE_RAW, "§6[MediaPlayer] Success!\n");
             } else send_text_packet(player, TEXT_TYPE_RAW, "§6[MediaPlayer] Unsuccess!\n");
         } else send_text_packet(player, TEXT_TYPE_RAW, "§6[MediaPlayer] Playlist empty!\n");
         return false;
     } else if (strcmp(argv[1], "continue") == 0 && argc == 2) {
-        long long player_pos_in_array = find_player_in_array(g_player_array_0, g_player_array_0_info.curr_arr_size, player);
+        long long player_pos = find_player_in_array(g_player_arr, player);
 
-        if (player_pos_in_array != -1) {
-            if (g_player_array_0[player_pos_in_array].paused) {
-                g_player_array_0[player_pos_in_array].paused = 0;
-                g_player_array_0[player_pos_in_array].music_queue_node->start_time = uv_hrtime() - g_player_array_0[player_pos_in_array].music_queue_node->note_queue_node->time * UV_HRT_PER_MS;
+        if (player_pos != -1) {
+            if (g_player_arr[player_pos].paused) {
+                g_player_arr[player_pos].paused = 0;
+                g_player_arr[player_pos].music_queue_node->start_time = uv_hrtime() - g_player_arr[player_pos].music_queue_node->note_queue_node->time * UV_HRT_PER_MS;
                 send_text_packet(player, TEXT_TYPE_RAW, "§6[MediaPlayer] Success!\n");
             } else send_text_packet(player, TEXT_TYPE_RAW, "§6[MediaPlayer] Unsuccess!\n");
         } else send_text_packet(player, TEXT_TYPE_RAW, "§6[MediaPlayer] Playlist empty!\n");
         return false;
     } else if (strcmp(argv[1], "del") == 0 && argc == 3) {
-        if (find_player_in_array(g_player_array_0, g_player_array_0_info.curr_arr_size, player) != -1) {
+        if (find_player_in_array(g_player_arr, player) != -1) {
             if (music_queue_del(player, atoi(argv[2])))
                 send_text_packet(player, TEXT_TYPE_RAW, "§6[MediaPlayer] Delete success!\n");
             else
