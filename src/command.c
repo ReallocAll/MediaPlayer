@@ -164,9 +164,9 @@ bool process_cmd(struct player *player, const char *cmd)
 
     token = strtok(cmd_m, " ");
 
-    while (token != NULL && argc < MAX_CMD_ARGC) {
+    while (token != nullptr && argc < MAX_CMD_ARGC) {
         argv[argc++] = token;
-        token = strtok(NULL, " ");
+        token = strtok(nullptr, " ");
     }
 
     if (argc == 0) {
@@ -175,13 +175,13 @@ bool process_cmd(struct player *player, const char *cmd)
     }
 
     if (strcmp(argv[0], "/mpm") == 0) {
-        char **filenames = NULL;
+        char **filenames = nullptr;
         int file_count = 0;
         ret = proc_mpm_cmd(player, argc, argv, &filenames, &file_count);
         if (file_count > 0)
             free_filenames(filenames, file_count);
     } else if (strcmp(argv[0], "/mpv") == 0) {
-        char **foldernames = NULL;
+        char **foldernames = nullptr;
         int folder_count = 0;
         ret = proc_mpv_cmd(player, argc, argv, &foldernames, &folder_count);
         if (folder_count > 0)

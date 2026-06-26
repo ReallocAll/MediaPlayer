@@ -11,12 +11,12 @@ struct song_cache_entry *song_cache_parse(FILE *fp, const char *song_name)
 {
 	struct nbs_song *nbs = nbs_parse(fp);
 	if (!nbs)
-		return NULL;
+		return nullptr;
 
 	struct song_cache_entry entry;
 	memset(&entry, 0, sizeof(entry));
 	strncpy(entry.song_name, song_name, sizeof(entry.song_name) - 1);
-	entry.notes = NULL;
+	entry.notes = nullptr;
 
 	float time_per_tick = (float)(20.0f / nbs->tempo * 50.0f);
 	int note_count = (int)arrlen(nbs->notes);
@@ -28,7 +28,7 @@ struct song_cache_entry *song_cache_parse(FILE *fp, const char *song_name)
 
 		// Find layer by index
 		int layer_idx = nn->layer;
-		struct nbs_layer *layer = (layer_idx < layer_count) ? &nbs->layers[layer_idx] : NULL;
+		struct nbs_layer *layer = (layer_idx < layer_count) ? &nbs->layers[layer_idx] : nullptr;
 
 		// Find instrument pitch
 		int instrument_pitch = 45;
@@ -144,7 +144,7 @@ bool player_music_enqueue(struct player *player, const char *nbs_file_name, int 
 		memset(&pm, 0, sizeof(pm));
 		pm.player = player;
 		pm.player_xuid = (char *)get_player_xuid(player);
-		pm.playlist = NULL;
+		pm.playlist = nullptr;
 		pm.paused = false;
 		arrput(pm.playlist, entry);
 		pm.current_track = 0;

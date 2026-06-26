@@ -8,7 +8,7 @@ extern "C" {
 /*
  * std::string::basic_string(const char *c_str)
  * 
- * void *sstr = NULL;
+ * void *sstr = nullptr;
  * std_string_string(&sstr, "example");
  */
 void std_string_string(void **sstr, const char *c_str);

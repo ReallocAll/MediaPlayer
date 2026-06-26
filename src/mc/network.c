@@ -22,7 +22,7 @@ void send_play_sound_packet(struct player *player, const char *sound_name,
 			 				struct vec3 *pos, float volume, float pitch)
 {
 	uintptr_t pkt = create_packet(PKT_ID_PLAY_SOUND);
-	void *sound_name_sstr = NULL;
+	void *sound_name_sstr = nullptr;
 	std_string_string(&sound_name_sstr, sound_name);
 	
 	SYMCALL(SC_PlaySoundPacket__PlaySoundPacket,
@@ -36,10 +36,10 @@ void send_play_sound_packet(struct player *player, const char *sound_name,
 
 uintptr_t create_text_packet(enum text_type type, struct player *player, const char *msg)
 {
-	void *author = NULL;
-	void *message = NULL;
-	void *xuid = NULL;
-	void *platform_id = NULL;
+	void *author = nullptr;
+	void *message = nullptr;
+	void *xuid = nullptr;
+	void *platform_id = nullptr;
 	std_string_string(&author, get_name_tag((struct actor *)player));
 	std_string_string(&message, msg);
 	std_string_string(&xuid, get_player_xuid(player));
@@ -71,7 +71,7 @@ void send_boss_event_packet(struct player *player, const char *name,
 {
 	uintptr_t pkt = create_packet(PKT_ID_BOSS_EVENT);
 	uintptr_t unique_id = DEREFERENCE(uintptr_t, get_or_create_unique_id((struct actor *)player), 0);
-	void *name_sstr = NULL;
+	void *name_sstr = nullptr;
 	std_string_string(&name_sstr, name);
 	DEREFERENCE(uintptr_t, pkt, BOSSPKT_ENTITY_ID_OFFSET) = unique_id;
 	DEREFERENCE(int, pkt, BOSSPKT_EVENT_TYPE_OFFSET) = type;

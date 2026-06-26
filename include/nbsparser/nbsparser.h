@@ -2,7 +2,6 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
-#include <stdbool.h>
 
 // A single note from the NBS file.
 struct nbs_note {
@@ -69,7 +68,7 @@ extern "C" {
 #endif
 
 // Parse an entire NBS file into a single nbs_song struct.
-// Returns NULL on failure.
+// Returns nullptr on failure.
 // After use, call nbs_free() to release all memory.
 struct nbs_song *nbs_parse(FILE *fp);
 

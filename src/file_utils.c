@@ -9,7 +9,7 @@ void make_directory(const char *directory)
 	#ifdef __linux__
 	mkdir(directory, S_IRWXU | S_IRWXG | S_IROTH);
 	#else
-	CreateDirectoryA(directory, NULL);
+	CreateDirectoryA(directory, nullptr);
 	#endif
 }
 
@@ -19,16 +19,16 @@ char **get_filenames(const char *directory, int *count)
 	DIR *dir;
 	struct dirent *ent;
 	int i = 0;
-	char **filenames = NULL;
+	char **filenames = nullptr;
 
 	dir = opendir(directory);
-	if (dir == NULL) {
+	if (dir == nullptr) {
 		make_directory(directory);
 		*count = 0;
 		return filenames;
 	}
 
-	while ((ent = readdir(dir)) != NULL) {
+	while ((ent = readdir(dir)) != nullptr) {
 		if (ent->d_type == DT_REG && ent->d_name[0] != '.') {
 			char *filename = malloc(strlen(ent->d_name) + 1);
 			char **tmp;
@@ -61,16 +61,16 @@ char **get_foldernames(const char *directory, int *count)
 	DIR *dir;
 	struct dirent *ent;
 	int i = 0;
-	char **foldernames = NULL;
+	char **foldernames = nullptr;
 
 	dir = opendir(directory);
-	if (dir == NULL) {
+	if (dir == nullptr) {
 		make_directory(directory);
 		*count = 0;
 		return foldernames;
 	}
 
-	while ((ent = readdir(dir)) != NULL) {
+	while ((ent = readdir(dir)) != nullptr) {
 		if (ent->d_type == DT_DIR && ent->d_name[0] != '.') {
 			char *foldername = malloc(strlen(ent->d_name) + 1);
 			char **tmp;

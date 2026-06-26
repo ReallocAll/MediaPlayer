@@ -2,7 +2,7 @@
 #include <stb/stb_ds.h>
 
 
-struct player **g_player_list = NULL;
+struct player **g_player_list = nullptr;
 
 
 struct player *get_server_player(struct server_network_handler *handler, uintptr_t id, uintptr_t pkt)
@@ -20,7 +20,7 @@ struct player *get_server_player(struct server_network_handler *handler, uintptr
 
 const char *get_player_xuid(struct player *player)
 {
-	void *xuid_sstr = NULL;
+	void *xuid_sstr = nullptr;
 	const char *xuid;
 
 	std_string_string(&xuid_sstr, "00000000000000000");

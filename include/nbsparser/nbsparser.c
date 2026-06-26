@@ -78,7 +78,7 @@ static void parse_notes(FILE *fp, struct nbs_song *song)
     int current_layer = -1;
     ushort jump;
 
-    song->notes = NULL;
+    song->notes = nullptr;
 
     while (true) {
         fread(&jump, sizeof(ushort), 1, fp);
@@ -123,7 +123,7 @@ static void parse_notes(FILE *fp, struct nbs_song *song)
 
 static void parse_layers(FILE *fp, struct nbs_song *song)
 {
-    song->layers = NULL;
+    song->layers = nullptr;
 
     for (int i = 0; i < song->song_layers; i++) {
         struct nbs_layer layer;
@@ -151,7 +151,7 @@ static void parse_layers(FILE *fp, struct nbs_song *song)
 
 static void parse_instruments(FILE *fp, struct nbs_song *song)
 {
-    song->instruments = NULL;
+    song->instruments = nullptr;
 
     uchar instrument_count;
     fread(&instrument_count, sizeof(uchar), 1, fp);
@@ -176,7 +176,7 @@ struct nbs_song *nbs_parse(FILE *fp)
 {
     struct nbs_song *song = (struct nbs_song *)calloc(1, sizeof(struct nbs_song));
     if (!song)
-        return NULL;
+        return nullptr;
 
     parse_header(fp, song);
     parse_notes(fp, song);

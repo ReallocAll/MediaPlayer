@@ -73,8 +73,8 @@ SHOOK(change_setting_command_setup, void,
       S_ChangeSettingCommand__setup,
       uintptr_t this)
 {
-	void *cmd_mpm = NULL;
-	void *cmd_mpv = NULL;
+	void *cmd_mpm = nullptr;
+	void *cmd_mpv = nullptr;
 	std_string_string(&cmd_mpm, "mpm");
 	std_string_string(&cmd_mpv, "mpv");
 	SYMCALL(S_CommandRegistry__registerCommand,
@@ -143,7 +143,7 @@ SHOOK(MapItemSavedData_tickByBlock, void,
 	else if (dire == DIRECTION_POS_X)
 		reverse_offset = abs(start_pos.z - end_pos.z);
 
-	struct video_queue *video_queue_node = video_queue_get_player(NULL);
+	struct video_queue *video_queue_node = video_queue_get_player(nullptr);
 	if (video_queue_node) {
 		struct screen_pos screen_pos;
 		if (start_pos.x - end_pos.x != 0)

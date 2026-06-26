@@ -3,7 +3,6 @@
 
 #include <stdlib.h>
 #include <stdint.h>
-#include <stdbool.h>
 #include <string.h>
 #include "memory.h"
 
@@ -20,7 +19,7 @@
         _##name##_t original;                                \
         void (*install)(void);                               \
         void (*destroy)(void);                               \
-    } name = {NULL, _detour_##name, NULL,                    \
+    } name = {nullptr, _detour_##name, nullptr,              \
                 _install_##name, _destroy_##name};           \
                                                              \
     void _install_##name(void)                               \
@@ -103,7 +102,7 @@ inline void *dlsym(const char *sym)
         _##name##_t original;                                \
         int (*install)(void);                                \
         bool (*destroy)(void);                               \
-    } name = {NULL, _detour_##name, NULL,                    \
+    } name = {nullptr, _detour_##name, nullptr,              \
                 _install_##name, _destroy_##name};           \
                                                              \
     int _install_##name(void)                                \

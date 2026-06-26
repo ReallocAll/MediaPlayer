@@ -5,7 +5,7 @@
     #ifdef __linux__
         #include <modloader/hook.h>
         #ifndef RTLD_DEFAULT
-            #define RTLD_DEFAULT NULL
+            #define RTLD_DEFAULT nullptr
         #endif
         #define SYM(sym) dlsym(RTLD_DEFAULT, sym)
     #else

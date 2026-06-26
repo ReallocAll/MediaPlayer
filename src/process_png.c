@@ -1,21 +1,21 @@
 #include <mediaplayer/process_png.h>
 
 // Decode PNG header and optionally pixels.
-// When get_ihdr is true or image is NULL, only the IHDR is read.
-// When get_ihdr is false and image is non-NULL, pixels are decoded
+// When get_ihdr is true or image is nullptr, only the IHDR is read.
+// When get_ihdr is false and image is non-nullptr, pixels are decoded
 // into the pre-allocated image buffer (RGBA8, size = width * height * 4).
 bool get_pixels(FILE *png, struct spng_ihdr *ihdr,
                 unsigned char *image, bool get_ihdr)
 {
     int ret = 0;
-    spng_ctx *ctx = NULL;
+    spng_ctx *ctx = nullptr;
     size_t image_size = 0;
 
-    if (png == NULL)
+    if (png == nullptr)
         goto error;
 
     ctx = spng_ctx_new(0);
-    if (ctx == NULL)
+    if (ctx == nullptr)
         goto error;
 
     spng_set_crc_action(ctx, SPNG_CRC_USE, SPNG_CRC_USE);

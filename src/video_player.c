@@ -4,7 +4,7 @@
 struct block_pos start_pos = {INT_MAX, INT_MIN, INT_MAX};
 struct block_pos end_pos = {INT_MIN, INT_MAX, INT_MIN};
 
-static struct video_queue *g_video_queues = NULL;
+static struct video_queue *g_video_queues = nullptr;
 
 void get_video_frame(void *arg)
 {
@@ -14,7 +14,7 @@ void get_video_frame(void *arg)
 
     sprintf(filepath, "%s/%09d.png", node->video_path, 1);
     fp = fopen(filepath, "rb");
-    if (!fp || !get_pixels(fp, &node->ihdr, NULL, true)) {
+    if (!fp || !get_pixels(fp, &node->ihdr, nullptr, true)) {
         if (fp)
             fclose(fp);
         return;
@@ -54,7 +54,7 @@ void get_video_frame(void *arg)
         fclose(fp);
     }
     free(node->image);
-    node->image = NULL;
+    node->image = nullptr;
 }
 
 bool video_queue_add_player(struct player *player, char *video_path, int loop)
@@ -75,7 +75,7 @@ bool video_queue_add_player(struct player *player, char *video_path, int loop)
     node.total_frames = total_frames;
     node.current_frame = 1;
     node.loop = loop;
-    node.image = NULL;
+    node.image = nullptr;
     node.deleted = false;
     arrput(g_video_queues, node);
 
@@ -132,12 +132,12 @@ struct video_queue *video_queue_get_player(struct player *player)
     if (!player) {
         if (arrlen(g_video_queues) > 0)
             return &g_video_queues[0];
-        return NULL;
+        return nullptr;
     }
     int len = (int)arrlen(g_video_queues);
     for (int i = 0; i < len; i++) {
         if (g_video_queues[i].player == player)
             return &g_video_queues[i];
     }
-    return NULL;
+    return nullptr;
 }
