@@ -5,6 +5,8 @@
 #include <mediaplayer/mc/network.h>
 #include <dynarray/dynarray.h>
 
+#define MAX_CMD_ARGC 5
+
 extern dynarray_t g_player_array_0_info;
 extern struct player_music_info *g_player_array_0;
 
@@ -150,7 +152,7 @@ bool proc_mpv_cmd(struct player *player, int argc, const char *argv[], char ***f
 bool process_cmd(struct player *player, const char *cmd)
 {
     char *cmd_m = strdup(cmd);
-    const char *argv[5];
+    const char *argv[MAX_CMD_ARGC];
     int argc = 0;
     char *token;
     bool ret = true;
@@ -160,7 +162,7 @@ bool process_cmd(struct player *player, const char *cmd)
 
     token = strtok(cmd_m, " ");
 
-    while (token != NULL && argc < 5) {
+    while (token != NULL && argc < MAX_CMD_ARGC) {
         argv[argc++] = token;
         token = strtok(NULL, " ");
     }

@@ -6,6 +6,23 @@
 #include "actor.h"
 #include "structs.h"
 
+/* Minecraft packet IDs */
+#define PKT_ID_PLAY_SOUND    86
+#define PKT_ID_TEXT           9
+#define PKT_ID_BOSS_EVENT    74
+
+/* TextPacket field offsets (MSVC, 32-bit std::string) */
+#define TEXTPKT_TYPE_OFFSET      48
+#define TEXTPKT_AUTHOR_OFFSET    56
+#define TEXTPKT_MESSAGE_OFFSET   88
+#define STD_STRING_SZ            32
+
+/* BossEventPacket field offsets (MSVC, 32-bit std::string) */
+#define BOSSPKT_ENTITY_ID_OFFSET  56
+#define BOSSPKT_EVENT_TYPE_OFFSET 72
+#define BOSSPKT_NAME_OFFSET       80
+#define BOSSPKT_PROGRESS_OFFSET  112
+
 struct server_network_handler;
 struct player;
 

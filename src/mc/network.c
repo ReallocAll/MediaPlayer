@@ -21,7 +21,7 @@ void send_network_packet(struct player *player, uintptr_t pkt)
 void send_play_sound_packet(struct player *player, const char *sound_name,
 			 				struct vec3 *pos, float volume, float pitch)
 {
-	uintptr_t pkt = create_packet(86);
+	uintptr_t pkt = create_packet(PKT_ID_PLAY_SOUND);
 	void *sound_name_sstr = NULL;
 	std_string_string(&sound_name_sstr, sound_name);
 	
@@ -44,16 +44,16 @@ uintptr_t create_text_packet(enum text_type type, struct player *player, const c
 	std_string_string(&message, msg);
 	std_string_string(&xuid, get_player_xuid(player));
 	std_string_string(&platform_id, "");
-	uintptr_t pkt = create_packet(9);
+	uintptr_t pkt = create_packet(PKT_ID_TEXT);
 	#ifdef __linux__
 	uintptr_t params[2];
 	SYMCALL(S_TextPacket__TextPacket,
 			uintptr_t (*)(uintptr_t pkt, enum text_type type, void *author, void *message, void *params, bool localized, void *xuid, void *platform_id),
 			pkt, type, author, message, &params, 0, xuid, platform_id);
 	#else
-	DEREFERENCE(int, pkt, 48) = type;
- 	memcpy((void *)(pkt + 56), author, 32);
- 	memcpy((void *)(pkt + 88), message, 32);
+	DEREFERENCE(int, pkt, TEXTPKT_TYPE_OFFSET) = type;
+ 	memcpy((void *)(pkt + TEXTPKT_AUTHOR_OFFSET), author, STD_STRING_SZ);
+ 	memcpy((void *)(pkt + TEXTPKT_MESSAGE_OFFSET), message, STD_STRING_SZ);
 	#endif
 	return pkt;
 }
@@ -69,14 +69,14 @@ void send_text_packet(struct player *player, enum text_type type, const char *ms
 void send_boss_event_packet(struct player *player, const char *name,
 							float per, enum boss_bar_event_type type)
 {
-	uintptr_t pkt = create_packet(74);
+	uintptr_t pkt = create_packet(PKT_ID_BOSS_EVENT);
 	uintptr_t unique_id = DEREFERENCE(uintptr_t, get_or_create_unique_id((struct actor *)player), 0);
 	void *name_sstr = NULL;
 	std_string_string(&name_sstr, name);
-	DEREFERENCE(uintptr_t, pkt, 56) = unique_id;
-	DEREFERENCE(int, pkt, 72) = type;
- 	memcpy((void *)(pkt + 80), name_sstr, 32);
-	DEREFERENCE(float, pkt, 112) = per;
+	DEREFERENCE(uintptr_t, pkt, BOSSPKT_ENTITY_ID_OFFSET) = unique_id;
+	DEREFERENCE(int, pkt, BOSSPKT_EVENT_TYPE_OFFSET) = type;
+ 	memcpy((void *)(pkt + BOSSPKT_NAME_OFFSET), name_sstr, STD_STRING_SZ);
+	DEREFERENCE(float, pkt, BOSSPKT_PROGRESS_OFFSET) = per;
 	send_network_packet(player, pkt);
 	std_string_destroy(name_sstr, true);
 }
