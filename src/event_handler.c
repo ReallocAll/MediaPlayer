@@ -4,9 +4,9 @@
 #include <mediaplayer/music_player.h>
 #include <mediaplayer/video_player.h>
 
-extern xr_dynamic_array_info g_player_array_0_info;
-extern xr_dynamic_array_info g_offline_player_array_0_info;
-extern xr_dynamic_array_info g_note_array_0_info;
+extern dynarray_t g_player_array_0_info;
+extern dynarray_t g_offline_player_array_0_info;
+extern dynarray_t g_note_array_0_info;
 
 extern struct player_music_info *g_player_array_0;
 extern struct player_music_info *g_offline_player_array_0;
@@ -15,9 +15,9 @@ extern struct music_note_info *g_note_array_0;
 void event_on_server_init_logger(void)
 {
 	server_logger(LOG_LEVEL_INFO, "MediaPlayer Loaded!%s%s", PLUGIN_VERSION_MSG, PLUGIN_VERSION);
-	g_player_array_0 = xr_new_dynamic_array(sizeof(struct player_music_info), &g_player_array_0_info);
-	g_offline_player_array_0 = xr_new_dynamic_array(sizeof(struct player_music_info), &g_offline_player_array_0_info);
-	g_note_array_0 = xr_new_dynamic_array(sizeof(struct music_note_info), &g_note_array_0_info);
+	g_player_array_0 = dynarray_new(sizeof(struct player_music_info), &g_player_array_0_info);
+	g_offline_player_array_0 = dynarray_new(sizeof(struct player_music_info), &g_offline_player_array_0_info);
+	g_note_array_0 = dynarray_new(sizeof(struct music_note_info), &g_note_array_0_info);
 
 	if (!g_player_array_0 || !g_offline_player_array_0 || !g_note_array_0)
 		server_logger(LOG_LEVEL_ERR, "Failed to allocate dynamic arrays!");

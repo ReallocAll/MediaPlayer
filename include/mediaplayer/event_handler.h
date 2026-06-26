@@ -1,6 +1,6 @@
 #pragma once
 #include "logger.h"
-#include "xiziya_r/misc/xr_dynamic_array.h"
+#include <dynarray/dynarray.h>
 
 struct player;
 

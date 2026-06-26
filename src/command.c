@@ -3,9 +3,9 @@
 #include <mediaplayer/video_player.h>
 #include <mediaplayer/file_utils.h>
 #include <mediaplayer/mc/network.h>
-#include <xiziya_r/misc/xr_dynamic_array.h>
+#include <dynarray/dynarray.h>
 
-extern xr_dynamic_array_info g_player_array_0_info;
+extern dynarray_t g_player_array_0_info;
 extern struct player_music_info *g_player_array_0;
 
 bool proc_mpm_cmd(struct player *player, int argc, const char *argv[], char ***filenames, int *file_count)
