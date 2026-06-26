@@ -15,7 +15,6 @@ bool proc_mpm_cmd(struct player *player, int argc, const char *argv[], char ***f
         send_text_packet(player, TEXT_TYPE_RAW, "§6[MediaPlayer] Before playing music,\n");
         send_text_packet(player, TEXT_TYPE_RAW, "§6[MediaPlayer] please use `/mpm list` to get the music list first.\n");
         send_text_packet(player, TEXT_TYPE_RAW, "§6[MediaPlayer] /mpm list [name: string]\n");
-        // send_text_packet(player, TEXT_TYPE_RAW, "§6[MediaPlayer] /mpm play <index: number> [loop: number] [music bar type: number]\n");
         send_text_packet(player, TEXT_TYPE_RAW, "§6[MediaPlayer] /mpm add <index: number> [loop: number] [music bar type: number] [queue pos: number]\n");
         send_text_packet(player, TEXT_TYPE_RAW, "§6[MediaPlayer] /mpm del <index: number>\n");
         send_text_packet(player, TEXT_TYPE_RAW, "§6[MediaPlayer] /mpm pause\n");

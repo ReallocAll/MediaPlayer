@@ -9,13 +9,10 @@
 #include "logger.h"
 #include "process_png.h"
 #include "file_utils.h"
-#include "music_player.h"
 
 #include "mc/actor.h"
 #include "mc/player.h"
 #include "mc/level.h"
-
-// #include <libavcodec/avcodec.h>
 
 #ifndef __linux__
 #if !defined(__UINT64_TYPE__) && !defined(__SIZEOF_INT128__)

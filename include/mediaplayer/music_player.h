@@ -3,7 +3,6 @@
 #include <nbsparser/nbsparser.h>
 #include <math.h>
 #include <time.h>
-#include <libcutils/libcutils.h>
 #include "logger.h"
 #include "file_utils.h"
 #include "video_player.h"
@@ -98,7 +97,5 @@ void music_player_player_offline(struct player *in_player);
 void music_player_player_online(struct player *in_player);
 
 void free_note_queue(struct note_queue_node *head);
-void free_music_queue(void);
-struct music_queue_node *music_queue_get_player(struct player *player);
 bool play_with_video(struct player *player, const char *filename, int loop);
 void set_music_bar(struct player *player, struct music_queue_node *node);
