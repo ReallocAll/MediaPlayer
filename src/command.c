@@ -43,7 +43,7 @@ bool proc_mpm_cmd(struct player *player, int argc, const char *argv[], char ***f
     } else if (!strcmp(argv[1], "playlist")) {
         music_player_query_music_queue(player);
         return false;
-    } else if (!strcmp(argv[1], "add") && argc > 2 && argc < 5) {
+    } else if (!strcmp(argv[1], "add") && argc > 2 && argc < 6) {
         int file_index = atoi(argv[2]);
         int loop = 1;
         int music_bar_type = MUSIC_BAR_TYPE_BOSS_BAR;
@@ -65,8 +65,8 @@ bool proc_mpm_cmd(struct player *player, int argc, const char *argv[], char ***f
         if (player_pos_in_array != -1) {
             if (!g_player_array_0[player_pos_in_array].paused) {
                 g_player_array_0[player_pos_in_array].paused = 1;
-                send_text_packet(player, TEXT_TYPE_RAW, "§6[MediaPlayer] Sucsess!\n");
-            } else send_text_packet(player, TEXT_TYPE_RAW, "§6[MediaPlayer] Unsucsess!\n");
+                send_text_packet(player, TEXT_TYPE_RAW, "§6[MediaPlayer] Success!\n");
+            } else send_text_packet(player, TEXT_TYPE_RAW, "§6[MediaPlayer] Unsuccess!\n");
         } else send_text_packet(player, TEXT_TYPE_RAW, "§6[MediaPlayer] Playlist empty!\n");
         return false;
     } else if (strcmp(argv[1], "continue") == 0 && argc == 2) {
@@ -76,8 +76,8 @@ bool proc_mpm_cmd(struct player *player, int argc, const char *argv[], char ***f
             if (g_player_array_0[player_pos_in_array].paused) {
                 g_player_array_0[player_pos_in_array].paused = 0;
                 g_player_array_0[player_pos_in_array].music_queue_node->start_time = uv_hrtime() - g_player_array_0[player_pos_in_array].music_queue_node->note_queue_node->time * UV_HRT_PER_MS;
-                send_text_packet(player, TEXT_TYPE_RAW, "§6[MediaPlayer] Sucsess!\n");
-            } else send_text_packet(player, TEXT_TYPE_RAW, "§6[MediaPlayer] Unsucsess!\n");
+                send_text_packet(player, TEXT_TYPE_RAW, "§6[MediaPlayer] Success!\n");
+            } else send_text_packet(player, TEXT_TYPE_RAW, "§6[MediaPlayer] Unsuccess!\n");
         } else send_text_packet(player, TEXT_TYPE_RAW, "§6[MediaPlayer] Playlist empty!\n");
         return false;
     } else if (strcmp(argv[1], "del") == 0 && argc == 3) {
@@ -151,15 +151,21 @@ bool proc_mpv_cmd(struct player *player, int argc, const char *argv[], char ***f
 bool process_cmd(struct player *player, const char *cmd)
 {
     char *cmd_m = strdup(cmd);
-
     const char *argv[5];
     int argc = 0;
     char *token = strtok(cmd_m, " ");
+    bool ret = true;
+
     while (token != NULL && argc < 5) {
         argv[argc++] = token;
         token = strtok(NULL, " ");
     }
-    bool ret = true;
+
+    if (argc == 0) {
+        free(cmd_m);
+        return true;
+    }
+
     if (strcmp(argv[0], "/mpm") == 0) {
         char **filenames = NULL;
         int file_count = 0;

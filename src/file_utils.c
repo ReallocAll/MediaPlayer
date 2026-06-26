@@ -32,8 +32,7 @@ char **get_filenames(const char *directory, int *count)
 
 	while ((ent = readdir(dir)) != NULL) {
 		if (ent->d_type == DT_REG && ent->d_name[0] != '.') {
-			char *filename = malloc(sizeof(ent->d_name) + 1);
-			strcpy(filename, ent->d_name);
+			char *filename = strdup(ent->d_name);
 
 			filenames = realloc(filenames, sizeof(char *) * (i + 1));
 			filenames[i] = filename;
@@ -65,8 +64,7 @@ char **get_foldernames(const char *directory, int *count)
 
 	while ((ent = readdir(dir)) != NULL) {
 		if (ent->d_type == DT_DIR && ent->d_name[0] != '.') {
-			char *foldername = malloc(sizeof(ent->d_name) + 1);
-			strcpy(foldername, ent->d_name);
+			char *foldername = strdup(ent->d_name);
 
 			foldernames = realloc(foldernames, sizeof(char *) * (i + 1));
 			foldernames[i] = foldername;
@@ -83,19 +81,11 @@ char **get_foldernames(const char *directory, int *count)
 
 void free_filenames(char **filenames, int count)
 {
-	for (int i = 0; i < count; i++) {
+	if (!filenames)
+		return;
+	for (int i = 0; i < count; i++)
 		free(filenames[i]);
-	}
 	free(filenames);
-}
-
-
-void free_foldernames(char **foldernames, int count)
-{
-	for (int i = 0; i < count; i++) {
-		free(foldernames[i]);
-	}
-	free(foldernames);
 }
 
 
@@ -105,7 +95,6 @@ bool is_file_exist(const char *path)
 	if (fp) {
 		fclose(fp);
 		return true;
-	} else {
-		return false;
 	}
+	return false;
 }
