@@ -112,8 +112,10 @@ SHOOK(map_item_update, void,
 
 	if (video_queue_node) {
 		play_video(video_queue_node, map_data, &screen_pos);
+		free((char *)player_xuid);
 	} else {
 		map_item_update.call(map_item, level, actor, map_data);
+		free((char *)player_xuid);
 	}
 }
 
