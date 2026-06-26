@@ -3,12 +3,13 @@
 #include <libcutils/libcutils.h>
 #include <mediaplayer/mc/symbols.h>
 #include "structs.h"
-#include "network.h"
 #include "position.h"
 
 #define PLAYER_XUID_STR_LEN 17
 
 struct player;
+
+#include "network.h"
 
 extern struct player *(*g_player_list);
 extern int g_player_list_size;

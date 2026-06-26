@@ -2,7 +2,7 @@
 #include <lightbase/plugin.h>
 
 #ifndef __linux__
-extern struct func_address func_address = { 0, 0, 0 };
+struct func_address func_address = { 0, 0, 0 };
 int loader_type = LOADER_TYPE_NONE;
 #endif
 
@@ -45,6 +45,8 @@ SHOOK(server_player_destroy, void,
 	server_player_destroy.call(this);
 }
 #else
+
+struct Level;
 
 SHOOK(server_player_construct, struct player *,
       SC_ServerPlayer__ServerPlayer,

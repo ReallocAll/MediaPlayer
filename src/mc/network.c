@@ -1,4 +1,5 @@
 #include <mediaplayer/mc/network.h>
+#include <mediaplayer/mc/player.h>
 
 uintptr_t create_packet(int type)
 {

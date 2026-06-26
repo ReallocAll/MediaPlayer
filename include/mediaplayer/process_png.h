@@ -9,7 +9,9 @@
 
 #ifndef __linux__
 typedef int64_t __int64_t;
+#if !defined(__SIZEOF_INT128__)
 typedef void* __int128_t;
+#endif
 #endif
 
 struct rgb {

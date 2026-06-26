@@ -4,10 +4,10 @@
 #include <mediaplayer/logger.h>
 #include "position.h"
 #include "actor.h"
-#include "player.h"
 #include "structs.h"
 
 struct server_network_handler;
+struct player;
 
 enum boss_bar_event_type {
 	BOSS_BAR_DISPLAY,

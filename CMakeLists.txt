@@ -1,9 +1,8 @@
-﻿cmake_minimum_required(VERSION 3.5)
+﻿cmake_minimum_required(VERSION 3.29)
 
 project(MediaPlayer)
 
 set(CMAKE_C_STANDARD 11)
-set(CMAKE_BUILD_TYPE Debug)
 set(CMAKE_PREFIX_PATH .)
 
 file(GLOB_RECURSE SRC_FILES_DIR
@@ -67,7 +66,7 @@ elseif (CMAKE_SYSTEM_NAME MATCHES "Windows")
         /LTCG
         /INCREMENTAL:NO
     )
-    set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} /NODEFAULTLIB:MSVCRTD")
+    set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -Xlinker /NODEFAULTLIB:MSVCRTD")
     target_link_libraries(MediaPlayer 
     "${CMAKE_SOURCE_DIR}/lib/libuv.lib"
     "${CMAKE_SOURCE_DIR}/lib/cutils.lib"
