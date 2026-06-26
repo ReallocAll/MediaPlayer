@@ -60,7 +60,7 @@ typedef struct {
 
 /* One track in a player's playlist. */
 typedef struct {
-    song_cache_entry_t *song;    /* pointer into g_song_cache */
+    song_cache_entry_t *song;    /* pointer into g_music_ctx.song_cache */
     size_t              cursor;  /* index into song->notes */
     time_t              start_time;
     int                 loop;
@@ -75,6 +75,15 @@ typedef struct {
     size_t                   current_track;
     bool                     paused;
 } player_music_t;
+
+/* Global music player context. */
+typedef struct {
+    song_cache_entry_t *song_cache;       /* stb_ds array */
+    player_music_t     *online_players;   /* stb_ds array */
+    player_music_t     *offline_players;  /* stb_ds array */
+} music_player_ctx;
+
+extern music_player_ctx g_music_ctx;
 
 char music_player_save_to_file(void);
 

@@ -3,9 +3,7 @@
 
 extern char data_path[4096];
 
-static song_cache_entry_t *g_song_cache = NULL;
-player_music_t *g_player_arr = NULL;
-player_music_t *g_offline_player_arr = NULL;
+music_player_ctx g_music_ctx;
 
 /* ---- Song cache ---- */
 
@@ -68,15 +66,15 @@ song_cache_entry_t *song_cache_parse(FILE *fp, const char *song_name)
 	else
 		entry.duration_ms = 0;
 
-	arrput(g_song_cache, entry);
-	return &g_song_cache[arrlen(g_song_cache) - 1];
+	arrput(g_music_ctx.song_cache, entry);
+	return &g_music_ctx.song_cache[arrlen(g_music_ctx.song_cache) - 1];
 }
 
 static long long song_cache_find(const char *song_name)
 {
-	int len = (int)arrlen(g_song_cache);
+	int len = (int)arrlen(g_music_ctx.song_cache);
 	for (int i = 0; i < len; i++) {
-		if (strcmp(g_song_cache[i].song_name, song_name) == 0)
+		if (strcmp(g_music_ctx.song_cache[i].song_name, song_name) == 0)
 			return i;
 	}
 	return -1;
@@ -136,7 +134,7 @@ bool player_music_enqueue(struct player *player, const char *nbs_file_name, int 
 			return false;
 		}
 	} else {
-		song = &g_song_cache[cache_idx];
+		song = &g_music_ctx.song_cache[cache_idx];
 	}
 
 	music_queue_entry_t entry;
@@ -146,7 +144,7 @@ bool player_music_enqueue(struct player *player, const char *nbs_file_name, int 
 	entry.loop = loop;
 	entry.bar_type = music_bar_type;
 
-	long long player_pos = player_music_find(g_player_arr, player);
+	long long player_pos = player_music_find(g_music_ctx.online_players, player);
 
 	if (player_pos == -1) {
 		player_music_t pm;
@@ -157,9 +155,9 @@ bool player_music_enqueue(struct player *player, const char *nbs_file_name, int 
 		pm.paused = false;
 		arrput(pm.playlist, entry);
 		pm.current_track = 0;
-		arrput(g_player_arr, pm);
+		arrput(g_music_ctx.online_players, pm);
 	} else {
-		player_music_t *pm = &g_player_arr[player_pos];
+		player_music_t *pm = &g_music_ctx.online_players[player_pos];
 		arrput(pm->playlist, entry);
 	}
 
@@ -169,11 +167,11 @@ bool player_music_enqueue(struct player *player, const char *nbs_file_name, int 
 
 bool player_music_dequeue(struct player *player, size_t index)
 {
-	long long pos = player_music_find(g_player_arr, player);
+	long long pos = player_music_find(g_music_ctx.online_players, player);
 	if (pos < 0)
 		return false;
 
-	player_music_t *pm = &g_player_arr[pos];
+	player_music_t *pm = &g_music_ctx.online_players[pos];
 
 	if (index >= arrlen(pm->playlist))
 		return false;
@@ -183,7 +181,7 @@ bool player_music_dequeue(struct player *player, size_t index)
 		if (arrlen(pm->playlist) == 0) {
 			free(pm->player_xuid);
 			arrfree(pm->playlist);
-			arrdelswap(g_player_arr, (int)pos);
+			arrdelswap(g_music_ctx.online_players, (int)pos);
 			send_boss_event_packet(player, "", 0, BOSS_BAR_HIDE);
 		} else {
 			if (pm->current_track >= arrlen(pm->playlist))
@@ -202,14 +200,14 @@ bool player_music_dequeue(struct player *player, size_t index)
 
 void player_music_stop(struct player *player)
 {
-	long long pos = player_music_find(g_player_arr, player);
+	long long pos = player_music_find(g_music_ctx.online_players, player);
 	if (pos < 0)
 		return;
 
-	player_music_t *pm = &g_player_arr[pos];
+	player_music_t *pm = &g_music_ctx.online_players[pos];
 	free(pm->player_xuid);
 	arrfree(pm->playlist);
-	arrdelswap(g_player_arr, (int)pos);
+	arrdelswap(g_music_ctx.online_players, (int)pos);
 	send_boss_event_packet(player, "", 0, BOSS_BAR_HIDE);
 }
 
@@ -217,30 +215,30 @@ void player_music_stop(struct player *player)
 
 void music_player_player_offline(struct player *in_player)
 {
-	long long player_pos_online = player_music_find(g_player_arr, in_player);
-	long long player_pos_offline = player_music_find(g_offline_player_arr, in_player);
+	long long player_pos_online = player_music_find(g_music_ctx.online_players, in_player);
+	long long player_pos_offline = player_music_find(g_music_ctx.offline_players, in_player);
 
 	if (player_pos_offline == -1 && player_pos_online != -1) {
-		arrput(g_offline_player_arr, g_player_arr[player_pos_online]);
-		arrdelswap(g_player_arr, (int)player_pos_online);
+		arrput(g_music_ctx.offline_players, g_music_ctx.online_players[player_pos_online]);
+		arrdelswap(g_music_ctx.online_players, (int)player_pos_online);
 	}
 }
 
 void music_player_player_online(struct player *in_player)
 {
 	const char *player_xuid = get_player_xuid(in_player);
-	long long player_pos_online = player_music_find_by_xuid(g_player_arr, player_xuid);
-	long long player_pos_offline = player_music_find_by_xuid(g_offline_player_arr, player_xuid);
+	long long player_pos_online = player_music_find_by_xuid(g_music_ctx.online_players, player_xuid);
+	long long player_pos_offline = player_music_find_by_xuid(g_music_ctx.offline_players, player_xuid);
 
 	if (player_pos_online == -1 && player_pos_offline != -1) {
-		player_music_t pm = g_offline_player_arr[player_pos_offline];
+		player_music_t pm = g_music_ctx.offline_players[player_pos_offline];
 		pm.player = in_player;
 		if (arrlen(pm.playlist) > 0) {
 			music_queue_entry_t *entry = &pm.playlist[pm.current_track];
-			entry->start_time = uv_hrtime() - g_song_cache->notes[0].time * UV_HRT_PER_MS;
+			entry->start_time = uv_hrtime() - g_music_ctx.song_cache->notes[0].time * UV_HRT_PER_MS;
 		}
-		arrput(g_player_arr, pm);
-		arrdelswap(g_offline_player_arr, (int)player_pos_offline);
+		arrput(g_music_ctx.online_players, pm);
+		arrdelswap(g_music_ctx.offline_players, (int)player_pos_offline);
 	}
 	free((char *)player_xuid);
 }
@@ -249,13 +247,13 @@ void music_player_player_online(struct player *in_player)
 
 void music_player_query_music_queue(struct player *player)
 {
-	long long pos = player_music_find(g_player_arr, player);
+	long long pos = player_music_find(g_music_ctx.online_players, player);
 	if (pos < 0) {
 		send_text_packet(player, TEXT_TYPE_RAW, "§6[MediaPlayer] Playlist Empty!\n");
 		return;
 	}
 
-	player_music_t *pm = &g_player_arr[pos];
+	player_music_t *pm = &g_music_ctx.online_players[pos];
 	int len = (int)arrlen(pm->playlist);
 	char msg_to_player[512];
 
@@ -272,11 +270,11 @@ void music_player_query_music_queue(struct player *player)
 
 void send_music_sound_packet(void)
 {
-	int len = (int)arrlen(g_player_arr);
+	int len = (int)arrlen(g_music_ctx.online_players);
 	struct vec3 *player_pos;
 
 	for (int i = 0; i < len; i++) {
-		player_music_t *pm = &g_player_arr[i];
+		player_music_t *pm = &g_music_ctx.online_players[i];
 		if (pm->paused)
 			continue;
 		if (arrlen(pm->playlist) == 0)
@@ -367,8 +365,8 @@ char music_player_save_to_file(void)
 {
 	FILE *playlist_file;
 	char path[4096];
-	size_t player_len = (size_t)arrlen(g_player_arr);
-	size_t offline_len = (size_t)arrlen(g_offline_player_arr);
+	size_t player_len = (size_t)arrlen(g_music_ctx.online_players);
+	size_t offline_len = (size_t)arrlen(g_music_ctx.offline_players);
 
 	sprintf(path, "%s/playlist_save.bin", data_path);
 	playlist_file = fopen(path, "wb");
@@ -376,9 +374,9 @@ char music_player_save_to_file(void)
 		return false;
 
 	fwrite(&player_len, sizeof(size_t), 1, playlist_file);
-	fwrite(g_player_arr, sizeof(player_music_t), player_len, playlist_file);
+	fwrite(g_music_ctx.online_players, sizeof(player_music_t), player_len, playlist_file);
 	fwrite(&offline_len, sizeof(size_t), 1, playlist_file);
-	fwrite(g_offline_player_arr, sizeof(player_music_t), offline_len, playlist_file);
+	fwrite(g_music_ctx.offline_players, sizeof(player_music_t), offline_len, playlist_file);
 	fclose(playlist_file);
 	return true;
 }

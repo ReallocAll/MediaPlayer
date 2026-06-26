@@ -7,7 +7,7 @@
 
 #define MAX_CMD_ARGC 5
 
-extern player_music_t *g_player_arr;
+extern music_player_ctx g_music_ctx;
 
 bool proc_mpm_cmd(struct player *player, int argc, const char *argv[], char ***filenames, int *file_count)
 {
@@ -60,23 +60,23 @@ bool proc_mpm_cmd(struct player *player, int argc, const char *argv[], char ***f
             }
         }
     } else if (strcmp(argv[1], "pause") == 0 && argc == 2) {
-        long long player_pos = player_music_find(g_player_arr, player);
+        long long player_pos = player_music_find(g_music_ctx.online_players, player);
         
         if (player_pos != -1) {
-            if (!g_player_arr[player_pos].paused) {
-                g_player_arr[player_pos].paused = true;
+            if (!g_music_ctx.online_players[player_pos].paused) {
+                g_music_ctx.online_players[player_pos].paused = true;
                 send_text_packet(player, TEXT_TYPE_RAW, "§6[MediaPlayer] Success!\n");
             } else send_text_packet(player, TEXT_TYPE_RAW, "§6[MediaPlayer] Unsuccess!\n");
         } else send_text_packet(player, TEXT_TYPE_RAW, "§6[MediaPlayer] Playlist empty!\n");
         return false;
     } else if (strcmp(argv[1], "continue") == 0 && argc == 2) {
-        long long player_pos = player_music_find(g_player_arr, player);
+        long long player_pos = player_music_find(g_music_ctx.online_players, player);
 
         if (player_pos != -1) {
-            if (g_player_arr[player_pos].paused) {
-                g_player_arr[player_pos].paused = false;
-                if (arrlen(g_player_arr[player_pos].playlist) > 0) {
-                    music_queue_entry_t *entry = &g_player_arr[player_pos].playlist[g_player_arr[player_pos].current_track];
+            if (g_music_ctx.online_players[player_pos].paused) {
+                g_music_ctx.online_players[player_pos].paused = false;
+                if (arrlen(g_music_ctx.online_players[player_pos].playlist) > 0) {
+                    music_queue_entry_t *entry = &g_music_ctx.online_players[player_pos].playlist[g_music_ctx.online_players[player_pos].current_track];
                     entry->start_time = uv_hrtime() - entry->song->notes[entry->cursor].time * UV_HRT_PER_MS;
                 }
                 send_text_packet(player, TEXT_TYPE_RAW, "§6[MediaPlayer] Success!\n");
@@ -84,7 +84,7 @@ bool proc_mpm_cmd(struct player *player, int argc, const char *argv[], char ***f
         } else send_text_packet(player, TEXT_TYPE_RAW, "§6[MediaPlayer] Playlist empty!\n");
         return false;
     } else if (strcmp(argv[1], "del") == 0 && argc == 3) {
-        if (player_music_find(g_player_arr, player) != -1) {
+        if (player_music_find(g_music_ctx.online_players, player) != -1) {
             if (player_music_dequeue(player, (size_t)atoi(argv[2])))
                 send_text_packet(player, TEXT_TYPE_RAW, "§6[MediaPlayer] Delete success!\n");
             else
