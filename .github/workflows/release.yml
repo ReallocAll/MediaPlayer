@@ -44,7 +44,7 @@ jobs:
     runs-on: ubuntu-20.04
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4.0.0
+        uses: actions/checkout@v7
 
       - name: Install Packages
         run: |
@@ -55,7 +55,7 @@ jobs:
         run: mkdir -p build && cd build && cmake -DCMAKE_C_COMPILER=clang-12 -DCMAKE_CXX_COMPILER=clang++-12 -DCMAKE_INSTALL_PREFIX=../bds/ .. && make && make install && cd ..
 
       - name: Upload build files
-        uses: actions/upload-artifact@v4.3.1
+        uses: actions/upload-artifact@v7
         with:
           name: libMediaPlayer.so
           path: |
@@ -67,7 +67,7 @@ jobs:
     runs-on: windows-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4.0.0
+        uses: actions/checkout@v7
 
       - name: Set release info
         id: rel_info
@@ -91,7 +91,7 @@ jobs:
         shell: bash
 
       - name: Add msbuild to PATH
-        uses: microsoft/setup-msbuild@v2
+        uses: microsoft/setup-msbuild@v3
         with:
           msbuild-architecture: x64
 
@@ -118,21 +118,21 @@ jobs:
           tree /F ./release/
 
       - name: Zip Release
-        uses: TheDoctor0/zip-release@0.7.1
+        uses: TheDoctor0/zip-release@0.7.6
         with:
           filename: MediaPlayer_v${{ steps.rel_info.outputs.tag_name }}.zip
           path: .
           directory: release
 
       - name: Upload build files
-        uses: actions/upload-artifact@v4.3.1
+        uses: actions/upload-artifact@v7
         if: inputs.artifact
         with:
           name: artifact-win
           path: ./build/${{ inputs.solution }}
 
       - name: Release
-        uses: softprops/action-gh-release@v0.1.15
+        uses: softprops/action-gh-release@v3.0.1
         if: inputs.release
         with:
           tag_name: v${{ steps.rel_info.outputs.tag_name }}
@@ -141,42 +141,3 @@ jobs:
           body: ${{ steps.rel_info.outputs.desc_body }}
           files: |
             ./release/MediaPlayer_v${{ steps.rel_info.outputs.tag_name }}.zip
-
-      - name: Checkout tooth
-        uses: actions/checkout@v4.0.0
-        with:
-          repository: ExtcanaRy/MediaPlayer-tooth
-          path: tooth
-          ssh-key: ${{ secrets.SSH_PRIVATE_KEY }}
-          persist-credentials: true
-
-      - name: Update tooth files
-        if: inputs.release
-        run: |
-          tree
-          cd ./tooth/
-          cp ../release/MediaPlayer.dll ./
-          cp ../release/MediaPlayer.pdb ./
-          cp ../release/MediaPlayer/video/convert.exe ./
-          $out = Get-Content -Path "tooth.json" | ForEach-Object { $_ -replace '"version": ".*"', '"version": "${{ steps.rel_info.outputs.tag_name }}"' }
-          $out | Out-File -FilePath "tooth.json"
-          git config user.name github-actions
-          git config user.email github-actions@github.com
-          git commit -a -m "v${{ steps.rel_info.outputs.tag_name }}"
-
-      - name: Push tooth
-        uses: ad-m/github-push-action@master
-        with:
-          ssh: true
-          directory: tooth
-          repository: ExtcanaRy/MediaPlayer-tooth
-
-      - name: Release tooth
-        uses: softprops/action-gh-release@v0.1.15
-        if: inputs.release
-        with:
-          repository: ExtcanaRy/MediaPlayer-tooth
-          tag_name: v${{ steps.rel_info.outputs.tag_name }}
-          name: v${{ steps.rel_info.outputs.tag_name }}
-          body: v${{ steps.rel_info.outputs.tag_name }}
-          token: ${{ secrets.PAT_KEY }}

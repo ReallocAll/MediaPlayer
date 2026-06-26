@@ -11,10 +11,10 @@ jobs:
     runs-on: windows-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4.0.0
+        uses: actions/checkout@v7
 
       - name: Add msbuild to PATH
-        uses: microsoft/setup-msbuild@v2
+        uses: microsoft/setup-msbuild@v3
         with:
           msbuild-architecture: x64
 
@@ -22,21 +22,21 @@ jobs:
         run: |
           New-Item -ItemType directory -Path build
           cmake -S . -B build
-          cmake --build build/ --config Debug -j
+          cmake --build build/ --config RelWithDebInfo -j
 
       - name: Upload build files
-        uses: actions/upload-artifact@v4.3.1
+        uses: actions/upload-artifact@v7
         with:
           name: artifact-win
           path: |
-            ./build/Debug
+            ./build/RelWithDebInfo
 
   build-linux:
     runs-on: ubuntu-20.04
     if: false
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4.0.0
+        uses: actions/checkout@v7
 
       - name: Install Packages
         run: |
@@ -49,7 +49,7 @@ jobs:
         run: mkdir -p build bds/mods && cd build && cmake -DCMAKE_C_COMPILER=clang-12 -DCMAKE_CXX_COMPILER=clang++-12 -DCMAKE_INSTALL_PREFIX=../bds/ .. && make && make install && cd ..
 
       - name: Upload build files
-        uses: actions/upload-artifact@v4.3.1
+        uses: actions/upload-artifact@v7
         with:
           name: artifact-linux
           path: |
