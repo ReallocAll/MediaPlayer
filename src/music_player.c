@@ -441,16 +441,18 @@ void free_note_queue(struct note_queue_node *head)
 
 bool play_with_video(struct player *player, const char *filename, int loop)
 {
-    int folder_count;
-    char **foldernames = get_foldernames(data_path_video, &folder_count);
-    for (int i = 0; i < folder_count; i++) {
-        if (strstr(filename, foldernames[i])) {
-            char video_path[4096];
-            sprintf(video_path, "%s/%s", data_path_video, foldernames[i]);
+	int folder_count;
+	char **foldernames = get_foldernames(data_path_video, &folder_count);
+
+	for (int i = 0; i < folder_count; i++) {
+		if (strstr(filename, foldernames[i])) {
+			char video_path[4096];
+
+			sprintf(video_path, "%s/%s", data_path_video, foldernames[i]);
 			video_queue_delete_player(player);
-            video_queue_add_player(player, video_path, loop);
+			video_queue_add_player(player, video_path, loop);
 			return true;
-        }
-    }
+		}
+	}
 	return false;
 }

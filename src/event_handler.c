@@ -40,5 +40,5 @@ void event_on_server_player_destory(struct player *in_player)
 {
 	player_list_delete(in_player);
 	video_queue_delete_player(in_player);
-    music_player_player_offline(in_player);
+	music_player_player_offline(in_player);
 }
