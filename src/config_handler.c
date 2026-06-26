@@ -4,14 +4,6 @@
 
 #include <mediaplayer/config_handler.h>
 
-unsigned char g_conf_video_convert_mode = VIDEO_CONVERT_MODE_AT_PLAY;
-unsigned char g_conf_video_output_fmt = VIDEO_IMG_OUTPUT_FMT_RAW;
-unsigned char g_conf_video_perf_level = VIDEO_PROCESS_PERF_LOWER;
-unsigned char g_conf_video_encoder = VIDEO_ENCODER_X264;
-unsigned char g_conf_video_decoder = VIDEO_DECODER_H264;
-
-struct config_file g_conf_data;
-
 
 int config_open_file(struct config_file *in_config_file, char *in_filename)
 {
@@ -132,14 +124,4 @@ int config_read(struct config_file *in_config_file, char *in_valname, char **out
     }
 
     return -1;
-}
-
-int config_load()
-{
-    return 0;
-}
-
-int config_reload()
-{
-    return 0;
 }

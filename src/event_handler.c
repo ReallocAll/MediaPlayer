@@ -1,5 +1,4 @@
 #include <mediaplayer/event_handler.h>
-#include <mediaplayer/config_handler.h>
 #include <mediaplayer/plugin.h>
 #include <mediaplayer/mc/player.h>
 #include <mediaplayer/music_player.h>
@@ -12,9 +11,6 @@ extern xr_dynamic_array_info g_note_array_0_info;
 extern struct player_music_info *g_player_array_0;
 extern struct player_music_info *g_offline_player_array_0;
 extern struct music_note_info *g_note_array_0;
-
-extern struct config_file g_conf_data;
-extern unsigned char g_conf_video_convert_mode;
 
 void event_on_server_init_logger(void)
 {
