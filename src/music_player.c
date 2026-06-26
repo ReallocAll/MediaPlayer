@@ -9,57 +9,50 @@ struct music_player_ctx g_music_ctx;
 
 struct song_cache_entry *song_cache_parse(FILE *fp, const char *song_name)
 {
-	struct nbs_header *nbs_header = nbs_parse_header(fp);
-	if (!nbs_header)
+	struct nbs_song *nbs = nbs_parse(fp);
+	if (!nbs)
 		return NULL;
-
-	struct nbs_notes *notes_head = nbs_parse_notes(fp, nbs_header->version);
-	struct nbs_layers *layers_head = nbs_parse_layers(fp, nbs_header->song_layers, nbs_header->version);
-	struct nbs_instruments *instruments_head = nbs_parse_instruments(fp, nbs_header->song_layers, nbs_header->version);
 
 	struct song_cache_entry entry;
 	memset(&entry, 0, sizeof(entry));
 	strncpy(entry.song_name, song_name, sizeof(entry.song_name) - 1);
 	entry.notes = NULL;
 
-	float time_per_tick = (float)(20.0f / nbs_header->tempo * 50.0f);
-	struct nbs_notes *notes = notes_head;
+	float time_per_tick = (float)(20.0f / nbs->tempo * 50.0f);
+	int note_count = (int)arrlen(nbs->notes);
+	int layer_count = (int)arrlen(nbs->layers);
+	int instr_count = (int)arrlen(nbs->instruments);
 
-	while (notes != NULL) {
-		struct nbs_layers *layers_node = layers_head;
-		for (int layer_count = 0; layer_count < notes->layer; layer_count++) {
-			if (layers_node->next == NULL)
-				break;
-			layers_node = layers_node->next;
-		}
+	for (int i = 0; i < note_count; i++) {
+		struct nbs_note *nn = &nbs->notes[i];
 
-		struct nbs_instruments *instrument_node = instruments_head;
+		// Find layer by index
+		int layer_idx = nn->layer;
+		struct nbs_layer *layer = (layer_idx < layer_count) ? &nbs->layers[layer_idx] : NULL;
+
+		// Find instrument pitch
 		int instrument_pitch = 45;
-		for (int instrument_id = 0; instrument_node && instrument_node->next && instrument_id < notes->instrument; instrument_id++) {
-			instrument_node = instrument_node->next;
-			instrument_pitch = (int)instrument_node->pitch;
-		}
+		int instr_idx = nn->instrument;
+		if (instr_idx < instr_count)
+			instrument_pitch = (int)nbs->instruments[instr_idx].pitch;
 
-		int instrument = (0 <= notes->instrument && notes->instrument <= 15)
-				 ? notes->instrument : 0;
-		float volume = ((float)notes->velocity / 100.0f) * ((float)layers_node->volume / 100.0f);
-		float final_key = (float)notes->key + (float)(instrument_pitch - 45) + (float)((float)notes->pitch / 100.0f);
+		int instrument = (0 <= nn->instrument && nn->instrument <= 15)
+				 ? nn->instrument : 0;
+		float volume = ((float)nn->velocity / 100.0f);
+		if (layer)
+			volume *= ((float)layer->volume / 100.0f);
+		float final_key = (float)nn->key + (float)(instrument_pitch - 45) + (float)((float)nn->pitch / 100.0f);
 		float pitch = powf(2, (float)((final_key - 45) / 12.0f));
 
 		struct note nt;
-		nt.time = (long long)((float)notes->tick * time_per_tick);
+		nt.time = (long long)((float)nn->tick * time_per_tick);
 		nt.instrument = instrument;
 		nt.volume = volume;
 		nt.pitch = pitch;
 		arrput(entry.notes, nt);
-
-		notes = notes->next;
 	}
 
-	nbs_free_header(nbs_header);
-	nbs_free_notes(notes_head);
-	nbs_free_layers(layers_head);
-	nbs_free_instruments(instruments_head);
+	nbs_free(nbs);
 
 	if (arrlen(entry.notes) > 0)
 		entry.duration_ms = entry.notes[arrlen(entry.notes) - 1].time;
