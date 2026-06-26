@@ -25,7 +25,7 @@ void get_video_frame(void *arg)
     if (!node->image)
         return;
 
-    while (is_player_init(node->player)) {
+    while (is_player_init(node->player) && !node->deleted) {
         int frame_index = (int)((((uv_hrtime()) - node->start_time) / UV_HRT_PER_MS) / 50) + 1;
 
         if (frame_index == node->current_frame) {
