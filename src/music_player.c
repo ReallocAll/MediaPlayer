@@ -19,6 +19,11 @@ struct note_queue_node *generate_note_queue(FILE *fp, time_t *total_time)
 	struct note_queue_node *note_node_tail = NULL;
 
 	struct nbs_header *nbs_header = nbs_parse_header(fp);
+	if (!nbs_header) {
+		*total_time = 0;
+		return NULL;
+	}
+
 	struct nbs_notes *notes_head = nbs_parse_notes(fp, nbs_header->version);
 	struct nbs_layers *layers_head = nbs_parse_layers(fp, nbs_header->song_layers, nbs_header->version);
 	struct nbs_instruments *instruments_head = nbs_parse_instruments(fp, nbs_header->song_layers, nbs_header->version);
@@ -80,19 +85,27 @@ struct note_queue_node *generate_note_queue(FILE *fp, time_t *total_time)
 	return note_node_head;
 }
 
-char music_player_save_to_file()
+char music_player_save_to_file(void)
 {
 	xr_dynamic_array_info playlist_info;
-	playlist_info.curr_arr_size = g_player_array_0_info.curr_arr_size + g_offline_player_array_0_info.curr_arr_size;
+	FILE *playlist_file;
+	char path[4096];
+
+	playlist_info.curr_arr_size = g_player_array_0_info.curr_arr_size +
+				      g_offline_player_array_0_info.curr_arr_size;
 	playlist_info.single_value_size = sizeof(struct player_music_info);
 	playlist_info.start_addr = NULL;
-	
-	char path[4096];
+
 	sprintf(path, "%s/playlist_save.bin", data_path);
-	FILE *playlist_file =  fopen(path, "wb");
+	playlist_file = fopen(path, "wb");
+	if (!playlist_file)
+		return false;
+
 	fwrite(&playlist_info, sizeof(xr_dynamic_array_info), 1, playlist_file);
-	fwrite(g_player_array_0, sizeof(struct player_music_info), g_player_array_0_info.curr_arr_size, playlist_file);
-	fwrite(g_offline_player_array_0, sizeof(struct player_music_info), g_offline_player_array_0_info.curr_arr_size, playlist_file);
+	fwrite(g_player_array_0, sizeof(struct player_music_info),
+	       g_player_array_0_info.curr_arr_size, playlist_file);
+	fwrite(g_offline_player_array_0, sizeof(struct player_music_info),
+	       g_offline_player_array_0_info.curr_arr_size, playlist_file);
 	fclose(playlist_file);
 	return true;
 }
@@ -141,6 +154,12 @@ bool music_queue_add(struct player *player, const char *nbs_file_name, int loop,
 	char *nbs_file_name_new = strdup(nbs_file_name);
 	char nbs_path[4096];
 	char v_song_name[256];
+
+	if (!nbs_file_name_new) {
+		server_logger(LOG_LEVEL_ERR, "Failed to allocate memory for filename.");
+		return false;
+	}
+
 	strncpy(v_song_name, strtok(nbs_file_name_new, "."), sizeof(v_song_name) - 1);
 	v_song_name[sizeof(v_song_name) - 1] = '\0';
 	
@@ -168,6 +187,11 @@ bool music_queue_add(struct player *player, const char *nbs_file_name, int loop,
 		struct note_queue_node *node_head = generate_note_queue(fp, &g_note_array_0[curr_music_in_arr_pos].time);
 		fclose(fp);
 
+		if (!node_head) {
+			free(node);
+			free(nbs_file_name_new);
+			return false;
+		}
 
 		g_note_array_0[curr_music_in_arr_pos].note_queue_ptr = node_head;
 		strcpy(g_note_array_0[curr_music_in_arr_pos].song_name, v_song_name);
@@ -216,18 +240,23 @@ bool music_queue_add(struct player *player, const char *nbs_file_name, int loop,
 
 bool music_queue_del(struct player *player, unsigned long long in_pos)
 {
-	unsigned long long player_pos_in_array = find_player_in_array(g_player_array_0, g_player_array_0_info.curr_arr_size, player);
-	struct music_queue_node *current_node = g_player_array_0[player_pos_in_array].music_queue_node;
+	long long pos = find_player_in_array(g_player_array_0, g_player_array_0_info.curr_arr_size, player);
+	struct music_queue_node *current_node;
+
+	if (pos < 0)
+		return false;
+
+	current_node = g_player_array_0[pos].music_queue_node;
 
 	if (!in_pos) {
 		if (current_node->next) {
 			struct music_queue_node *temp_current_node = current_node;
 			current_node = current_node->next;
 			current_node->start_time = uv_hrtime();
-			g_player_array_0[player_pos_in_array].music_queue_node = current_node;
+			g_player_array_0[pos].music_queue_node = current_node;
 			free(temp_current_node);
 		} else {
-			xr_operator_dynamic_array(&g_player_array_0_info, (void **)&g_player_array_0, player_pos_in_array, XR_ARRAY_DEL);
+			xr_operator_dynamic_array(&g_player_array_0_info, (void **)&g_player_array_0, pos, XR_ARRAY_DEL);
 			send_boss_event_packet(player, "", 0, BOSS_BAR_HIDE);
 		}
 	} else {
@@ -247,11 +276,8 @@ bool music_queue_del(struct player *player, unsigned long long in_pos)
 		}
 	}
 
-	// player_pos_in_array = find_player_in_array(g_player_array_0, g_player_array_0_info.curr_arr_size, player);
-	// if (player_pos_in_array != -1) g_player_array_0[player_pos_in_array].music_num--;
-
-	if (g_player_array_0[player_pos_in_array].player == player)
-		g_player_array_0[player_pos_in_array].music_num--; // I think it will cause error.
+	if (g_player_array_0[pos].player == player)
+		g_player_array_0[pos].music_num--;
 
 	return true;
 }
@@ -335,8 +361,11 @@ void send_music_sound_packet(void)
 	struct music_queue_node *node = 0;
 
 	for (unsigned long long player_pos_in_array = 0; player_pos_in_array < g_player_array_0_info.curr_arr_size; player_pos_in_array++) {
-		if (g_player_array_0[player_pos_in_array].paused) continue;
+		if (g_player_array_0[player_pos_in_array].paused)
+			continue;
 		node = g_player_array_0[player_pos_in_array].music_queue_node;
+		if (!node)
+			continue;
 		cur_player = node->player;
 		player_pos = actor_get_pos((struct actor *)node->player);
 		struct note_queue_node *note_node;
@@ -451,8 +480,10 @@ bool play_with_video(struct player *player, const char *filename, int loop)
 			sprintf(video_path, "%s/%s", data_path_video, foldernames[i]);
 			video_queue_delete_player(player);
 			video_queue_add_player(player, video_path, loop);
+			free_filenames(foldernames, folder_count);
 			return true;
 		}
 	}
+	free_filenames(foldernames, folder_count);
 	return false;
 }
