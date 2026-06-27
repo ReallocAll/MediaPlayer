@@ -1,0 +1,12 @@
+CompileFlags:
+  CompilationDatabase: build
+
+Index:
+  Background: Build
+
+---
+If:
+  PathMatch: .*/include/(dirent|libcutils|libspng|libuv|lightbase|miniz|modloader|stb)/.*
+
+Diagnostics:
+  Suppress: "*"
