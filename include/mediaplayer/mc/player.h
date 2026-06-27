@@ -1,15 +1,11 @@
 #pragma once
 #pragma warning(disable: 4996)
-#include <libcutils/libcutils.h>
-#include <mediaplayer/mc/symbols.h>
-#include "structs.h"
-#include "position.h"
+#include <stdint.h>
 
 #define PLAYER_XUID_STR_LEN 17
 
 struct player;
-
-#include "network.h"
+struct server_network_handler;
 
 extern struct player *(*g_player_list);
 extern int g_player_list_size;

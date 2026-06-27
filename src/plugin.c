@@ -1,5 +1,24 @@
-#include <mediaplayer/plugin.h>
+#include <stdlib.h>
+#include <stdio.h>
+
+#include <libuv/uv.h>
+#include <libcutils/libcutils.h>
+#include <mediaplayer/mc/symbols.h>
+
 #include <lightbase/plugin.h>
+
+#include <mediaplayer/plugin.h>
+#include <mediaplayer/event_handler.h>
+#include <mediaplayer/command.h>
+#include <mediaplayer/music_player.h>
+#include <mediaplayer/video_player.h>
+#include <mediaplayer/file_utils.h>
+#include <mediaplayer/mc/player.h>
+#include <mediaplayer/mc/network.h>
+#include <mediaplayer/mc/level.h>
+#include <mediaplayer/mc/block.h>
+#include <mediaplayer/mc/actor.h>
+#include <mediaplayer/mc/structs.h>
 
 #ifndef __linux__
 struct func_address func_address = { 0, 0, 0 };

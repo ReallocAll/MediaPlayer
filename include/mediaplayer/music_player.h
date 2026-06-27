@@ -1,16 +1,7 @@
 #pragma once
-#include <libcutils/libcutils.h>
-#include <nbsparser/nbsparser.h>
-#include <math.h>
+#include <stdio.h>
 #include <time.h>
-#include <stdint.h>
-#include "logger.h"
-#include "file_utils.h"
-#include "video_player.h"
-#include "mc/network.h"
-#include "mc/actor.h"
 #include "mc/player.h"
-#include "mc/level.h"
 
 #define NUM_NOTES 16
 

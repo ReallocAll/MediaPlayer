@@ -1,3 +1,7 @@
+#include <string.h>
+
+#include <libcutils/libcutils.h>
+#include <mediaplayer/mc/symbols.h>
 #include <mediaplayer/mc/player.h>
 #include <stb/stb_ds.h>
 

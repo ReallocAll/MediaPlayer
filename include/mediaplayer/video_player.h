@@ -1,18 +1,13 @@
 #pragma once
 
-#include <libuv/uv.h>
-
 #include <time.h>
-#include <stdio.h>
-#include <limits.h>
 
-#include "logger.h"
-#include "process_png.h"
-#include "file_utils.h"
+#include <stdint.h>
+#include <libspng/spng.h>
 
-#include "mc/actor.h"
+#include "mc/position.h"
 #include "mc/player.h"
-#include "mc/level.h"
+#include "mc/structs.h"
 
 #define UV_HRT_PER_MS ((int64_t) 1000000)
 

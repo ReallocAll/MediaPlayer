@@ -1,6 +1,5 @@
 #pragma once
-#include <libcutils/libcutils.h>
-#include <mediaplayer/mc/symbols.h>
+#include <stdint.h>
 #include "position.h"
 
 struct actor;

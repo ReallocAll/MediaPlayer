@@ -1,5 +1,10 @@
+#include <string.h>
+
+#include <libcutils/libcutils.h>
+#include <mediaplayer/mc/symbols.h>
 #include <mediaplayer/mc/network.h>
 #include <mediaplayer/mc/player.h>
+#include <mediaplayer/mc/actor.h>
 
 uintptr_t create_packet(int type)
 {

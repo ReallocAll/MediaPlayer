@@ -1,5 +1,4 @@
 #pragma once
-#include "logger.h"
 
 struct player;
 

@@ -1,3 +1,16 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <locale.h>
+#include <sys/stat.h>
+#include <sys/types.h>
+
+#ifdef __linux__
+#include <dirent.h>
+#else
+#include <dirent/dirent.h>
+#endif
+
 #include <mediaplayer/file_utils.h>
 
 char data_path[4096];

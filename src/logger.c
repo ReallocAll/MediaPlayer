@@ -1,3 +1,7 @@
+#include <stdarg.h>
+
+#include <libcutils/libcutils.h>
+#include <mediaplayer/mc/symbols.h>
 #include <mediaplayer/logger.h>
 
 void server_logger(enum log_level level, const char *msg, ...)

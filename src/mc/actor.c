@@ -1,3 +1,5 @@
+#include <libcutils/libcutils.h>
+#include <mediaplayer/mc/symbols.h>
 #include <mediaplayer/mc/actor.h>
 
 

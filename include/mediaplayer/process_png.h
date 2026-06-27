@@ -1,11 +1,9 @@
 #pragma once
 #include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
 #include <stdint.h>
-#include <libcutils/libcutils.h>
 #include <libspng/spng.h>
-#include "mc/structs.h"
+
+struct map_item_saved_data;
 
 #ifndef __linux__
 /* MSVC ABI compatibility types for reverse-engineered struct layouts */

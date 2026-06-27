@@ -1,3 +1,8 @@
+#include <stdlib.h>
+#include <string.h>
+
+#include <libuv/uv.h>
+
 #include <mediaplayer/command.h>
 #include <mediaplayer/music_player.h>
 #include <mediaplayer/video_player.h>

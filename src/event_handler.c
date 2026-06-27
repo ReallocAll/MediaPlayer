@@ -1,5 +1,6 @@
 #include <mediaplayer/event_handler.h>
 #include <mediaplayer/plugin.h>
+#include <mediaplayer/logger.h>
 #include <mediaplayer/mc/player.h>
 #include <mediaplayer/music_player.h>
 #include <mediaplayer/video_player.h>

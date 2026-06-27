@@ -1,10 +1,6 @@
 #pragma once
-#include <libcutils/libcutils.h>
-#include <mediaplayer/mc/symbols.h>
-#include <mediaplayer/logger.h>
+#include <stdint.h>
 #include "position.h"
-#include "actor.h"
-#include "structs.h"
 
 /* Minecraft packet IDs */
 #define PKT_ID_PLAY_SOUND    86

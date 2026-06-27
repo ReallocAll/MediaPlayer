@@ -1,3 +1,5 @@
+#include <string.h>
+
 #include <mediaplayer/process_png.h>
 
 // Decode PNG header and optionally pixels.

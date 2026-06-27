@@ -1,4 +1,17 @@
+#include <math.h>
+#include <string.h>
+
+#include <libuv/uv.h>
+
+#include <nbsparser/nbsparser.h>
+
 #include <mediaplayer/music_player.h>
+#include <mediaplayer/logger.h>
+#include <mediaplayer/file_utils.h>
+#include <mediaplayer/video_player.h>
+#include <mediaplayer/mc/network.h>
+#include <mediaplayer/mc/actor.h>
+#include <mediaplayer/mc/player.h>
 #include <stb/stb_ds.h>
 
 extern char data_path[4096];

@@ -1,7 +1,4 @@
 #pragma once
-#include <libcutils/libcutils.h>
-#include <stdarg.h>
-#include <mediaplayer/mc/symbols.h>
 
 enum log_level {
     LOG_LEVEL_TRACE = 6u,

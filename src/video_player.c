@@ -1,4 +1,14 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <limits.h>
+
+#include <libuv/uv.h>
+
 #include <mediaplayer/video_player.h>
+#include <mediaplayer/process_png.h>
+#include <mediaplayer/file_utils.h>
+#include <mediaplayer/mc/player.h>
 #include <stb/stb_ds.h>
 
 struct block_pos start_pos = {INT_MAX, INT_MIN, INT_MAX};
