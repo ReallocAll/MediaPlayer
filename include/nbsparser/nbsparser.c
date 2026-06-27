@@ -1,10 +1,10 @@
-#pragma warning(disable:4996)
 #include <nbsparser/nbsparser.h>
+#include <stdint.h>
 #include <stb/stb_ds.h>
 
-#define ushort unsigned short
-#define uint   unsigned int
-#define uchar  unsigned char
+#define uchar  uint8_t
+#define ushort uint16_t
+#define uint   uint32_t
 
 static char *nbs_read_string_raw(FILE *fp)
 {

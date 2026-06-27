@@ -1,7 +1,5 @@
 #pragma once
 #include <stdio.h>
-#include <string.h>
-#include <stdlib.h>
 
 // A single note from the NBS file.
 struct nbs_note {
