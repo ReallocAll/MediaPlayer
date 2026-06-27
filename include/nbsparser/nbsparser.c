@@ -9,11 +9,11 @@
 static char *nbs_read_string_raw(FILE *fp)
 {
     uint str_len;
-    char buffer[256];
     fread(&str_len, sizeof(uint), 1, fp);
+    char *buffer = (char*)malloc(str_len + 1);
     fread(buffer, sizeof(char), str_len, fp);
     buffer[str_len] = '\0';
-    return strdup(buffer);
+    return buffer;
 }
 
 static void parse_header(FILE *fp, struct nbs_song *song)
