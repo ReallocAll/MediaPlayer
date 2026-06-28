@@ -90,18 +90,15 @@ jobs:
           fi
         shell: bash
 
-      - name: Add msbuild to PATH
-        uses: microsoft/setup-msbuild@v3
-        with:
-          msbuild-architecture: x64
+      - name: Install LLVM and Ninja
+        run: choco install llvm ninja --no-progress
 
       - name: Build Project
         run: |
           $out = Get-Content -Path "CMakeLists.txt" | ForEach-Object { $_ -replace '-DPLUGIN_VERSION_UNDEFINED', '-DPLUGIN_VERSION="${{ steps.rel_info.outputs.tag_name }}"' }
           $out | Out-File -Encoding utf8 -FilePath "CMakeLists.txt"
-          New-Item -ItemType directory -Path build
-          cmake -S . -B build
-          cmake --build build/ --config ${{ inputs.solution }} -j
+          cmake -G Ninja -DCMAKE_C_COMPILER=clang -DCMAKE_BUILD_TYPE=${{ inputs.solution }} -S . -B build
+          cmake --build build/ -j
 
       - name: Download linux build
         uses: actions/download-artifact@v3
@@ -112,9 +109,9 @@ jobs:
         run: |
           mkdir ./release/MediaPlayer/video
           cp ./libMediaPlayer.so ./release/
-          cp ./build/${{ inputs.solution }}/MediaPlayer.dll ./release/
-          cp ./build/${{ inputs.solution }}/MediaPlayer.pdb ./release/
-          cp ./build/${{ inputs.solution }}/convert.exe ./release/MediaPlayer/video
+          cp ./build/MediaPlayer.dll ./release/
+          cp ./build/MediaPlayer.pdb ./release/
+          cp ./build/convert.exe ./release/MediaPlayer/video
           tree /F ./release/
 
       - name: Zip Release
@@ -129,7 +126,9 @@ jobs:
         if: inputs.artifact
         with:
           name: artifact-win
-          path: ./build/${{ inputs.solution }}
+          path: |
+            ./build/MediaPlayer.dll
+            ./build/MediaPlayer.pdb
 
       - name: Release
         uses: softprops/action-gh-release@v3.0.1

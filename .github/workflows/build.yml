@@ -13,23 +13,21 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v7
 
-      - name: Add msbuild to PATH
-        uses: microsoft/setup-msbuild@v3
-        with:
-          msbuild-architecture: x64
+      - name: Install LLVM and Ninja
+        run: choco install llvm ninja --no-progress
 
       - name: Build Project
         run: |
-          New-Item -ItemType directory -Path build
-          cmake -S . -B build
-          cmake --build build/ --config RelWithDebInfo -j
+          cmake -G Ninja -DCMAKE_C_COMPILER=clang -DCMAKE_BUILD_TYPE=RelWithDebInfo -S . -B build
+          cmake --build build/ -j
 
       - name: Upload build files
         uses: actions/upload-artifact@v7
         with:
           name: artifact-win
           path: |
-            ./build/RelWithDebInfo
+            ./build/MediaPlayer.dll
+            ./build/MediaPlayer.pdb
 
   build-linux:
     runs-on: ubuntu-20.04
