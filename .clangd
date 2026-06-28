@@ -4,6 +4,11 @@ CompileFlags:
 Index:
   Background: Build
 
+Diagnostics:
+  UnusedIncludes: None
+  ClangTidy:
+    Remove:
+      - "*"
 ---
 If:
   PathMatch: .*/include/(dirent|libcutils|libspng|libuv|lightbase|miniz|modloader|stb)/.*
