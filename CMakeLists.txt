@@ -18,6 +18,9 @@ file(GLOB_RECURSE SRC_FILES_DIR
 add_library(MediaPlayer SHARED ${SRC_FILES_DIR})
 set_target_properties(MediaPlayer PROPERTIES OUTPUT_NAME "MediaPlayer")
 
+add_executable(convert ${PROJECT_SOURCE_DIR}/tools/convert.c)
+set_target_properties(convert PROPERTIES OUTPUT_NAME "convert")
+
 target_include_directories(MediaPlayer PRIVATE
     ${CMAKE_SOURCE_DIR}/include/
     ${CMAKE_SOURCE_DIR}/include/libuv
@@ -49,6 +52,9 @@ elseif (CMAKE_SYSTEM_NAME MATCHES "Windows")
     target_compile_definitions(MediaPlayer PRIVATE
         _CRT_SECURE_NO_WARNINGS
         WIN32_LEAN_AND_MEAN
+    )
+    target_compile_definitions(convert PRIVATE
+        _CRT_SECURE_NO_WARNINGS
     )
     set_target_properties(MediaPlayer PROPERTIES
         LINK_FLAGS "-Xlinker /NODEFAULTLIB:MSVCRTD"
