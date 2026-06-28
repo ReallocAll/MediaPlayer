@@ -41,6 +41,7 @@ on:
 
 jobs:
   build-linux:
+    if: false
     runs-on: ubuntu-20.04
     steps:
       - name: Checkout code
@@ -63,7 +64,6 @@ jobs:
 
 
   release:
-    needs: build-linux
     runs-on: windows-latest
     steps:
       - name: Checkout code
@@ -101,14 +101,14 @@ jobs:
           cmake --build build/ -j
 
       - name: Download linux build
-        uses: actions/download-artifact@v3
+        if: false
+        uses: actions/download-artifact@v8
         with:
           name: libMediaPlayer.so
 
       - name: Organize files
         run: |
           mkdir ./release/MediaPlayer/video
-          cp ./libMediaPlayer.so ./release/
           cp ./build/MediaPlayer.dll ./release/
           cp ./build/MediaPlayer.pdb ./release/
           cp ./build/convert.exe ./release/MediaPlayer/video
