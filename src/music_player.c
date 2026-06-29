@@ -18,11 +18,11 @@ struct music_player_ctx g_music_ctx;
 
 // ---- Song cache ----
 
-struct song_cache_entry *song_cache_parse(FILE *fp, const char *song_name)
+long long song_cache_parse(FILE *fp, const char *song_name)
 {
 	struct nbs_song *nbs = nbs_parse(fp);
 	if (!nbs)
-		return nullptr;
+		return -1;
 
 	struct song_cache_entry entry;
 	memset(&entry, 0, sizeof(entry));
@@ -37,11 +37,9 @@ struct song_cache_entry *song_cache_parse(FILE *fp, const char *song_name)
 	for (int i = 0; i < note_count; i++) {
 		struct nbs_note *nn = &nbs->notes[i];
 
-		// Find layer by index
 		int layer_idx = nn->layer;
 		struct nbs_layer *layer = (layer_idx < layer_count) ? &nbs->layers[layer_idx] : nullptr;
 
-		// Find instrument pitch
 		int instrument_pitch = 45;
 		int instr_idx = nn->instrument;
 		if (instr_idx < instr_count)
@@ -71,7 +69,7 @@ struct song_cache_entry *song_cache_parse(FILE *fp, const char *song_name)
 		entry.duration_ms = 0;
 
 	arrput(g_music_ctx.song_cache, entry);
-	return &g_music_ctx.song_cache[arrlen(g_music_ctx.song_cache) - 1];
+	return arrlen(g_music_ctx.song_cache) - 1;
 }
 
 static long long song_cache_find(const char *song_name)
@@ -113,22 +111,19 @@ bool player_music_enqueue(struct player *player, const char *nbs_file_name, int 
 	path_stem(nbs_file_name, v_song_name, sizeof(v_song_name));
 
 	long long cache_idx = song_cache_find(v_song_name);
-	struct song_cache_entry *song;
 
 	if (cache_idx == -1) {
 		FILE *fp = fopen(path_join(path_nbs(), nbs_file_name), "rb");
 		if (!fp)
 			return false;
-		song = song_cache_parse(fp, v_song_name);
+		cache_idx = song_cache_parse(fp, v_song_name);
 		fclose(fp);
-		if (!song)
+		if (cache_idx == -1)
 			return false;
-	} else {
-		song = &g_music_ctx.song_cache[cache_idx];
 	}
 
 	struct music_queue_entry entry;
-	entry.song = song;
+	entry.song_index = (int)cache_idx;
 	entry.cursor = 0;
 	entry.start_time = uv_hrtime();
 	entry.loop = loop;
@@ -147,8 +142,7 @@ bool player_music_enqueue(struct player *player, const char *nbs_file_name, int 
 		pm.current_track = 0;
 		arrput(g_music_ctx.online_players, pm);
 	} else {
-		struct player_music *pm = &g_music_ctx.online_players[player_pos];
-		arrput(pm->playlist, entry);
+		arrput(g_music_ctx.online_players[player_pos].playlist, entry);
 	}
 
 	return true;
@@ -173,6 +167,8 @@ bool player_music_dequeue(struct player *player, size_t index)
 			arrdelswap(g_music_ctx.online_players, (int)pos);
 			send_boss_event_packet(player, "", 0, BOSS_BAR_HIDE);
 		} else {
+			// Re-fetch pm after playlist modification
+			pm = &g_music_ctx.online_players[pos];
 			if (pm->current_track >= arrlen(pm->playlist))
 				pm->current_track = arrlen(pm->playlist) - 1;
 			pm->playlist[pm->current_track].start_time = uv_hrtime();
@@ -224,7 +220,11 @@ void music_player_player_online(struct player *in_player)
 		pm.player = in_player;
 		if (arrlen(pm.playlist) > 0) {
 			struct music_queue_entry *entry = &pm.playlist[pm.current_track];
-			entry->start_time = uv_hrtime() - g_music_ctx.song_cache->notes[0].time * UV_HRT_PER_MS;
+			struct song_cache_entry *song = &g_music_ctx.song_cache[entry->song_index];
+			if (entry->cursor < arrlen(song->notes))
+				entry->start_time = uv_hrtime() - song->notes[entry->cursor].time * UV_HRT_PER_MS;
+			else
+				entry->start_time = uv_hrtime();
 		}
 		arrput(g_music_ctx.online_players, pm);
 		arrdelswap(g_music_ctx.offline_players, (int)player_pos_offline);
@@ -249,8 +249,9 @@ void music_player_query_music_queue(struct player *player)
 	send_text_packet(player, TEXT_TYPE_RAW, "§6[MediaPlayer] [Index] [Music Name] ---Playlist---\n");
 	for (int i = 0; i < len; i++) {
 		const char *marker = (i == (int)pm->current_track) ? " (Current)" : "";
+		const char *name = g_music_ctx.song_cache[pm->playlist[i].song_index].song_name;
 		sprintf(msg_to_player, "§6[MediaPlayer] [%d] §a%s§6%s\n",
-			i, pm->playlist[i].song->song_name, marker);
+			i, name, marker);
 		send_text_packet(player, TEXT_TYPE_RAW, msg_to_player);
 	}
 }
@@ -270,7 +271,7 @@ void send_music_sound_packet(void)
 			continue;
 
 		struct music_queue_entry *entry = &pm->playlist[pm->current_track];
-		struct song_cache_entry *song = entry->song;
+		struct song_cache_entry *song = &g_music_ctx.song_cache[entry->song_index];
 		player_pos = actor_get_pos((struct actor *)pm->player);
 		time_t elapsed = (time_t)((uv_hrtime() - entry->start_time) / UV_HRT_PER_MS);
 		time_t current_time = 0;
@@ -293,9 +294,11 @@ void send_music_sound_packet(void)
 			if (entry->loop > 1) {
 				entry->loop--;
 				entry->cursor = 0;
-				entry->start_time = uv_hrtime() + 3000;
+				entry->start_time = uv_hrtime();
 			} else {
 				player_music_dequeue(pm->player, pm->current_track);
+				// arrdelswap may have moved last element to [i]
+				// re-fetch on next iteration via i--/len--
 				i--;
 				len--;
 				continue;
@@ -308,7 +311,7 @@ void send_music_sound_packet(void)
 
 void set_music_bar_entry(struct player *player, struct music_queue_entry *entry)
 {
-	struct song_cache_entry *song = entry->song;
+	struct song_cache_entry *song = &g_music_ctx.song_cache[entry->song_index];
 	size_t n = entry->cursor;
 	if (n >= arrlen(song->notes))
 		return;

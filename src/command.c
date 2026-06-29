@@ -82,7 +82,11 @@ bool proc_mpm_cmd(struct player *player, int argc, const char *argv[], char ***f
                 g_music_ctx.online_players[player_pos].paused = false;
                 if (arrlen(g_music_ctx.online_players[player_pos].playlist) > 0) {
                     struct music_queue_entry *entry = &g_music_ctx.online_players[player_pos].playlist[g_music_ctx.online_players[player_pos].current_track];
-                    entry->start_time = uv_hrtime() - entry->song->notes[entry->cursor].time * UV_HRT_PER_MS;
+                    struct song_cache_entry *song = &g_music_ctx.song_cache[entry->song_index];
+                    if (entry->cursor < arrlen(song->notes))
+                        entry->start_time = uv_hrtime() - song->notes[entry->cursor].time * UV_HRT_PER_MS;
+                    else
+                        entry->start_time = uv_hrtime();
                 }
                 send_text_packet(player, TEXT_TYPE_RAW, "§6[MediaPlayer] Success!\n");
             } else send_text_packet(player, TEXT_TYPE_RAW, "§6[MediaPlayer] Unsuccess!\n");

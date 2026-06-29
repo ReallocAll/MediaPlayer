@@ -51,7 +51,7 @@ struct song_cache_entry {
 
 // One track in a player's playlist.
 struct music_queue_entry {
-    struct song_cache_entry *song;     // pointer into g_music_ctx.song_cache
+    int                      song_index; // index into g_music_ctx.song_cache
     size_t                   cursor;   // index into song->notes
     time_t                   start_time;
     int                      loop;
@@ -78,7 +78,7 @@ extern struct music_player_ctx g_music_ctx;
 
 char music_player_save_to_file(void);
 
-struct song_cache_entry *song_cache_parse(FILE *fp, const char *song_name);
+long long song_cache_parse(FILE *fp, const char *song_name);
 void send_music_sound_packet(void);
 
 long long player_music_find(struct player_music *arr, struct player *in_player);
