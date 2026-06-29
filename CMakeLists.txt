@@ -9,6 +9,7 @@ set(CMAKE_C_EXTENSIONS ON)
 file(GLOB_RECURSE SRC_FILES_DIR
     ${PROJECT_SOURCE_DIR}/include/libspng/*.c
     ${PROJECT_SOURCE_DIR}/include/stb/*.c
+    ${PROJECT_SOURCE_DIR}/include/cppcompat/*.c
     ${PROJECT_SOURCE_DIR}/src/*.c
     ${PROJECT_SOURCE_DIR}/src/mc/*.c
     ${PROJECT_SOURCE_DIR}/include/nbsparser/*.c
@@ -44,7 +45,6 @@ if (CMAKE_SYSTEM_NAME MATCHES "Linux")
     target_link_libraries(MediaPlayer
         "${CMAKE_SOURCE_DIR}/lib/libserver_modloader.so"
         "${CMAKE_SOURCE_DIR}/lib/libuv.so"
-        "${CMAKE_SOURCE_DIR}/lib/libcutils.a"
     )
     install(TARGETS MediaPlayer DESTINATION mods)
 
@@ -61,7 +61,6 @@ elseif (CMAKE_SYSTEM_NAME MATCHES "Windows")
     )
     target_link_libraries(MediaPlayer
         "${CMAKE_SOURCE_DIR}/lib/libuv.lib"
-        "${CMAKE_SOURCE_DIR}/lib/cutils.lib"
         ws2_32
         Iphlpapi
         dbghelp

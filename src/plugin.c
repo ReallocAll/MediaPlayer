@@ -2,10 +2,10 @@
 #include <stdio.h>
 
 #include <libuv/uv.h>
-#include <libcutils/libcutils.h>
-#include <mediaplayer/mc/symbols.h>
-
+#include <lightbase/mem.h>
 #include <lightbase/plugin.h>
+#include <cppcompat/cppstr.h>
+#include <mediaplayer/mc/symbols.h>
 
 #include <mediaplayer/plugin.h>
 #include <mediaplayer/event_handler.h>
@@ -87,10 +87,8 @@ SHOOK(change_setting_command_setup, void,
       S_ChangeSettingCommand__setup,
       uintptr_t this)
 {
-	void *cmd_mpm = nullptr;
-	void *cmd_mpv = nullptr;
-	std_string_string(&cmd_mpm, "mpm");
-	std_string_string(&cmd_mpv, "mpv");
+	void *cmd_mpm = cppstr_new("mpm");
+	void *cmd_mpv = cppstr_new("mpv");
 	SYMCALL(S_CommandRegistry__registerCommand,
 		void (*)(uintptr_t, void *, const char *, char, short, short),
 		this, cmd_mpm, "PediaPlayer music player", 0, 0, 0x80);
@@ -98,8 +96,8 @@ SHOOK(change_setting_command_setup, void,
 	SYMCALL(S_CommandRegistry__registerCommand,
 		void (*)(uintptr_t, void *, const char *, char, short, short),
 		this, cmd_mpv, "MediaPlayer video player", 0, 0, 0x80);
-	std_string_destroy(cmd_mpm, true);
-	std_string_destroy(cmd_mpv, true);
+	cppstr_free(cmd_mpm, true);
+	cppstr_free(cmd_mpv, true);
 	change_setting_command_setup.call(this);
 }
 
@@ -108,7 +106,7 @@ SHOOK(on_player_cmd, void,
       struct server_network_handler *this, uintptr_t id, uintptr_t pkt)
 {
 	struct player *player = get_server_player(this, id, pkt);
-	const char *cmd = std_string_c_str(REFERENCE(void, pkt, 48));
+	const char *cmd = cppstr_str(REFERENCE(void, pkt, 48));
 	if (player && !process_cmd(player, cmd))
 		return;
 

@@ -1,4 +1,5 @@
-#include <libcutils/libcutils.h>
+#include <lightbase/mem.h>
+#include <cppcompat/cppstr.h>
 #include <mediaplayer/mc/symbols.h>
 #include <mediaplayer/mc/actor.h>
 
@@ -16,7 +17,7 @@ const char *get_name_tag(struct actor *actor)
 		SYMCALL(S_Actor__getNameTag,
 			struct string *(*)(struct actor *actor),
 			actor);
-	return std_string_c_str(sstr);
+	return cppstr_str(sstr);
 }
 
 uintptr_t get_or_create_unique_id(struct actor *actor)

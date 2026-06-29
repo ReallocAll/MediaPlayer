@@ -1,6 +1,7 @@
 #include <string.h>
 
-#include <libcutils/libcutils.h>
+#include <lightbase/mem.h>
+#include <cppcompat/cppstr.h>
 #include <mediaplayer/mc/symbols.h>
 #include <mediaplayer/mc/player.h>
 #include <stb/stb_ds.h>
@@ -24,15 +25,12 @@ struct player *get_server_player(struct server_network_handler *handler, uintptr
 
 const char *get_player_xuid(struct player *player)
 {
-	void *xuid_sstr = nullptr;
-	const char *xuid;
-
-	std_string_string(&xuid_sstr, "00000000000000000");
+	void *xuid_sstr = cppstr_new("00000000000000000");
 	SYMCALL(S_Player__getXuid,
 		void *(*)(struct player *, void *),
 		player, xuid_sstr);
-	xuid = strdup(std_string_c_str(xuid_sstr));
-	std_string_destroy(xuid_sstr, true);
+	const char *xuid = strdup(cppstr_str(xuid_sstr));
+	cppstr_free(xuid_sstr, true);
 	return xuid;
 }
 
