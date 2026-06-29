@@ -3,6 +3,7 @@
 #include <time.h>
 
 #include <stdint.h>
+#include <libuv/uv.h>
 #include <libspng/spng.h>
 
 #include "mc/position.h"

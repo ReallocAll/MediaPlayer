@@ -273,8 +273,8 @@ void send_music_sound_packet(void)
 		struct music_queue_entry *entry = &pm->playlist[pm->current_track];
 		struct song_cache_entry *song = &g_music_ctx.song_cache[entry->song_index];
 		player_pos = actor_get_pos((struct actor *)pm->player);
-		time_t elapsed = (time_t)((uv_hrtime() - entry->start_time) / UV_HRT_PER_MS);
-		time_t current_time = 0;
+		int64_t elapsed = (uv_hrtime() - entry->start_time) / UV_HRT_PER_MS;
+		int64_t current_time = 0;
 		size_t notes_len = arrlen(song->notes);
 
 		// Play all notes that have passed
@@ -316,8 +316,8 @@ void set_music_bar_entry(struct player *player, struct music_queue_entry *entry)
 	if (n >= arrlen(song->notes))
 		return;
 
-	time_t note_time = song->notes[n].time;
-	time_t total = song->duration_ms;
+	int64_t note_time = song->notes[n].time;
+	int64_t total = song->duration_ms;
 	if (total == 0) total = 1;
 
 	int total_min = (int)(total / 1000 / 60);
@@ -351,22 +351,104 @@ void set_music_bar_entry(struct player *player, struct music_queue_entry *entry)
 	}
 }
 
-// ---- Save to file ----
+// ---- Save / Load ----
 
 char music_player_save_to_file(void)
 {
-	FILE *playlist_file;
-	size_t player_len = (size_t)arrlen(g_music_ctx.online_players);
-	size_t offline_len = (size_t)arrlen(g_music_ctx.offline_players);
-
-	playlist_file = fopen(path_join(path_data(), "playlist_save.bin"), "wb");
-	if (!playlist_file)
+	FILE *fp = fopen(path_join(path_data(), "playlist_save.bin"), "wb");
+	if (!fp)
 		return false;
 
-	fwrite(&player_len, sizeof(size_t), 1, playlist_file);
-	fwrite(g_music_ctx.online_players, sizeof(struct player_music), player_len, playlist_file);
-	fwrite(&offline_len, sizeof(size_t), 1, playlist_file);
-	fwrite(g_music_ctx.offline_players, sizeof(struct player_music), offline_len, playlist_file);
-	fclose(playlist_file);
+	int online_len = (int)arrlen(g_music_ctx.online_players);
+	fwrite(&online_len, sizeof(int), 1, fp);
+
+	for (int i = 0; i < online_len; i++) {
+		struct player_music *pm = &g_music_ctx.online_players[i];
+		int xuid_len = (int)strlen(pm->player_xuid);
+		fwrite(&xuid_len, sizeof(int), 1, fp);
+		fwrite(pm->player_xuid, 1, xuid_len, fp);
+		fwrite(&pm->current_track, sizeof(size_t), 1, fp);
+		fwrite(&pm->paused, sizeof(bool), 1, fp);
+
+		int playlist_len = (int)arrlen(pm->playlist);
+		fwrite(&playlist_len, sizeof(int), 1, fp);
+		for (int j = 0; j < playlist_len; j++) {
+			struct music_queue_entry *e = &pm->playlist[j];
+			int name_len = (int)strlen(g_music_ctx.song_cache[e->song_index].song_name);
+			fwrite(&name_len, sizeof(int), 1, fp);
+			fwrite(g_music_ctx.song_cache[e->song_index].song_name, 1, name_len, fp);
+			fwrite(&e->cursor, sizeof(size_t), 1, fp);
+			fwrite(&e->loop, sizeof(int), 1, fp);
+			fwrite(&e->bar_type, sizeof(int), 1, fp);
+		}
+	}
+
+	fclose(fp);
 	return true;
+}
+
+void music_player_load_from_file(void)
+{
+	FILE *fp = fopen(path_join(path_data(), "playlist_save.bin"), "rb");
+	if (!fp)
+		return;
+
+	int online_len;
+	if (fread(&online_len, sizeof(int), 1, fp) != 1) { fclose(fp); return; }
+
+	for (int i = 0; i < online_len; i++) {
+		int xuid_len;
+		if (fread(&xuid_len, sizeof(int), 1, fp) != 1 || xuid_len <= 0 || xuid_len > 64)
+			break;
+		char xuid[65] = {0};
+		if (fread(xuid, 1, xuid_len, fp) != (size_t)xuid_len)
+			break;
+
+		struct player_music pm;
+		memset(&pm, 0, sizeof(pm));
+		pm.player_xuid = strdup(xuid);
+		pm.playlist = NULL;
+		fread(&pm.current_track, sizeof(size_t), 1, fp);
+		fread(&pm.paused, sizeof(bool), 1, fp);
+
+		int playlist_len;
+		if (fread(&playlist_len, sizeof(int), 1, fp) != 1 || playlist_len < 0)
+			break;
+
+		for (int j = 0; j < playlist_len; j++) {
+			int name_len;
+			if (fread(&name_len, sizeof(int), 1, fp) != 1 || name_len <= 0 || name_len > 255)
+				break;
+			char song_name[256] = {0};
+			if (fread(song_name, 1, name_len, fp) != (size_t)name_len)
+				break;
+
+			long long cache_idx = song_cache_find(song_name);
+			if (cache_idx == -1) {
+				// Song not in cache, skip this entry
+				size_t cursor; int loop, bar_type;
+				fread(&cursor, sizeof(size_t), 1, fp);
+				fread(&loop, sizeof(int), 1, fp);
+				fread(&bar_type, sizeof(int), 1, fp);
+				continue;
+			}
+
+			struct music_queue_entry entry;
+			entry.song_index = (int)cache_idx;
+			fread(&entry.cursor, sizeof(size_t), 1, fp);
+			fread(&entry.loop, sizeof(int), 1, fp);
+			fread(&entry.bar_type, sizeof(int), 1, fp);
+			entry.start_time = 0; // will be set when player reconnects
+			arrput(pm.playlist, entry);
+		}
+
+		if (arrlen(pm.playlist) > 0)
+			arrput(g_music_ctx.offline_players, pm);
+		else {
+			free(pm.player_xuid);
+			arrfree(pm.playlist);
+		}
+	}
+
+	fclose(fp);
 }
