@@ -6,13 +6,13 @@
 #include <lightbase/plugin.h>
 #include <cppcompat/cppstr.h>
 #include <mediaplayer/mc/symbols.h>
+#include <mediaplayer/path.h>
 
 #include <mediaplayer/plugin.h>
 #include <mediaplayer/event_handler.h>
 #include <mediaplayer/command.h>
 #include <mediaplayer/music_player.h>
 #include <mediaplayer/video_player.h>
-#include <mediaplayer/file_utils.h>
 #include <mediaplayer/mc/player.h>
 #include <mediaplayer/mc/network.h>
 #include <mediaplayer/mc/level.h>
@@ -180,7 +180,10 @@ SHOOK(on_tick, void,
 void init(void)
 {
 #ifndef __linux__
-	create_plugin_dir();
+	char work_path[PATH_MAX_LEN];
+	size_t path_size = PATH_MAX_LEN;
+	uv_cwd(work_path, &path_size);
+	path_init(work_path);
 	level_construct.install();
 	server_player_construct.install();
 	server_player_destroy.install();
@@ -192,22 +195,6 @@ void init(void)
 	MapItemSavedData_tickByBlock.install();
 	MapItem_doesDisplayPlayerMarkers.install();
 #endif
-}
-
-void create_plugin_dir(void)
-{
-	// also init global path variables
-	char work_path[4096];
-	size_t path_size = 4096;
-	uv_cwd(work_path, &path_size);
-
-	sprintf(data_path, "%s/plugins/MediaPlayer", work_path);
-	sprintf(data_path_nbs, "%s/nbs", data_path);
-	sprintf(data_path_video, "%s/video", data_path);
-
-	make_directory(data_path);
-	make_directory(data_path_nbs);
-	make_directory(data_path_video);
 }
 
 #ifndef __linux__

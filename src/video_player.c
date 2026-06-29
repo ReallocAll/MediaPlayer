@@ -7,7 +7,8 @@
 
 #include <mediaplayer/video_player.h>
 #include <mediaplayer/process_png.h>
-#include <mediaplayer/file_utils.h>
+#include <mediaplayer/path.h>
+#include <mediaplayer/dirlist.h>
 #include <mediaplayer/mc/player.h>
 #include <stb/stb_ds.h>
 
@@ -22,7 +23,7 @@ void get_video_frame(void *arg)
     FILE *fp;
     char filepath[8192];
 
-    sprintf(filepath, "%s/%09d.png", node->video_path, 1);
+    snprintf(filepath, sizeof(filepath), "%s/%09d.png", node->video_path, 1);
     fp = fopen(filepath, "rb");
     if (!fp || !get_pixels(fp, &node->ihdr, nullptr, true)) {
         if (fp)
@@ -43,7 +44,7 @@ void get_video_frame(void *arg)
             continue;
         }
 
-        sprintf(filepath, "%s/%09d.png", node->video_path, frame_index);
+        snprintf(filepath, sizeof(filepath), "%s/%09d.png", node->video_path, frame_index);
         fp = fopen(filepath, "rb");
         if (!fp) {
             if (node->loop > 1) {
@@ -75,8 +76,8 @@ bool video_queue_add_player(struct player *player, char *video_path, int loop)
 
     video_queue_delete_player(player);
 
-    filenames = get_filenames(video_path, &total_frames);
-    free_filenames(filenames, total_frames);
+    filenames = list_directory(video_path, &total_frames, false);
+    free_dirlist(filenames, total_frames);
 
     memset(&node, 0, sizeof(node));
     node.player = player;

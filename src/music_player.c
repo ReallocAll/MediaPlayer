@@ -7,14 +7,12 @@
 
 #include <mediaplayer/music_player.h>
 #include <mediaplayer/logger.h>
-#include <mediaplayer/file_utils.h>
+#include <mediaplayer/path.h>
 #include <mediaplayer/video_player.h>
 #include <mediaplayer/mc/network.h>
 #include <mediaplayer/mc/actor.h>
 #include <mediaplayer/mc/player.h>
 #include <stb/stb_ds.h>
-
-extern char data_path[4096];
 
 struct music_player_ctx g_music_ctx;
 
@@ -111,34 +109,20 @@ long long player_music_find_by_xuid(struct player_music *arr, const char *in_xui
 
 bool player_music_enqueue(struct player *player, const char *nbs_file_name, int loop, enum music_bar_type music_bar_type)
 {
-	char *nbs_file_name_new = strdup(nbs_file_name);
-	char nbs_path[4096];
 	char v_song_name[256];
-
-	if (!nbs_file_name_new) {
-		server_logger(LOG_LEVEL_ERR, "Failed to allocate memory for filename.");
-		return false;
-	}
-
-	strncpy(v_song_name, strtok(nbs_file_name_new, "."), sizeof(v_song_name) - 1);
-	v_song_name[sizeof(v_song_name) - 1] = '\0';
+	path_stem(nbs_file_name, v_song_name, sizeof(v_song_name));
 
 	long long cache_idx = song_cache_find(v_song_name);
 	struct song_cache_entry *song;
 
 	if (cache_idx == -1) {
-		sprintf(nbs_path, "%s/%s", data_path_nbs, nbs_file_name);
-		FILE *fp = fopen(nbs_path, "rb");
-		if (!fp) {
-			free(nbs_file_name_new);
+		FILE *fp = fopen(path_join(path_nbs(), nbs_file_name), "rb");
+		if (!fp)
 			return false;
-		}
 		song = song_cache_parse(fp, v_song_name);
 		fclose(fp);
-		if (!song) {
-			free(nbs_file_name_new);
+		if (!song)
 			return false;
-		}
 	} else {
 		song = &g_music_ctx.song_cache[cache_idx];
 	}
@@ -167,7 +151,6 @@ bool player_music_enqueue(struct player *player, const char *nbs_file_name, int 
 		arrput(pm->playlist, entry);
 	}
 
-	free(nbs_file_name_new);
 	return true;
 }
 
@@ -370,12 +353,10 @@ void set_music_bar_entry(struct player *player, struct music_queue_entry *entry)
 char music_player_save_to_file(void)
 {
 	FILE *playlist_file;
-	char path[4096];
 	size_t player_len = (size_t)arrlen(g_music_ctx.online_players);
 	size_t offline_len = (size_t)arrlen(g_music_ctx.offline_players);
 
-	sprintf(path, "%s/playlist_save.bin", data_path);
-	playlist_file = fopen(path, "wb");
+	playlist_file = fopen(path_join(path_data(), "playlist_save.bin"), "wb");
 	if (!playlist_file)
 		return false;
 

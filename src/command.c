@@ -6,7 +6,8 @@
 #include <mediaplayer/command.h>
 #include <mediaplayer/music_player.h>
 #include <mediaplayer/video_player.h>
-#include <mediaplayer/file_utils.h>
+#include <mediaplayer/path.h>
+#include <mediaplayer/dirlist.h>
 #include <mediaplayer/mc/network.h>
 #include <stb/stb_ds.h>
 
@@ -29,7 +30,7 @@ bool proc_mpm_cmd(struct player *player, int argc, const char *argv[], char ***f
         send_text_packet(player, TEXT_TYPE_RAW, "§6[MediaPlayer] /mpm playlist\n");
         return false;
     }
-    *filenames = get_filenames(data_path_nbs, file_count);
+    *filenames = list_directory(path_nbs(), file_count, false);
 
     char msg[1024];
     if (!*filenames) {
@@ -41,7 +42,7 @@ bool proc_mpm_cmd(struct player *player, int argc, const char *argv[], char ***f
         for (int index = 0; index < *file_count; index++) {
             if (argc == 3 && !strstr((*filenames)[index], argv[2]))
                 continue;
-            sprintf(msg, "§a[MediaPlayer] §6[%d] §b%s\n", index, (*filenames)[index]);
+            snprintf(msg, sizeof(msg), "§a[MediaPlayer] §6[%d] §b%s\n", index, (*filenames)[index]);
             send_text_packet(player, TEXT_TYPE_RAW, msg);
         }
         return false;
@@ -58,15 +59,14 @@ bool proc_mpm_cmd(struct player *player, int argc, const char *argv[], char ***f
             music_bar_type = atoi(argv[4]);
         if (file_index >= 0 && file_index < *file_count) {
             if (player_music_enqueue(player, (*filenames)[file_index], loop, music_bar_type)) {
-                char msg[4096];
-                sprintf(msg, "§a[MediaPlayer] Added music§b %s §ato playlist.\n", (*filenames)[file_index]);
+                snprintf(msg, sizeof(msg), "§a[MediaPlayer] Added music§b %s §ato playlist.\n", (*filenames)[file_index]);
                 send_text_packet(player, TEXT_TYPE_RAW, msg);
                 return false;
             }
         }
     } else if (strcmp(argv[1], "pause") == 0 && argc == 2) {
         long long player_pos = player_music_find(g_music_ctx.online_players, player);
-        
+
         if (player_pos != -1) {
             if (!g_music_ctx.online_players[player_pos].paused) {
                 g_music_ctx.online_players[player_pos].paused = true;
@@ -118,7 +118,7 @@ bool proc_mpv_cmd(struct player *player, int argc, const char *argv[], char ***f
         send_text_packet(player, TEXT_TYPE_RAW, "§6[MediaPlayer] /mpv stop\n");
         return false;
     }
-    *foldernames = get_foldernames(data_path_video, folder_count);
+    *foldernames = list_directory(path_video(), folder_count, true);
 
     char msg[1024];
     if (!*foldernames) {
@@ -130,7 +130,7 @@ bool proc_mpv_cmd(struct player *player, int argc, const char *argv[], char ***f
         for (int index = 0; index < *folder_count; index++) {
             if (argc == 3 && !strstr((*foldernames)[index], argv[2]))
                 continue;
-            sprintf(msg, "§a[MediaPlayer]§6[%d]§b %s\n", index, (*foldernames)[index]);
+            snprintf(msg, sizeof(msg), "§a[MediaPlayer]§6[%d]§b %s\n", index, (*foldernames)[index]);
             send_text_packet(player, TEXT_TYPE_RAW, msg);
         }
         return false;
@@ -140,9 +140,9 @@ bool proc_mpv_cmd(struct player *player, int argc, const char *argv[], char ***f
         if (argc == 4)
             loop = atoi(argv[3]);
         if (folder_index >= 0 && folder_index < *folder_count) {
-            char video_path[4096];
-            sprintf(video_path, "%s/%s", data_path_video, (*foldernames)[folder_index]);
-            sprintf(msg, "§a[MediaPlayer] Now playing video§b %s\n", (*foldernames)[folder_index]);
+            char video_path[PATH_MAX_LEN];
+            snprintf(video_path, sizeof(video_path), "%s/%s", path_video(), (*foldernames)[folder_index]);
+            snprintf(msg, sizeof(msg), "§a[MediaPlayer] Now playing video§b %s\n", (*foldernames)[folder_index]);
             send_text_packet(player, TEXT_TYPE_RAW, msg);
             video_queue_add_player(player, video_path, loop);
             return false;
@@ -169,9 +169,9 @@ bool process_cmd(struct player *player, const char *cmd)
 
     token = strtok(cmd_m, " ");
 
-    while (token != nullptr && argc < MAX_CMD_ARGC) {
+    while (token != NULL && argc < MAX_CMD_ARGC) {
         argv[argc++] = token;
-        token = strtok(nullptr, " ");
+        token = strtok(NULL, " ");
     }
 
     if (argc == 0) {
@@ -180,17 +180,17 @@ bool process_cmd(struct player *player, const char *cmd)
     }
 
     if (strcmp(argv[0], "/mpm") == 0) {
-        char **filenames = nullptr;
+        char **filenames = NULL;
         int file_count = 0;
         ret = proc_mpm_cmd(player, argc, argv, &filenames, &file_count);
         if (file_count > 0)
-            free_filenames(filenames, file_count);
+            free_dirlist(filenames, file_count);
     } else if (strcmp(argv[0], "/mpv") == 0) {
-        char **foldernames = nullptr;
+        char **foldernames = NULL;
         int folder_count = 0;
         ret = proc_mpv_cmd(player, argc, argv, &foldernames, &folder_count);
         if (folder_count > 0)
-            free_filenames(foldernames, folder_count);
+            free_dirlist(foldernames, folder_count);
     }
 
     free(cmd_m);

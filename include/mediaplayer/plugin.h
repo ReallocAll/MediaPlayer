@@ -12,5 +12,3 @@ void init() __attribute__((constructor));
 #else
 void init();
 #endif
-
-void create_plugin_dir(void);
