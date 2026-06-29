@@ -46,14 +46,14 @@ struct note {
 struct song_cache_entry {
     char           song_name[256];
     struct note   *notes;        // stb_ds array of struct note
-    time_t         duration_ms;  // total duration in milliseconds
+    int64_t        duration_ms;  // total duration in milliseconds
 };
 
 // One track in a player's playlist.
 struct music_queue_entry {
     int                      song_index; // index into g_music_ctx.song_cache
     size_t                   cursor;   // index into song->notes
-    time_t                   start_time;
+    int64_t                  start_time; // uv_hrtime() nanosecond timestamp
     int                      loop;
     enum music_bar_type      bar_type;
 };
@@ -77,6 +77,7 @@ struct music_player_ctx {
 extern struct music_player_ctx g_music_ctx;
 
 char music_player_save_to_file(void);
+void music_player_load_from_file(void);
 
 long long song_cache_parse(FILE *fp, const char *song_name);
 void send_music_sound_packet(void);

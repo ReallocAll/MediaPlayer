@@ -32,7 +32,10 @@ void get_video_frame(void *arg)
     }
     fclose(fp);
 
-    node->image = malloc(node->ihdr.width * node->ihdr.height * 4);
+    size_t pixel_count = (size_t)node->ihdr.width * (size_t)node->ihdr.height;
+    if (pixel_count == 0 || pixel_count > SIZE_MAX / 4)
+        return;
+    node->image = malloc(pixel_count * 4);
     if (!node->image)
         return;
 
@@ -91,8 +94,7 @@ bool video_queue_add_player(struct player *player, char *video_path, int loop)
     arrput(g_video_queues, node);
 
     struct video_queue *new_node = &g_video_queues[arrlen(g_video_queues) - 1];
-    uv_thread_t tid;
-    uv_thread_create(&tid, get_video_frame, (void *)new_node);
+    uv_thread_create(&new_node->tid, get_video_frame, (void *)new_node);
 
     return true;
 }
@@ -114,7 +116,7 @@ void video_queue_delete_player(struct player *player)
     for (int i = 0; i < len; i++) {
         if (g_video_queues[i].player == player) {
             g_video_queues[i].deleted = true;
-            uv_sleep(10);
+            uv_thread_join(&g_video_queues[i].tid);
             arrdel(g_video_queues, i);
             return;
         }
@@ -126,7 +128,7 @@ void play_video(struct video_queue *node, struct map_item_saved_data *map_data, 
     if (node->deleted)
         return;
 
-    if (((time_t)uv_hrtime() - node->start_time) <= 0)
+    if (uv_hrtime() <= node->start_time)
         return;
     struct start_pixel start_pixel = {abs(screen_pos->x * 128), abs(screen_pos->y * 128)};
 

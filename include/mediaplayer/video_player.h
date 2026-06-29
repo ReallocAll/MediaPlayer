@@ -17,7 +17,7 @@ extern struct block_pos end_pos;
 
 struct video_queue {
     struct player *player;
-    time_t start_time;
+    uint64_t start_time;
     char video_path[4096];
     int total_frames;
     int current_frame;
@@ -25,6 +25,7 @@ struct video_queue {
     unsigned char *image;
     struct spng_ihdr ihdr;
     bool deleted;
+    uv_thread_t tid;
 };
 
 struct screen_pos {
