@@ -20,11 +20,6 @@
 #include <mediaplayer/mc/actor.h>
 #include <mediaplayer/mc/structs.h>
 
-#ifndef __linux__
-struct func_address func_address = { 0, 0, 0 };
-int loader_type = LOADER_TYPE_NONE;
-#endif
-
 SHOOK(on_initialize_logging, void,
       S_DedicatedServer__initializeLogging,
       uintptr_t this)
@@ -188,11 +183,6 @@ void init(void)
 {
 #ifndef __linux__
 	create_plugin_dir();
-	init_func_address();
-	if (loader_type == LOADER_TYPE_NONE) {
-		puts("No loader detected. MediaPlayer will not be loaded.");
-		return;
-	}
 	level_construct.install();
 	server_player_construct.install();
 	server_player_destroy.install();
@@ -205,27 +195,6 @@ void init(void)
 	MapItem_doesDisplayPlayerMarkers.install();
 #endif
 }
-
-#ifndef __linux__
-void init_func_address(void)
-{
-	if (is_file_exist("lightbase.dll") || GetModuleHandle("lightbase.dll")) {
-		loader_type = LOADER_TYPE_LIGHTBASE;
-		func_address.hook = GetProcAddress(GetModuleHandleA("lightbase"), "lb_shook_install");
-		func_address.unhook = GetProcAddress(GetModuleHandleA("lightbase"), "lb_shook_uninstall");
-		func_address.dlsym = GetProcAddress(GetModuleHandleA("lightbase"), "lb_sym_find");
-	} else if (is_file_exist("libserver_modloader.so")) {
-		loader_type = LOADER_TYPE_MODLOADER;
-	} else if (is_file_exist("Preloader.dll") || GetModuleHandle("Preloader.dll")) {
-		loader_type = LOADER_TYPE_PRELOADER;
-		func_address.hook = GetProcAddress(GetModuleHandleA("PreLoader"), "pl_hook");
-		func_address.unhook = GetProcAddress(GetModuleHandleA("PreLoader"), "pl_unhook");
-		func_address.dlsym = GetProcAddress(GetModuleHandleA("PreLoader"), "pl_resolve_symbol");
-	} else {
-		loader_type = LOADER_TYPE_NONE;
-	}
-}
-#endif
 
 void create_plugin_dir(void)
 {
